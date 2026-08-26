@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0B2545;
+  --color-gold: #D4AF37;
+  --color-teal: #1F7A8C;
+  --color-slate: #2B2D42;
+  --color-background: #F4F6F9;
+  --color-white: #FFFFFF;
+  --color-success: #2E7D32;
+
+  /* Semantic mappings */
+  --color-primary: #1F7A8C;
+  --color-primary-dark: #0B2545;
+  --color-accent: #D4AF37;
+  --color-text: #2B2D42;
+  --color-dark: #0B2545;
+  --color-border: #F4F6F9;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+@keyframes flow-line {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+.animate-flow-line {
+  animation: flow-line 1.5s linear infinite;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    color: #2B2D42;
+    background-color: #F4F6F9;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: #0B2545;
+    letter-spacing: -0.02em;
+  }
+}
