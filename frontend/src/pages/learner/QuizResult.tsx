@@ -101,50 +101,50 @@ export default function QuizResult() {
       </div>
 
       {/* Triad Metric Cards: Strongest | Needs Attention | Priority Gap */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         
         {/* Strongest Competency Card */}
-        <Card className="bg-[#FFFFFF] border border-[#2E7D32]/25 shadow-xs">
-          <CardHeader className="p-4 pb-2 border-b border-[#2B2D42]/10">
+        <Card className="bg-[#FFFFFF] border border-[#DCE5EA] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
+          <CardHeader className="p-5 pb-3 border-b border-[#DCE5EA]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#2E7D32]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#2E7D32]">
                 STRONG CAPABILITY
               </span>
               <CheckCircle2 className="w-4 h-4 text-[#2E7D32]" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 space-y-1.5">
+          <CardContent className="p-5 space-y-2">
             {strongest.length > 0 ? (
               <>
-                <p className="text-sm font-bold text-[#0B2545]">{strongest[0].competency_name}</p>
+                <p className="text-base font-bold text-[#102A43]">{strongest[0].competency_name}</p>
                 <div className="flex items-center justify-between text-xs font-mono pt-1">
-                  <span className="text-[#2E7D32] font-bold">Score: {strongest[0].score}%</span>
-                  <span className="text-[#2B2D42]/60">Target: {strongest[0].target_score}%</span>
+                  <span className="text-[#2E7D32] font-semibold">Score: {strongest[0].score}%</span>
+                  <span className="text-[#62748A]">Target: {strongest[0].target_score}%</span>
                 </div>
               </>
             ) : (
-              <p className="text-xs text-[#2B2D42]/60">Take further tests to establish strengths.</p>
+              <p className="text-xs text-[#62748A]">Take further diagnostics to establish verified strengths.</p>
             )}
           </CardContent>
         </Card>
 
         {/* Needs Attention Card */}
-        <Card className="bg-[#FFFFFF] border border-[#1F7A8C]/25 shadow-xs">
-          <CardHeader className="p-4 pb-2 border-b border-[#2B2D42]/10">
+        <Card className="bg-[#FFFFFF] border border-[#DCE5EA] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
+          <CardHeader className="p-5 pb-3 border-b border-[#DCE5EA]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1F7A8C]">
                 NEEDS ATTENTION
               </span>
               <Target className="w-4 h-4 text-[#1F7A8C]" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 space-y-1.5">
+          <CardContent className="p-5 space-y-2">
             {needsAttention.length > 0 ? (
               <>
-                <p className="text-sm font-bold text-[#0B2545]">{needsAttention[0].competency_name}</p>
+                <p className="text-base font-bold text-[#102A43]">{needsAttention[0].competency_name}</p>
                 <div className="flex items-center justify-between text-xs font-mono pt-1">
-                  <span className="text-[#1F7A8C] font-bold">Score: {needsAttention[0].score}%</span>
-                  <span className="text-[#2B2D42]/60">Target: {needsAttention[0].target_score}%</span>
+                  <span className="text-[#1F7A8C] font-semibold">Score: {needsAttention[0].score}%</span>
+                  <span className="text-[#62748A]">Target: {needsAttention[0].target_score}%</span>
                 </div>
               </>
             ) : (
@@ -154,30 +154,30 @@ export default function QuizResult() {
         </Card>
 
         {/* Largest Priority Gap Card */}
-        <Card className="bg-[#FFFFFF] border border-[#D4AF37]/40 shadow-xs">
-          <CardHeader className="p-4 pb-2 border-b border-[#2B2D42]/10">
+        <Card className="bg-[#FFFFFF] border border-[#DCE5EA] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
+          <CardHeader className="p-5 pb-3 border-b border-[#DCE5EA]">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0B2545]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D4AF37]">
                 PRIORITY DEFICIT GAP
               </span>
               <AlertTriangle className="w-4 h-4 text-[#D4AF37]" />
             </div>
           </CardHeader>
-          <CardContent className="p-4 space-y-1.5">
+          <CardContent className="p-5 space-y-2">
             {largestGap ? (
               <>
-                <p className="text-sm font-bold text-[#0B2545]">{largestGap.competency_name}</p>
+                <p className="text-base font-bold text-[#102A43]">{largestGap.competency_name}</p>
                 <div className="flex items-center justify-between text-xs font-mono pt-1">
-                  <span className="text-[#0B2545] font-bold">
+                  <span className="text-[#102A43] font-semibold">
                     {largestGap.current_score}% → {largestGap.target_score}%
                   </span>
-                  <span className="text-[#D4AF37] font-bold font-mono">
+                  <span className="text-[#D4AF37] font-bold font-mono bg-[#D4AF37]/15 px-2 py-0.5 rounded">
                     Gap: -{largestGap.gap}%
                   </span>
                 </div>
               </>
             ) : (
-              <p className="text-xs text-[#2B2D42]/60">No critical deficit identified.</p>
+              <p className="text-xs text-[#62748A]">No critical deficit identified.</p>
             )}
           </CardContent>
         </Card>
@@ -186,52 +186,52 @@ export default function QuizResult() {
       {/* Comprehensive Evidence Breakdown Table */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-[#0B2545] uppercase font-mono tracking-wider flex items-center gap-2">
+          <h3 className="text-sm font-bold text-[#102A43] uppercase font-mono tracking-wider flex items-center gap-2">
             <Layers className="w-4 h-4 text-[#1F7A8C]" />
-            Full Role Competency Breakdown
+            Role Competency Telemetry Breakdown
           </h3>
-          <span className="text-xs font-mono text-[#2B2D42]/60 font-semibold">
+          <span className="text-xs font-mono text-[#62748A] font-semibold">
             {breakdown.length} Competencies Evaluated
           </span>
         </div>
 
-        <div className="bg-[#FFFFFF] rounded-xl border border-[#2B2D42]/10 overflow-hidden shadow-xs">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#DCE5EA] overflow-hidden shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 text-[#0B2545] uppercase font-mono font-bold text-[10px]">
+            <thead className="bg-[#EEF5F7] border-b border-[#DCE5EA] text-[#102A43] uppercase font-mono font-semibold text-[10px]">
               <tr>
-                <th className="p-3.5">Competency Area</th>
-                <th className="p-3.5">Domain</th>
-                <th className="p-3.5">Evidence Score</th>
-                <th className="p-3.5">Role Benchmark</th>
-                <th className="p-3.5">Deficit Gap</th>
-                <th className="p-3.5">Proficiency Status</th>
+                <th className="p-3.5 sm:px-5">Competency Area</th>
+                <th className="p-3.5 sm:px-5">Domain</th>
+                <th className="p-3.5 sm:px-5">Evidence Score</th>
+                <th className="p-3.5 sm:px-5">Role Benchmark</th>
+                <th className="p-3.5 sm:px-5">Deficit Gap</th>
+                <th className="p-3.5 sm:px-5 text-right">Proficiency Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2B2D42]/10 font-medium text-[#2B2D42]">
+            <tbody className="divide-y divide-[#DCE5EA] font-medium text-[#102A43]">
               {breakdown.map((item: any) => {
                 const isStrong = item.status === 'strong';
                 const isCritical = item.status === 'critical_gap';
 
                 return (
-                  <tr key={item.competency_id} className="hover:bg-[#F4F6F9]/50 transition-colors">
-                    <td className="p-3.5 font-bold text-[#0B2545]">{item.competency_name}</td>
-                    <td className="p-3.5 text-[#1F7A8C]">{item.domain || 'Statistical'}</td>
-                    <td className="p-3.5 font-mono font-bold text-[#0B2545]">{item.current_score}%</td>
-                    <td className="p-3.5 font-mono text-[#2B2D42]/60">{item.target_score}%</td>
-                    <td className="p-3.5 font-mono font-bold">
+                  <tr key={item.competency_id} className="hover:bg-[#EEF5F7]/50 transition-colors">
+                    <td className="p-3.5 sm:px-5 font-semibold text-[#102A43]">{item.competency_name}</td>
+                    <td className="p-3.5 sm:px-5 text-[#1F7A8C] font-mono">{item.domain || 'Statistical'}</td>
+                    <td className="p-3.5 sm:px-5 font-mono font-bold text-[#102A43]">{item.current_score}%</td>
+                    <td className="p-3.5 sm:px-5 font-mono text-[#62748A]">{item.target_score}%</td>
+                    <td className="p-3.5 sm:px-5 font-mono font-bold">
                       {item.gap > 0 ? (
-                        <span className="text-[#0B2545]">-{item.gap}%</span>
+                        <span className="text-[#102A43]">-{item.gap}%</span>
                       ) : (
                         <span className="text-[#2E7D32]">0%</span>
                       )}
                     </td>
-                    <td className="p-3.5">
+                    <td className="p-3.5 sm:px-5 text-right">
                       <span className={cn(
-                        "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border uppercase",
+                        "inline-block px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold border uppercase",
                         isStrong 
                           ? "bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]/30"
                           : isCritical
-                          ? "bg-[#D4AF37]/15 text-[#0B2545] border-[#D4AF37]/35"
+                          ? "bg-[#D4AF37]/15 text-[#102A43] border-[#D4AF37]/35"
                           : "bg-[#1F7A8C]/10 text-[#1F7A8C] border-[#1F7A8C]/20"
                       )}>
                         {item.status?.replace('_', ' ')}
@@ -246,15 +246,15 @@ export default function QuizResult() {
       </div>
 
       {/* Next Steps Callout */}
-      <div className="p-6 rounded-2xl bg-[#0B2545] text-[#FFFFFF] space-y-3 shadow-xs">
-        <div className="space-y-1">
+      <div className="p-6 sm:p-7 rounded-2xl bg-[#0B2545] text-[#FFFFFF] space-y-4 shadow-md">
+        <div className="space-y-1.5">
           <span className="text-xs font-mono font-bold uppercase text-[#D4AF37] tracking-wider">
             NEXT STEP // PERSONALIZED LEARNING
           </span>
-          <h3 className="text-lg font-bold text-[#FFFFFF]">
-            Let's understand where you need to improve.
+          <h3 className="text-lg sm:text-xl font-bold text-[#FFFFFF]">
+            Target your priority competency gaps with accredited learning.
           </h3>
-          <p className="text-xs text-[#FFFFFF]/80 leading-relaxed max-w-2xl">
+          <p className="text-xs sm:text-sm text-[#FFFFFF]/80 leading-relaxed max-w-2xl">
             SmartLearn has updated your live capability map. Personalized iGOT learning sequences have been configured to close your priority competency gaps.
           </p>
         </div>
@@ -262,7 +262,7 @@ export default function QuizResult() {
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
           {/* Button 1: View Capability Landscape */}
           <Link to="/competencies" className="w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto font-bold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs px-6 flex items-center justify-center cursor-pointer">
+            <Button size="default" className="w-full sm:w-auto font-semibold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs px-6 h-10 rounded-xl flex items-center justify-center cursor-pointer">
               <span>View Capability Landscape</span>
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -270,7 +270,7 @@ export default function QuizResult() {
 
           {/* Button 2: Explore Learning Recommendations */}
           <Link to="/learning-path" className="w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto font-bold bg-[#FFFFFF]/10 hover:bg-[#FFFFFF]/20 text-[#FFFFFF] border border-[#FFFFFF]/20 shadow-xs px-6 flex items-center justify-center cursor-pointer">
+            <Button size="default" className="w-full sm:w-auto font-semibold bg-[#FFFFFF]/10 hover:bg-[#FFFFFF]/20 text-[#FFFFFF] border border-[#FFFFFF]/20 shadow-xs px-6 h-10 rounded-xl flex items-center justify-center cursor-pointer">
               <span>Explore Learning Recommendations</span>
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
