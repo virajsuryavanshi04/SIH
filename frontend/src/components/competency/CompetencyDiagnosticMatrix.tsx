@@ -161,7 +161,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
           <div className="col-span-2">Domain</div>
           <div className="col-span-2 text-center">Proficiency Level</div>
           <div className="col-span-2 text-center">Topic Coverage</div>
-          <div className="col-span-2 text-right">Readiness State</div>
+          <div className="col-span-2 text-right">Readiness & Action</div>
         </div>
 
         {/* Matrix Body Rows */}
@@ -248,8 +248,8 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                       </div>
                     </div>
 
-                    {/* Col 5: Readiness State */}
-                    <div className="lg:col-span-2 flex items-center justify-between lg:justify-end gap-2">
+                    {/* Col 5: Readiness State & Action */}
+                    <div className="lg:col-span-2 flex items-center justify-between lg:justify-end gap-2.5">
                       <span
                         className={cn(
                           "text-xs font-semibold px-2.5 py-0.5 rounded-full border font-mono flex items-center gap-1.5",
@@ -260,7 +260,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                             : comp.status === 'NEEDS_ATTENTION'
                             ? "bg-[#D4AF37]/15 text-[#102A43] border-[#D4AF37]/35"
                             : comp.status === 'CRITICAL'
-                            ? "bg-red-50 text-red-700 border-red-200"
+                            ? "bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30"
                             : "bg-[#EEF5F7] text-[#62748A] border-[#DCE5EA]"
                         )}
                       >
@@ -277,7 +277,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                           e.stopPropagation();
                           toggleExpand(comp.id);
                         }}
-                        className="text-xs font-semibold text-[#1F7A8C] hover:underline cursor-pointer"
+                        className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#EEF5F7] hover:bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#DCE5EA] transition-all cursor-pointer"
                       >
                         {isExpanded ? 'Hide' : 'Inspect'}
                       </button>

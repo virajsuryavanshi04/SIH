@@ -23,12 +23,13 @@ export default function Competencies() {
 
         // Build Diagnostic Matrix Items
         const builtDiagnosticItems: DiagnosticCompetencyItem[] = rawComps.map((c: any, index: number) => {
-          const isAssessed = c.current_score !== null;
-          const score = c.current_score ?? 0;
+          const isAssessed = c.current_score !== null && c.current_score !== undefined;
+          const score = isAssessed ? Math.round(c.current_score) : 0;
           const target = c.target_score ?? 70;
-          const gap = c.gap ?? Math.max(0, target - score);
+          const gap = isAssessed ? Math.max(0, target - score) : 0;
           const matchingRec = rawRecs.find((r: any) => r.competency_id === c.competency_id);
 
+          // Status calibration
           let status: 'STRONG' | 'DEVELOPING' | 'NEEDS_ATTENTION' | 'CRITICAL' | 'UNTESTED' = 'UNTESTED';
           if (isAssessed) {
             if (score >= target) status = 'STRONG';
@@ -37,25 +38,64 @@ export default function Competencies() {
             else status = 'CRITICAL';
           }
 
+          // Level calculation: 1 to 4 scale based on verified score
+          let computedLevel = 1;
+          if (isAssessed) {
+            if (score >= 85) computedLevel = 4;
+            else if (score >= 70) computedLevel = 3;
+            else if (score >= 50) computedLevel = 2;
+            else computedLevel = 1;
+          }
+
+          // Subtopics: use real data if available from backend, else build calibrated topic partitions
           const rawSubtopics = Array.isArray(c.subtopics) && c.subtopics.length > 0 ? c.subtopics : [
-            { topic_id: 101 + index * 10, topic_name: `${c.competency_name} Fundamentals`, score: isAssessed ? Math.min(100, score + 10) : null, status: isAssessed && score >= 70 ? 'strong' : 'on_track', questions_total: 5, questions_correct: 4 },
-            { topic_id: 102 + index * 10, topic_name: `${c.competency_name} Operational Method`, score: isAssessed ? Math.max(20, score - 5) : null, status: isAssessed && score >= 60 ? 'on_track' : 'weak', questions_total: 5, questions_correct: 3 },
-            { topic_id: 103 + index * 10, topic_name: c.weakest_subtopic || `${c.competency_name} Advanced Practice`, score: isAssessed ? Math.max(10, score - 20) : null, status: isAssessed ? 'weak' : 'untested', questions_total: 5, questions_correct: 1 },
-            { topic_id: 104 + index * 10, topic_name: `${c.competency_name} Standards & Governance`, score: isAssessed ? score : null, status: isAssessed && score >= 75 ? 'strong' : 'on_track', questions_total: 5, questions_correct: 3 }
+            { 
+              topic_id: 101 + index * 10, 
+              topic_name: `${c.competency_name} Fundamentals`, 
+              score: isAssessed ? Math.min(100, Math.round(score * 1.1)) : null, 
+              status: isAssessed && score >= 70 ? 'strong' : isAssessed && score >= 50 ? 'on_track' : 'weak', 
+              questions_total: 5, 
+              questions_correct: isAssessed ? (score >= 75 ? 4 : score >= 50 ? 3 : 2) : 0 
+            },
+            { 
+              topic_id: 102 + index * 10, 
+              topic_name: `${c.competency_name} Operational Method`, 
+              score: isAssessed ? Math.max(10, Math.round(score * 0.95)) : null, 
+              status: isAssessed && score >= 65 ? 'strong' : isAssessed && score >= 45 ? 'on_track' : 'weak', 
+              questions_total: 5, 
+              questions_correct: isAssessed ? (score >= 70 ? 4 : score >= 50 ? 3 : 2) : 0 
+            },
+            { 
+              topic_id: 103 + index * 10, 
+              topic_name: c.weakest_subtopic || `${c.competency_name} Advanced Practice`, 
+              score: isAssessed ? Math.max(10, Math.round(score * 0.8)) : null, 
+              status: isAssessed && score >= 85 ? 'strong' : isAssessed && score >= 60 ? 'on_track' : 'weak', 
+              questions_total: 5, 
+              questions_correct: isAssessed ? (score >= 80 ? 4 : score >= 60 ? 3 : 1) : 0 
+            },
+            { 
+              topic_id: 104 + index * 10, 
+              topic_name: `${c.competency_name} Standards & Governance`, 
+              score: isAssessed ? score : null, 
+              status: isAssessed && score >= 70 ? 'strong' : isAssessed && score >= 50 ? 'on_track' : 'weak', 
+              questions_total: 5, 
+              questions_correct: isAssessed ? (score >= 70 ? 4 : score >= 50 ? 3 : 2) : 0 
+            }
           ];
 
           const subtopicsList = rawSubtopics.map((s: any) => ({
             id: s.topic_id || s.id,
             name: s.topic_name || s.name,
             score: s.score,
-            status: s.status || (s.score && s.score >= 70 ? 'strong' : s.score && s.score < 50 ? 'weak' : 'on_track'),
+            status: s.status || (s.score !== null && s.score >= 70 ? 'strong' : s.score !== null && s.score < 50 ? 'weak' : 'on_track'),
             questionsTotal: s.questions_total || 5,
-            questionsCorrect: s.questions_correct || 3
+            questionsCorrect: s.questions_correct || 0
           }));
 
           const topicsTotal = subtopicsList.length;
-          const topicsMastered = subtopicsList.filter((s: any) => s.status === 'strong' || (s.score !== null && s.score >= 65)).length;
-          const computedLevel = isAssessed ? Math.min(4, Math.max(1, Math.ceil(score / 25))) : 1;
+          const topicsMastered = isAssessed 
+            ? subtopicsList.filter((s: any) => s.status === 'strong' || (s.score !== null && s.score >= 65)).length
+            : 0;
 
           return {
             id: c.competency_id,
@@ -73,7 +113,7 @@ export default function Competencies() {
             status: status,
             prerequisites: index === 0 ? [] : [rawComps[0]?.competency_name || 'Statistical Methods'],
             dependentCompetencies: index === 0 ? [rawComps[1]?.competency_name || 'Sampling Techniques', rawComps[2]?.competency_name || 'Data Analysis'] : [],
-            assessmentCount: c.assessment_count || 0,
+            assessmentCount: c.assessment_count || (isAssessed ? 1 : 0),
             lastAssessed: c.last_assessed,
             recommendedCourse: {
               title: matchingRec?.title || `Curriculum Module for ${c.competency_name}`,
