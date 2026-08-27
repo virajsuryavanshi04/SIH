@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { assessmentApi, competencyApi, userApi } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { assessmentApi, competencyApi, userApi, roleApi } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,9 +10,10 @@ import { User, Competency } from '@/types';
 
 export default function Assessment() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [userProfile, setUserProfile] = useState<User | null>(null);
-  const [competencies, setCompetencies] = useState<Competency[]>([]);
+  const [userProfile, setUserProfile] = useState<User | null>(user);
+  const [competencies, setCompetencies] = useState<{ id: number; name: string }[]>([]);
   const [pastAssessments, setPastAssessments] = useState<any[]>([]);
   
   // Configuration
@@ -23,20 +25,46 @@ export default function Assessment() {
   useEffect(() => {
     const loadAssessmentDashboard = async () => {
       try {
-        const [meRes, compRes, histRes] = await Promise.all([
+        const [meRes, histRes] = await Promise.all([
           userApi.getMe(),
-          competencyApi.getAll(),
           assessmentApi.getHistory()
         ]);
-        setUserProfile(meRes.data);
-        setCompetencies(compRes.data);
+        const profile = meRes.data;
+        setUserProfile(profile);
         setPastAssessments(histRes.data || []);
+
+        // Load role-specific competencies
+        if (profile.role_id) {
+          const compRes = await roleApi.getCompetencies(profile.role_id);
+          const mapped = compRes.data.map((rc: any) => ({
+            id: rc.competency_id,
+            name: rc.competency_name
+          }));
+          setCompetencies(mapped);
+          setQuestionCount(String(mapped.length || 8));
+        } else {
+          const myCompRes = await competencyApi.getMyCompetencies();
+          if (myCompRes.data && myCompRes.data.length > 0) {
+            const mapped = myCompRes.data.map((mc: any) => ({
+              id: mc.competency_id,
+              name: mc.competency_name
+            }));
+            setCompetencies(mapped);
+            setQuestionCount(String(mapped.length || 8));
+          } else {
+            const allRes = await competencyApi.getAll();
+            setCompetencies(allRes.data);
+            setQuestionCount(String(allRes.data.length || 8));
+          }
+        }
       } catch (err) {
         console.error('Failed to load assessment config:', err);
       }
     };
     loadAssessmentDashboard();
-  }, []);
+  }, [user]);
+
+  const activeRoleName = userProfile?.role_name || userProfile?.designation || user?.role_name || user?.designation || 'Statistical Officer';
 
   const handleStartAssessment = async () => {
     try {
@@ -48,7 +76,7 @@ export default function Assessment() {
         assessment_type: focusType,
         competency_ids: compIds,
         difficulty: diffVal,
-        question_count: parseInt(questionCount) || 8
+        question_count: parseInt(questionCount) || competencies.length || 8
       });
 
       const assessmentId = res.data.assessment_id;
@@ -90,15 +118,15 @@ export default function Assessment() {
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-[#D4AF37]" />
             <span className="text-xs font-mono uppercase font-bold text-[#D4AF37]">Active Designation:</span>
-            <span className="text-xs font-bold text-[#FFFFFF]">{userProfile?.role_name || userProfile?.designation || 'Statistical Officer'}</span>
+            <span className="text-xs font-bold text-[#FFFFFF]">{activeRoleName}</span>
           </div>
           <p className="text-[11px] text-[#FFFFFF]/80">
-            Baseline diagnostics will sample questions across your role's required competencies to establish your verified readiness score.
+            Baseline diagnostics will sample questions across {activeRoleName}'s required competencies to establish your verified readiness score.
           </p>
         </div>
         <div className="shrink-0">
           <span className="text-[11px] font-mono font-bold bg-[#1F7A8C] text-[#FFFFFF] px-3 py-1 rounded-md">
-            8 Role Benchmarks
+            {competencies.length || 8} Role Benchmarks
           </span>
         </div>
       </div>
@@ -112,7 +140,7 @@ export default function Assessment() {
           </div>
           <CardTitle className="text-lg font-bold text-[#0B2545]">Configure Assessment Session</CardTitle>
           <CardDescription className="text-xs text-[#2B2D42]/70">
-            Assembles cognitive-level questions mapped directly to official MoSPI competency definitions.
+            Assembles cognitive-level questions mapped directly to official MoSPI competency definitions for {activeRoleName}.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
@@ -126,7 +154,7 @@ export default function Assessment() {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="baseline">Baseline Capability Audit (All Role Competencies)</SelectItem>
+                  <SelectItem value="baseline">Baseline Capability Audit — {activeRoleName}</SelectItem>
                   <SelectItem value="adaptive_reassessment">Adaptive Gap Reassessment</SelectItem>
                   <SelectItem value="practice">Targeted Practice Mode</SelectItem>
                 </SelectContent>
@@ -141,7 +169,7 @@ export default function Assessment() {
                   <SelectValue placeholder="Select competency" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Full Role Framework (All 8)</SelectItem>
+                  <SelectItem value="all">{activeRoleName} Framework ({competencies.length || 8} Competencies)</SelectItem>
                   {competencies.map(c => (
                     <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
                   ))}
@@ -157,8 +185,8 @@ export default function Assessment() {
                   <SelectValue placeholder="Select length" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="8">8 MCQs (1 per competency - Fast)</SelectItem>
-                  <SelectItem value="16">16 MCQs (2 per competency - Comprehensive)</SelectItem>
+                  <SelectItem value={String(competencies.length || 8)}>{competencies.length || 8} MCQs (1 per competency - Fast)</SelectItem>
+                  <SelectItem value={String((competencies.length || 8) * 2)}>{(competencies.length || 8) * 2} MCQs (2 per competency - Comprehensive)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

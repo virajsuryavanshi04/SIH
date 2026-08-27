@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
@@ -35,7 +35,7 @@ export default function Profile() {
         setRoles(rolesRes.data);
         
         // Match user's current role
-        const match = rolesRes.data.find((r: Role) => r.name === (user?.role_name || user?.designation)) || rolesRes.data[0];
+        const match = rolesRes.data.find((r: Role) => r.name === (user?.role_name || user?.designation) || r.id === user?.role_id) || rolesRes.data[0];
         if (match) {
           setSelectedRoleId(match.id);
           setActiveRoleName(match.name);
@@ -54,6 +54,7 @@ export default function Profile() {
       setUpdatingRole(true);
       setFeedbackMsg(null);
       const res = await userApi.updateRole(newRoleId);
+      await refreshUser();
       const matchedRole = roles.find(r => r.id === newRoleId);
       if (matchedRole) {
         setActiveRoleName(matchedRole.name);

@@ -15,6 +15,8 @@ export interface CapabilityNode {
   status: 'proficient' | 'on_track' | 'needs_attention' | 'not_assessed';
   prerequisites: number[];
   reasons: string[];
+  weakestSubtopic?: string;
+  actionUrl?: string;
   aiConfidence: number;
   recommendedCourse: {
     title: string;

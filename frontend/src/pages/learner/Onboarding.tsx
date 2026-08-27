@@ -184,14 +184,14 @@ export default function Onboarding() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <CardTitle className="text-lg font-bold text-[#0B2545] flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-[#1F7A8C]" /> Step 1: Select Your Official Role
+                      <Briefcase className="w-5 h-5 text-[#1F7A8C]" /> Step 1: Select your professional role
                     </CardTitle>
                     <CardDescription className="text-xs text-[#2B2D42]">
-                      Your designation determines the baseline competency standards and proficiency targets.
+                      This helps us personalize your competency framework and learning path.
                     </CardDescription>
                   </div>
                   <span className="text-xs font-mono font-bold text-[#1F7A8C] px-2.5 py-1 bg-[#1F7A8C]/10 rounded-md">
-                    {roles.length} Official Roles
+                    {roles.length} Professional Cadres
                   </span>
                 </div>
               </CardHeader>

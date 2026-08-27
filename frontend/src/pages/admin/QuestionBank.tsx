@@ -1,118 +1,607 @@
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Search, Eye, Check, X, RefreshCw, Sparkles, Database, Plus } from 'lucide-react';
+import { questionApi, competencyApi } from '@/lib/api';
+import { 
+  Search, Eye, Check, X, RefreshCw, Sparkles, Database, Plus, 
+  Layers, CheckCircle2, AlertCircle, Edit3, Filter, HelpCircle, BookOpen, Clock
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function QuestionBank() {
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [competencies, setCompetencies] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [search, setSearch] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedComp, setSelectedComp] = useState<string>('all');
+  const [selectedDiff, setSelectedDiff] = useState<string>('all');
+  
+  // Modals / Inspections
+  const [inspectingQ, setInspectingQ] = useState<any | null>(null);
+  const [editingQ, setEditingQ] = useState<any | null>(null);
+  const [showGenModal, setShowGenModal] = useState<boolean>(false);
+  
+  // Generation Form State
+  const [genCompId, setGenCompId] = useState<string>('1');
+  const [genTopicName, setGenTopicName] = useState<string>('Stratified Sampling');
+  const [genDiff, setGenDiff] = useState<string>('2');
+  const [genCount, setGenCount] = useState<number>(5);
+  const [generating, setGenerating] = useState<boolean>(false);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
-  const questions = [
-    { id: 1, text: "Which sampling method ensures that every unit in the population has a known, non-zero chance of selection?", comp: "Sampling Techniques", diff: "Intermediate", source: "AI Synthesized", status: "Pending Review", date: "2026-08-24" },
-    { id: 2, text: "In hypothesis testing, what does a p-value less than the alpha significance level mandate?", comp: "Statistical Methods", diff: "Advanced", source: "Curated Bank", status: "Approved", date: "2026-08-20" },
-    { id: 3, text: "When conducting stratified random sampling, how is Neyman allocation determined?", comp: "Sampling Techniques", diff: "Advanced", source: "AI Synthesized", status: "Approved", date: "2026-08-18" },
-    { id: 4, text: "What is the primary vulnerability of quota sampling in official surveys?", comp: "Survey Methodology", diff: "Foundational", source: "AI Synthesized", status: "Rejected", date: "2026-08-15" },
-    { id: 5, text: "Which pandas method is used to impute missing survey records with group medians?", comp: "Statistical Programming", diff: "Intermediate", source: "AI Synthesized", status: "Approved", date: "2026-08-12" },
-  ];
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      const [qRes, cRes] = await Promise.allSettled([
+        questionApi.getAll({
+          status: statusFilter !== 'all' ? statusFilter : undefined,
+          competency_id: selectedComp !== 'all' ? parseInt(selectedComp) : undefined,
+          difficulty: selectedDiff !== 'all' ? selectedDiff : undefined,
+          search: search || undefined
+        }),
+        competencyApi.getAll()
+      ]);
+
+      if (qRes.status === 'fulfilled') {
+        setQuestions(qRes.value.data || []);
+      }
+      if (cRes.status === 'fulfilled') {
+        setCompetencies(cRes.value.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to load questions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [statusFilter, selectedComp, selectedDiff]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchQuestions();
+  };
+
+  const handleStatusChange = async (questionId: number, newStatus: 'approved' | 'rejected' | 'pending_review') => {
+    try {
+      await questionApi.updateStatus(questionId, newStatus);
+      setActionSuccess(`Question #${questionId} marked as ${newStatus}.`);
+      setTimeout(() => setActionSuccess(null), 3000);
+      setQuestions(prev => prev.map(q => q.id === questionId ? { ...q, status: newStatus } : q));
+      if (inspectingQ?.id === questionId) {
+        setInspectingQ({ ...inspectingQ, status: newStatus });
+      }
+    } catch (err) {
+      console.error('Failed to update question status:', err);
+    }
+  };
+
+  const handleRegenerate = async (questionId: number) => {
+    try {
+      setLoading(true);
+      const res = await questionApi.regenerate(questionId);
+      setActionSuccess(`Question #${questionId} regenerated by AIService.`);
+      setTimeout(() => setActionSuccess(null), 3000);
+      fetchQuestions();
+    } catch (err) {
+      console.error('Failed to regenerate question:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateSet = async () => {
+    try {
+      setGenerating(true);
+      const res = await questionApi.generate({
+        competency_id: parseInt(genCompId),
+        topic_id: undefined,
+        difficulty: genDiff,
+        count: genCount
+      });
+      setShowGenModal(false);
+      setActionSuccess(`Synthesized ${res.data?.generated_count || genCount} candidate questions. Ready for review.`);
+      setTimeout(() => setActionSuccess(null), 4000);
+      setStatusFilter('pending_review');
+      fetchQuestions();
+    } catch (err) {
+      console.error('Generation set failed:', err);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingQ) return;
+    try {
+      await questionApi.update(editingQ.id, {
+        text: editingQ.question_text || editingQ.text,
+        explanation: editingQ.explanation,
+        difficulty: editingQ.difficulty,
+        source_reference: editingQ.source_reference,
+        options: editingQ.options
+      });
+      setActionSuccess(`Question #${editingQ.id} changes saved.`);
+      setTimeout(() => setActionSuccess(null), 3000);
+      setEditingQ(null);
+      fetchQuestions();
+    } catch (err) {
+      console.error('Failed to save question edit:', err);
+    }
+  };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+    <div className="space-y-8 max-w-7xl mx-auto pb-16 text-left">
+      
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0B2545] tracking-tight">Official Question Bank</h1>
-          <p className="text-[#2B2D42] mt-1">Review, approve, and calibrate AI-generated MCQs from ingested government guidelines.</p>
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-widest mb-1">
+            <Database className="w-3.5 h-3.5" />
+            <span>AI CURATION & REVIEW ENGINE</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+            Official Question Bank
+          </h1>
+          <p className="text-xs sm:text-sm text-[#2B2D42]/80 mt-1">
+            Review, calibrate, and approve source-grounded questions. Only approved questions enter the active adaptive assessment pool.
+          </p>
         </div>
-        <Button className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold shadow-xs cursor-pointer">
-          <Plus className="w-4 h-4 mr-2" /> Add Manual Question
+        
+        <Button 
+          onClick={() => setShowGenModal(true)}
+          className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer h-9 px-4"
+        >
+          <Sparkles className="w-3.5 h-3.5 mr-1.5 text-[#D4AF37]" />
+          <span>Generate Question Set</span>
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-[#FFFFFF] rounded-xl shadow-xs border border-[#2B2D42]/10">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2B2D42]/40 w-4 h-4" />
-          <Input 
-            placeholder="Search questions by keyword or topic..." 
-            className="pl-10 border-[#2B2D42]/20 focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF]" 
-            value={search} 
-            onChange={(e) => setSearch(e.target.value)} 
-          />
+      {/* Action Notification */}
+      {actionSuccess && (
+        <div className="p-3.5 rounded-xl bg-[#2E7D32]/10 border border-[#2E7D32]/30 text-xs font-bold font-mono text-[#2E7D32] flex items-center gap-2 animate-in fade-in duration-200">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{actionSuccess}</span>
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px] border-[#2B2D42]/20 bg-[#FFFFFF]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="Pending Review">Pending Review</SelectItem>
-            <SelectItem value="Approved">Approved</SelectItem>
-            <SelectItem value="Rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
+      )}
+
+      {/* Filter and Search Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-4 bg-[#FFFFFF] rounded-2xl shadow-xs border border-[#2B2D42]/10">
+        <div className="sm:col-span-5 relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2B2D42]/40 w-4 h-4" />
+          <form onSubmit={handleSearchSubmit}>
+            <Input 
+              placeholder="Search by question text or keyword..." 
+              className="pl-10 border-[#2B2D42]/20 focus:border-[#1F7A8C] text-xs h-9 bg-[#FFFFFF]" 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+            />
+          </form>
+        </div>
+
+        <div className="sm:col-span-3">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs h-9">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending_review">Pending Review</SelectItem>
+              <SelectItem value="approved">Approved (Active Pool)</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="sm:col-span-2">
+          <Select value={selectedComp} onValueChange={setSelectedComp}>
+            <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs h-9">
+              <SelectValue placeholder="All Competencies" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Competencies</SelectItem>
+              {competencies.map(c => (
+                <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="sm:col-span-2">
+          <Select value={selectedDiff} onValueChange={setSelectedDiff}>
+            <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs h-9">
+              <SelectValue placeholder="All Difficulties" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Difficulties</SelectItem>
+              <SelectItem value="1">1 - Foundational (Easy)</SelectItem>
+              <SelectItem value="2">2 - Intermediate (Medium)</SelectItem>
+              <SelectItem value="3">3 - Advanced (Hard)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <Card className="bg-[#FFFFFF] shadow-sm border border-[#2B2D42]/10 overflow-hidden">
+      {/* Main Questions Table */}
+      <Card className="bg-[#FFFFFF] shadow-xs border border-[#2B2D42]/10 overflow-hidden">
+        <CardHeader className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 p-4">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xs font-mono font-bold text-[#0B2545] uppercase tracking-wider flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#1F7A8C]" />
+              Repository Questions ({questions.length})
+            </CardTitle>
+            <span className="text-[11px] font-mono text-[#2B2D42]/60">
+              Approved items are eligible for adaptive test sessions
+            </span>
+          </div>
+        </CardHeader>
+
         <CardContent className="p-0">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 text-[#0B2545] uppercase tracking-wider font-bold">
-              <tr>
-                <th className="px-6 py-3.5 w-1/3">Question Preview</th>
-                <th className="px-6 py-3.5">Competency Domain</th>
-                <th className="px-6 py-3.5">Difficulty</th>
-                <th className="px-6 py-3.5">Review Status</th>
-                <th className="px-6 py-3.5 text-right">Review Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#2B2D42]/10 font-medium text-[#2B2D42]">
-              {questions.map(q => (
-                <tr key={q.id} className="hover:bg-[#F4F6F9] transition-colors">
-                  <td className="px-6 py-4 font-bold text-[#1F7A8C] max-w-[320px]">
-                    <span className="line-clamp-1">{q.text}</span>
-                    <span className="text-[10px] font-mono text-[#2B2D42]/60 font-normal">{q.source} • {q.date}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20">
-                      {q.comp}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-[#2B2D42]">{q.diff}</td>
-                  <td className="px-6 py-4">
-                    {q.status === 'Approved' ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/30 font-mono">
-                        Approved
-                      </span>
-                    ) : q.status === 'Rejected' ? (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/30 font-mono">
-                        Rejected
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20 font-mono">
-                        Pending Review
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-1.5">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[#1F7A8C] hover:bg-[#F4F6F9] cursor-pointer" title="Inspect">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[#2E7D32] hover:bg-[#2E7D32]/10 cursor-pointer" title="Approve">
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[#D4AF37] hover:bg-[#D4AF37]/10 cursor-pointer" title="Reject">
-                      <X className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-[#2B2D42]/60 hover:text-[#1F7A8C] cursor-pointer" title="AI Regenerate">
-                      <RefreshCw className="w-3.5 h-3.5" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {loading ? (
+            <div className="p-8 text-center text-xs text-[#2B2D42]/60 font-semibold">Loading questions...</div>
+          ) : questions.length === 0 ? (
+            <div className="p-8 text-center text-xs text-[#2B2D42]/60">
+              No questions found matching criteria. Click <strong>Generate Question Set</strong> to create questions using AI.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 text-[#0B2545] uppercase tracking-wider font-bold font-mono text-[10px]">
+                  <tr>
+                    <th className="px-5 py-3.5 w-2/5">Question Text & Citation</th>
+                    <th className="px-5 py-3.5">Competency</th>
+                    <th className="px-5 py-3.5">Difficulty</th>
+                    <th className="px-5 py-3.5">Status</th>
+                    <th className="px-5 py-3.5 text-right">Review Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2B2D42]/10 font-medium text-[#2B2D42]">
+                  {questions.map(q => {
+                    const isApproved = q.status === 'approved';
+                    const isRejected = q.status === 'rejected';
+                    const isPending = q.status === 'pending_review';
+
+                    return (
+                      <tr key={q.id} className="hover:bg-[#F4F6F9]/50 transition-colors">
+                        <td className="px-5 py-3.5">
+                          <p className="font-bold text-[#0B2545] line-clamp-2">{q.question_text || q.text}</p>
+                          <span className="text-[10px] font-mono text-[#2B2D42]/60 block mt-0.5">
+                            Source: {q.source_reference || 'MoSPI Official Handbook'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20">
+                            {q.competency_name}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 font-mono">
+                          <span className="text-xs">
+                            {q.difficulty === '3' || q.difficulty === 'hard' || q.difficulty === 'advanced' ? 'Hard (3)' :
+                             q.difficulty === '1' || q.difficulty === 'easy' || q.difficulty === 'foundational' ? 'Easy (1)' : 'Medium (2)'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border uppercase",
+                            isApproved 
+                              ? "bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]/30"
+                              : isRejected
+                              ? "bg-[#D4AF37]/15 text-[#0B2545] border-[#D4AF37]/35"
+                              : "bg-[#1F7A8C]/10 text-[#1F7A8C] border-[#1F7A8C]/20"
+                          )}>
+                            {isApproved ? 'Approved' : isRejected ? 'Rejected' : 'Pending Review'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-right space-x-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setInspectingQ(q)}
+                            className="h-7 px-2 text-[#1F7A8C] hover:bg-[#1F7A8C]/10 text-[11px] font-bold cursor-pointer" 
+                            title="Inspect Question"
+                          >
+                            <Eye className="w-3.5 h-3.5 mr-1" /> Inspect
+                          </Button>
+                          
+                          {!isApproved && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleStatusChange(q.id, 'approved')}
+                              className="h-7 px-2 text-[#2E7D32] hover:bg-[#2E7D32]/10 text-[11px] font-bold cursor-pointer" 
+                              title="Approve Question"
+                            >
+                              <Check className="w-3.5 h-3.5 mr-1" /> Approve
+                            </Button>
+                          )}
+
+                          {!isRejected && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleStatusChange(q.id, 'rejected')}
+                              className="h-7 px-2 text-[#D4AF37] hover:bg-[#D4AF37]/15 text-[11px] font-bold cursor-pointer" 
+                              title="Reject Question"
+                            >
+                              <X className="w-3.5 h-3.5 mr-1" /> Reject
+                            </Button>
+                          )}
+
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setEditingQ(JSON.parse(JSON.stringify(q)))}
+                            className="h-7 px-2 text-[#2B2D42]/70 hover:text-[#0B2545] text-[11px] font-bold cursor-pointer" 
+                            title="Edit Question"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </Button>
+
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleRegenerate(q.id)}
+                            className="h-7 px-2 text-[#2B2D42]/60 hover:text-[#1F7A8C] text-[11px] cursor-pointer" 
+                            title="AI Regenerate"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* ============================================================ */}
+      {/* MODAL 1: INSPECT QUESTION DETAILS                             */}
+      {/* ============================================================ */}
+      {inspectingQ && (
+        <div className="fixed inset-0 bg-[#0B2545]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#FFFFFF] max-w-2xl w-full rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xl space-y-5 text-left max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C]">
+                  {inspectingQ.competency_name} // QUESTION #{inspectingQ.id}
+                </span>
+                <h3 className="text-base font-bold text-[#0B2545]">Source-Grounded MCQ Inspection</h3>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setInspectingQ(null)} className="h-8 w-8 text-[#2B2D42]">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <span className="text-[10px] font-mono font-bold text-[#2B2D42]/60 uppercase block mb-1">Question Prompt</span>
+                <p className="p-3.5 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 font-bold text-sm text-[#0B2545]">
+                  {inspectingQ.question_text || inspectingQ.text}
+                </p>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-mono font-bold text-[#2B2D42]/60 uppercase block mb-1.5">Options</span>
+                <div className="space-y-2">
+                  {inspectingQ.options?.map((opt: any, idx: number) => {
+                    const isCorrect = opt.is_correct || opt.option_text === inspectingQ.correct_answer;
+                    return (
+                      <div 
+                        key={idx}
+                        className={cn(
+                          "p-3 rounded-xl border flex items-center justify-between",
+                          isCorrect 
+                            ? "bg-[#2E7D32]/10 border-[#2E7D32]/40 text-[#2E7D32] font-bold" 
+                            : "bg-[#FFFFFF] border-[#2B2D42]/15 text-[#2B2D42]"
+                        )}
+                      >
+                        <span>{opt.option_text || opt.text}</span>
+                        {isCorrect && (
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#2E7D32] text-[#FFFFFF] rounded-md">
+                            Correct Answer
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 space-y-1">
+                <span className="text-[10px] font-mono font-bold text-[#1F7A8C] uppercase block">Explanation</span>
+                <p className="text-[#2B2D42] leading-relaxed">{inspectingQ.explanation}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                <div className="p-2.5 rounded-lg bg-[#F4F6F9] border border-[#2B2D42]/10">
+                  <span className="text-[#2B2D42]/60 block text-[9px]">Source Citation:</span>
+                  <span className="font-bold text-[#0B2545]">{inspectingQ.source_reference || 'MoSPI Standard'}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-[#F4F6F9] border border-[#2B2D42]/10">
+                  <span className="text-[#2B2D42]/60 block text-[9px]">Cognitive Target:</span>
+                  <span className="font-bold text-[#0B2545] uppercase">{inspectingQ.cognitive_level || 'Apply'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#2B2D42]/10">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  handleStatusChange(inspectingQ.id, 'rejected');
+                  setInspectingQ(null);
+                }} 
+                className="text-[#D4AF37] border-[#D4AF37]/40 text-xs font-bold"
+              >
+                Reject Question
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={() => {
+                  handleStatusChange(inspectingQ.id, 'approved');
+                  setInspectingQ(null);
+                }} 
+                className="bg-[#2E7D32] hover:bg-[#2E7D32]/90 text-[#FFFFFF] text-xs font-bold"
+              >
+                Approve & Add to Pool
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 2: GENERATE NEW CANDIDATE QUESTION SET                 */}
+      {/* ============================================================ */}
+      {showGenModal && (
+        <div className="fixed inset-0 bg-[#0B2545]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#FFFFFF] max-w-lg w-full rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xl space-y-5 text-left">
+            <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C]">
+                  ON-DEMAND AI SYNTHESIS
+                </span>
+                <h3 className="text-base font-bold text-[#0B2545]">Generate Question Set</h3>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setShowGenModal(false)} className="h-8 w-8 text-[#2B2D42]">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="text-[11px] font-bold text-[#0B2545] block mb-1">Competency Area</label>
+                <Select value={genCompId} onValueChange={setGenCompId}>
+                  <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {competencies.map(c => (
+                      <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-[#0B2545] block mb-1">Subtopic Focus</label>
+                <Input 
+                  value={genTopicName}
+                  onChange={(e) => setGenTopicName(e.target.value)}
+                  placeholder="e.g. Neyman Optimal Allocation, Variance Estimation"
+                  className="border-[#2B2D42]/20 text-xs h-9"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-[#0B2545] block mb-1">Difficulty</label>
+                  <Select value={genDiff} onValueChange={setGenDiff}>
+                    <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 - Foundational (Easy)</SelectItem>
+                      <SelectItem value="2">2 - Intermediate (Medium)</SelectItem>
+                      <SelectItem value="3">3 - Advanced (Hard)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-[#0B2545] block mb-1">Question Count</label>
+                  <Select value={String(genCount)} onValueChange={(val) => setGenCount(parseInt(val))}>
+                    <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="3">3 Questions</SelectItem>
+                      <SelectItem value="5">5 Questions</SelectItem>
+                      <SelectItem value="10">10 Questions</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-[#2B2D42]/70 leading-relaxed font-mono bg-[#F4F6F9] p-3 rounded-xl border border-[#2B2D42]/10">
+                Generated questions will undergo schema validation (4 options, 1 correct answer) and appear in the <strong>Pending Review</strong> queue before entering the active pool.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#2B2D42]/10">
+              <Button variant="outline" size="sm" onClick={() => setShowGenModal(false)} className="text-xs font-bold">
+                Cancel
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={handleGenerateSet}
+                disabled={generating}
+                className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] text-xs font-bold cursor-pointer"
+              >
+                <Sparkles className={`w-3.5 h-3.5 mr-1.5 ${generating ? 'animate-spin' : ''}`} />
+                <span>{generating ? 'Synthesizing with AI...' : 'Generate Questions'}</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL 3: EDIT QUESTION                                       */}
+      {/* ============================================================ */}
+      {editingQ && (
+        <div className="fixed inset-0 bg-[#0B2545]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#FFFFFF] max-w-2xl w-full rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xl space-y-4 text-left max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
+              <h3 className="text-base font-bold text-[#0B2545]">Edit Question #{editingQ.id}</h3>
+              <Button variant="ghost" size="icon" onClick={() => setEditingQ(null)} className="h-8 w-8 text-[#2B2D42]">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-[#0B2545] block mb-1">Question Prompt</label>
+                <textarea 
+                  value={editingQ.question_text || editingQ.text}
+                  onChange={(e) => setEditingQ({ ...editingQ, text: e.target.value, question_text: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-[#2B2D42]/20 text-xs font-medium focus:border-[#1F7A8C] focus:outline-none"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-[#0B2545] block mb-1">Explanation</label>
+                <textarea 
+                  value={editingQ.explanation || ''}
+                  onChange={(e) => setEditingQ({ ...editingQ, explanation: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-[#2B2D42]/20 text-xs font-medium focus:border-[#1F7A8C] focus:outline-none"
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#2B2D42]/10">
+              <Button variant="outline" size="sm" onClick={() => setEditingQ(null)} className="text-xs font-bold">
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleSaveEdit} className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] text-xs font-bold">
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -1,150 +1,151 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { courseApi, competencyApi } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, Clock, Globe, Search, Sparkles, BookOpen } from 'lucide-react';
+import { CheckCircle2, Clock, Globe, Search, Sparkles, BookOpen, Layers, Award } from 'lucide-react';
 import CourseCard from '@/components/courses/CourseCard';
 
 export default function Courses() {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [competencies, setCompetencies] = useState<any[]>([]);
+  const [search, setSearch] = useState<string>('');
+  const [filter, setFilter] = useState<string>('all');
+  const [resourceTypeFilter, setResourceTypeFilter] = useState<string>('all');
 
-  const allCourses = [
-    {
-      id: 1,
-      title: 'Survey Sampling Fundamentals & Design',
-      description: 'Master stratified, cluster, and multi-stage sampling techniques configured for government statistical operations.',
-      difficulty: 'Intermediate',
-      duration_hours: 12,
-      language: 'English',
-      provider: 'National Statistical Training Institute',
-      competencies: ['Sampling Techniques', 'Survey Methodology'],
-      match_percent: 94,
-      is_recommended: true,
-      recommendation_reasons: [
-        'Directly addresses your primary competency gap in Sampling Techniques',
-        'Covers 3 required official statistical methodologies for Statistical Officers',
-        'Practical case studies from National Sample Surveys'
-      ]
-    },
-    {
-      id: 2,
-      title: 'Python for Statistical Analysis & Automation',
-      description: 'Data manipulation with Pandas, statistical hypothesis testing, and automated reporting pipelines.',
-      difficulty: 'Beginner',
-      duration_hours: 10,
-      language: 'English',
-      provider: 'Indian Statistical Institute',
-      competencies: ['Statistical Programming', 'Data Analysis'],
-      match_percent: 88,
-      is_recommended: true,
-      recommendation_reasons: [
-        'Closes your 27-point critical gap in Statistical Programming',
-        'Teaches script automation for official data tabulations',
-        'Includes reproducible notebook exercises'
-      ]
-    },
-    {
-      id: 3,
-      title: 'Data Quality Validation & Audit Frameworks',
-      description: 'Comprehensive error detection, anomaly scoring, and automated validation rules for census and administrative registries.',
-      difficulty: 'Intermediate',
-      duration_hours: 8,
-      language: 'English',
-      provider: 'Ministry of Statistics & Programme Implementation',
-      competencies: ['Data Quality'],
-      match_percent: 78,
-      is_recommended: true,
-      recommendation_reasons: [
-        'Strengthens governance and quality metrics',
-        'Aligns with upcoming departmental data audits'
-      ]
-    },
-    {
-      id: 4,
-      title: 'Applied Regression Analysis & Modeling',
-      description: 'Linear, logistic, and multivariate regression techniques applied to socioeconomic datasets.',
-      difficulty: 'Advanced',
-      duration_hours: 14,
-      language: 'English',
-      provider: 'National Statistical Training Institute',
-      competencies: ['Statistical Methods', 'Data Analysis'],
-      match_percent: 65,
-      is_recommended: false,
-      recommendation_reasons: ['Advanced mastery module for senior analysts']
-    },
-    {
-      id: 5,
-      title: 'Official Statistics Framework & National Accounts',
-      description: 'Understanding GDP computation, CPI/IIP indexes, and international statistical standards.',
-      difficulty: 'Foundational',
-      duration_hours: 6,
-      language: 'English',
-      provider: 'Indian Statistical Institute',
-      competencies: ['Data Interpretation'],
-      match_percent: 60,
-      is_recommended: false,
-      recommendation_reasons: ['Foundational orientation on national accounting']
-    }
-  ];
+  useEffect(() => {
+    const fetchCoursesData = async () => {
+      try {
+        setLoading(true);
+        const [recsRes, compRes] = await Promise.all([
+          courseApi.getRecommended(),
+          competencyApi.getAll()
+        ]);
+        setCourses(recsRes.data || []);
+        setCompetencies(compRes.data || []);
+      } catch (err) {
+        console.error('Failed to load recommended courses:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCoursesData();
+  }, []);
 
-  const filteredCourses = allCourses.filter(c => {
+  const filteredCourses = courses.filter(c => {
+    const compName = c.competency_name || '';
     const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase()) || 
-                          c.description.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === 'all' || c.competencies.some(comp => comp.toLowerCase().includes(filter.toLowerCase()));
-    return matchesSearch && matchesFilter;
+                          c.description.toLowerCase().includes(search.toLowerCase()) ||
+                          compName.toLowerCase().includes(search.toLowerCase());
+    
+    const matchesComp = filter === 'all' || compName.toLowerCase().includes(filter.toLowerCase()) || (c.competency_id === Number(filter));
+    const matchesType = resourceTypeFilter === 'all' || c.resource_type === resourceTypeFilter;
+
+    return matchesSearch && matchesComp && matchesType;
   });
 
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-9 h-9 border-3 border-[#1F7A8C] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#0B2545]">Curating personalized iGOT & official learning resources...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+    <div className="space-y-8 max-w-7xl mx-auto pb-16 text-left">
+      
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0B2545] tracking-tight">Internal Course Catalog</h1>
-          <p className="text-[#2B2D42] mt-1">AI-curated learning modules mapped directly to government statistical competencies.</p>
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-widest mb-1">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>ACCREDITED LEARNING REPOSITORY</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+            Personalized Learning Catalog
+          </h1>
+          <p className="text-xs sm:text-sm text-[#2B2D42]/80 mt-1">
+            Ranked by your diagnosed competency gaps, weak subtopics, and official role benchmark requirements.
+          </p>
         </div>
+        
         <div className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20 shadow-xs">
           <Sparkles className="w-3.5 h-3.5 text-[#1F7A8C]" />
-          <span>Recommendations rank based on your diagnosed gaps</span>
+          <span>Explainable Weighted Ranking Active</span>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-[#FFFFFF] rounded-xl shadow-xs border border-[#2B2D42]/10">
-        <div className="relative flex-1">
+      {/* Search & Filter Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-[#FFFFFF] rounded-xl shadow-xs border border-[#2B2D42]/10">
+        <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2B2D42]/60 w-4 h-4" />
           <Input 
-            placeholder="Search statistical courses, keywords, or topics..." 
-            className="pl-10 border-[#2B2D42]/20 focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF]" 
+            placeholder="Search resources, topics..." 
+            className="pl-10 border-[#2B2D42]/20 focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-xs font-medium" 
             value={search} 
             onChange={(e) => setSearch(e.target.value)} 
           />
         </div>
+
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-full sm:w-[220px] border-[#2B2D42]/20 bg-[#FFFFFF]">
+          <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs font-medium">
             <SelectValue placeholder="Filter Competency" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Competencies</SelectItem>
-            <SelectItem value="Sampling">Sampling Techniques</SelectItem>
-            <SelectItem value="Survey">Survey Methodology</SelectItem>
-            <SelectItem value="Programming">Statistical Programming</SelectItem>
-            <SelectItem value="Quality">Data Quality</SelectItem>
+            {competencies.map(comp => (
+              <SelectItem key={comp.id} value={String(comp.id)}>{comp.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={resourceTypeFilter} onValueChange={setResourceTypeFilter}>
+          <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs font-medium">
+            <SelectValue placeholder="Resource Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Resource Types</SelectItem>
+            <SelectItem value="course">iGOT Comprehensive Courses</SelectItem>
+            <SelectItem value="igot_microlearning">iGOT Micro-Learning</SelectItem>
+            <SelectItem value="smartlearn_material">SmartLearn Labs & Modules</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
+      {/* Recommendations Grid */}
       <div>
-        <h2 className="text-xl font-bold text-[#0B2545] mb-4 flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-[#1F7A8C]" />
-          Recommended For You ({filteredCourses.filter(c => c.is_recommended).length})
-        </h2>
-        <div className="grid lg:grid-cols-2 gap-6">
-          {filteredCourses.map(course => (
-            <CourseCard key={course.id} course={course} />
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-[#0B2545] flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#1F7A8C]" />
+            Recommended Resources ({filteredCourses.length})
+          </h2>
+          <span className="text-xs font-mono text-[#2B2D42]/60 font-semibold">
+            Ranked by Deficit Impact
+          </span>
         </div>
+
+        {filteredCourses.length === 0 ? (
+          <div className="p-12 text-center bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 space-y-3">
+            <BookOpen className="w-8 h-8 text-[#2B2D42]/30 mx-auto" />
+            <p className="text-sm font-bold text-[#0B2545]">No matching learning resources found</p>
+            <p className="text-xs text-[#2B2D42]/60">Try adjusting your keyword filter or competency selection.</p>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-2 gap-6">
+            {filteredCourses.map(course => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        )}
       </div>
+
     </div>
   );
 }

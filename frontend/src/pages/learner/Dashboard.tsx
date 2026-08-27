@@ -1,194 +1,192 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Clock, BookOpen, Route, Award, Play } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Clock, BookOpen, Route, Award, Play, AlertCircle, AlertTriangle } from 'lucide-react';
 import CapabilityLandscape, { CapabilityNode } from '@/components/spatial/CapabilityLandscape';
 import GapInspector from '@/components/spatial/GapInspector';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { competencyApi, courseApi, learningPathApi } from '@/lib/api';
+
+const defaultCoordinates = [
+  { x: 26, y: 22 },
+  { x: 74, y: 22 },
+  { x: 86, y: 50 },
+  { x: 74, y: 78 },
+  { x: 26, y: 78 },
+  { x: 14, y: 50 },
+  { x: 50, y: 18 },
+  { x: 50, y: 82 },
+];
 
 export default function Dashboard() {
-  const initialNodes: CapabilityNode[] = [
-    {
-      id: 1,
-      name: 'Statistical Methods',
-      domain: 'Core Theory',
-      x: 24,
-      y: 22,
-      score: 86,
-      required: 80,
-      gap: 0,
-      priority: 'LOW',
-      status: 'proficient',
-      prerequisites: [],
-      reasons: [
-        '14 of 15 questions answered correctly on probability distributions and hypothesis testing',
-        'Demonstrates mastery over central limit theorem and statistical inferences',
-        'Strong mathematical foundation verified across 3 assessments'
-      ],
-      aiConfidence: 94,
-      recommendedCourse: {
-        title: 'Foundations of Statistical Inference (ISI-101)',
-        duration: '2h',
-        type: 'Refresher'
-      }
-    },
-    {
-      id: 2,
-      name: 'Data Quality',
-      domain: 'Governance',
-      x: 76,
-      y: 22,
-      score: 72,
-      required: 70,
-      gap: 0,
-      priority: 'LOW',
-      status: 'proficient',
-      prerequisites: [1],
-      reasons: [
-        'Consistently applies administrative registry validation checks',
-        'Anomaly scoring accuracy meets official MoSPI threshold',
-        'Passed validation framework diagnostic'
-      ],
-      aiConfidence: 89,
-      recommendedCourse: {
-        title: 'Data Quality Validation & Audit Frameworks',
-        duration: '8h',
-        type: 'MoSPI Certified'
-      }
-    },
-    {
-      id: 3,
-      name: 'Data Analysis',
-      domain: 'Analytics',
-      x: 84,
-      y: 50,
-      score: 64,
-      required: 80,
-      gap: 16,
-      priority: 'MEDIUM',
-      status: 'on_track',
-      prerequisites: [1],
-      reasons: [
-        'Solid grasp of univariate and bivariate descriptive metrics',
-        'Below required benchmark on multivariate regression synthesis',
-        'Role requires advanced regression analysis for policy reports'
-      ],
-      aiConfidence: 85,
-      recommendedCourse: {
-        title: 'Applied Regression Analysis & Modeling',
-        duration: '14h',
-        type: 'iGOT Course'
-      }
-    },
-    {
-      id: 4,
-      name: 'Survey Methodology',
-      domain: 'Operations',
-      x: 74,
-      y: 78,
-      score: 51,
-      required: 75,
-      gap: 24,
-      priority: 'HIGH',
-      status: 'needs_attention',
-      prerequisites: [5],
-      reasons: [
-        'Struggled with questionnaire logic and non-response adjustment factors',
-        'Directly impaired by underlying gap in Sampling Techniques',
-        'Role benchmark requires 75% for official survey publishing'
-      ],
-      aiConfidence: 91,
-      recommendedCourse: {
-        title: 'Survey Design & Field Operations',
-        duration: '12h',
-        type: 'iGOT Core'
-      }
-    },
-    {
-      id: 5,
-      name: 'Sampling Techniques',
-      domain: 'Operations',
-      x: 26,
-      y: 78,
-      score: 48,
-      required: 70,
-      gap: 22,
-      priority: 'CRITICAL',
-      status: 'needs_attention',
-      prerequisites: [1],
-      reasons: [
-        '4 of 7 assessment questions answered incorrectly',
-        'Low confidence in Stratified Sampling allocation calculations',
-        'Prerequisite weakness in Variance Estimation formulas',
-        'Role requires intermediate proficiency in multi-stage sampling'
-      ],
-      aiConfidence: 87,
-      recommendedCourse: {
-        title: 'Sampling Fundamentals',
-        duration: '15 min',
-        type: 'iGOT Course'
-      }
-    },
-    {
-      id: 6,
-      name: 'Statistical Programming',
-      domain: 'Technology',
-      x: 16,
-      y: 50,
-      score: 43,
-      required: 70,
-      gap: 27,
-      priority: 'CRITICAL',
-      status: 'needs_attention',
-      prerequisites: [1],
-      reasons: [
-        'Unable to write automated data validation scripts in Python/R',
-        'High error rate in pandas data cleaning syntax',
-        'Automation is essential for quarterly tabulation workflows'
-      ],
-      aiConfidence: 92,
-      recommendedCourse: {
-        title: 'Python for Statistical Automation',
-        duration: '10h',
-        type: 'iGOT Course'
-      }
-    }
-  ];
+  const [loading, setLoading] = useState<boolean>(true);
+  const [competencies, setCompetencies] = useState<any[]>([]);
+  const [insights, setInsights] = useState<any>(null);
+  const [diagnosis, setDiagnosis] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [learningPath, setLearningPath] = useState<any>(null);
+  const [historyList, setHistoryList] = useState<any[]>([]);
+  
+  const [nodes, setNodes] = useState<CapabilityNode[]>([]);
+  const [selectedNode, setSelectedNode] = useState<CapabilityNode | null>(null);
 
-  const [nodes] = useState<CapabilityNode[]>(initialNodes);
-  const [selectedNode, setSelectedNode] = useState<CapabilityNode>(initialNodes[4]); // Default to Sampling Techniques (Biggest Gap)
+  useEffect(() => {
+    const fetchDashboardTelemetry = async () => {
+      try {
+        setLoading(true);
+        const [compRes, insightRes, diagRes, recRes, pathRes, histRes] = await Promise.allSettled([
+          competencyApi.getMyCompetencies(),
+          competencyApi.getMyInsights(),
+          competencyApi.getMyDiagnosis(),
+          courseApi.getRecommended(),
+          learningPathApi.get(),
+          competencyApi.getMyHistory(),
+        ]);
 
-  // Learning Journey Sequence
-  const journeySteps = [
-    { label: 'Sampling Fundamentals', status: 'completed', number: '✓' },
-    { label: 'Stratified Sampling', status: 'current', number: '2' },
-    { label: 'Survey Design', status: 'upcoming', number: '3' },
-    { label: 'Field Validation', status: 'upcoming', number: '4' },
-    { label: 'Competency Check', status: 'upcoming', number: '◎' }
-  ];
+        const rawComps = compRes.status === 'fulfilled' ? compRes.value.data || [] : [];
+        const rawInsights = insightRes.status === 'fulfilled' ? insightRes.value.data || null : null;
+        const rawDiag = diagRes.status === 'fulfilled' ? diagRes.value.data || null : null;
+        const rawRecs = recRes.status === 'fulfilled' ? recRes.value.data || [] : [];
+        const rawPath = pathRes.status === 'fulfilled' ? pathRes.value.data || null : null;
+        const rawHist = histRes.status === 'fulfilled' ? histRes.value.data || [] : [];
 
-  // iGOT Recommendations
-  const igotRecs = [
-    { title: 'NSS Stratification Lab', match: 94, duration: '25 min', competency: 'Sampling Techniques' },
-    { title: 'Survey Sampling Methods', match: 87, duration: '18 min', competency: 'Survey Methodology' },
-    { title: 'Variance Estimation Basics', match: 76, duration: '20 min', competency: 'Statistical Methods' },
-  ];
+        setCompetencies(rawComps);
+        setInsights(rawInsights);
+        setDiagnosis(rawDiag);
+        setRecommendations(rawRecs);
+        setLearningPath(rawPath);
+        setHistoryList(rawHist);
 
-  // Improvement Trajectory Phases
-  const trajectoryPhases = [
-    { label: 'Assessed', score: 51, phase: 'Initial' },
-    { label: 'After Diagnosis', score: 58, phase: 'Step 1' },
-    { label: 'After Learning', score: 67, phase: 'Step 2' },
-    { label: 'Reassessment', score: 78, phase: 'Step 3' },
-    { label: 'Role Target', score: 80, phase: 'Benchmark', isTarget: true }
+        // Transform raw competencies into visual CapabilityNode[]
+        const builtNodes: CapabilityNode[] = rawComps.map((c: any, index: number) => {
+          const coords = defaultCoordinates[index % defaultCoordinates.length];
+          const isAssessed = c.current_score !== null;
+          const matchingRec = rawRecs.find((r: any) => r.competency_id === c.competency_id);
+          
+          let nodeStatus: 'proficient' | 'on_track' | 'needs_attention' | 'not_assessed' = 'not_assessed';
+          if (isAssessed) {
+            if (c.current_score >= c.target_score) nodeStatus = 'proficient';
+            else if (c.gap <= 10) nodeStatus = 'on_track';
+            else nodeStatus = 'needs_attention';
+          }
+
+          const priorityLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 
+            c.gap > 20 ? 'CRITICAL' : c.gap > 10 ? 'HIGH' : c.gap > 0 ? 'MEDIUM' : 'LOW';
+
+          const reasons: string[] = [];
+          if (c.weakest_subtopic) {
+            reasons.push(`Subtopic focus needed: ${c.weakest_subtopic}`);
+          }
+          if (c.change_points !== null && c.change_points !== undefined) {
+            reasons.push(`Recent trajectory: ${c.change_points > 0 ? '+' : ''}${c.change_points} pts since previous evaluation`);
+          }
+          if (c.assessment_count) {
+            reasons.push(`Telemetry aggregated across ${c.assessment_count} assessments`);
+          }
+          if (reasons.length === 0) {
+            reasons.push(isAssessed ? `Proficiency calibrated at ${c.current_score}% against ${c.target_score}% benchmark` : 'Pending initial baseline assessment');
+          }
+
+          return {
+            id: c.competency_id,
+            name: c.competency_name,
+            domain: c.domain || 'Statistical Standard',
+            x: coords.x,
+            y: coords.y,
+            score: c.current_score,
+            required: c.target_score,
+            gap: c.gap,
+            priority: priorityLevel,
+            status: nodeStatus,
+            prerequisites: index === 0 ? [] : [rawComps[0]?.competency_id || 1],
+            reasons: reasons,
+            weakestSubtopic: c.weakest_subtopic,
+            aiConfidence: Math.round(rawDiag?.confidence || 88),
+            recommendedCourse: {
+              title: matchingRec?.title || `Curriculum Module for ${c.competency_name}`,
+              duration: matchingRec?.duration_hours ? `${matchingRec.duration_hours}h` : '20 min',
+              type: matchingRec?.resource_type ? matchingRec.resource_type.toUpperCase().replace('_', ' ') : 'iGOT Course'
+            }
+          };
+        });
+
+        setNodes(builtNodes);
+
+        // Select the biggest gap node by default, or the first node
+        if (builtNodes.length > 0) {
+          const bottleneck = builtNodes.reduce((prev, curr) => ((curr.gap || 0) > (prev.gap || 0) ? curr : prev), builtNodes[0]);
+          setSelectedNode(bottleneck);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardTelemetry();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[450px] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-3 border-[#1F7A8C] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#0B2545]">Loading live capability telemetry & recommendations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const overallReadiness = insights?.overall_readiness ?? 0.0;
+  const deltaPoints = insights?.total_improvement_points ?? 0.0;
+  const assessmentsCount = insights?.total_assessments_taken ?? 0;
+  const bottleneckGap = insights?.priority_bottleneck_gap;
+  const topRecommendation = recommendations.length > 0 ? recommendations[0] : null;
+  const pathItems = learningPath?.items || [];
+
+  // Stepper milestones from live learning path or defaults
+  const journeySteps = pathItems.length > 0 ? pathItems.slice(0, 5).map((it: any) => ({
+    label: it.title,
+    status: it.status,
+    number: it.status === 'completed' ? '✓' : String(it.order)
+  })) : [
+    { label: 'Baseline Diagnostic', status: assessmentsCount > 0 ? 'completed' : 'current', number: assessmentsCount > 0 ? '✓' : '1' },
+    { label: 'Priority Gap Learning', status: assessmentsCount > 0 ? 'current' : 'upcoming', number: '2' },
+    { label: 'Adaptive Reassessment', status: 'upcoming', number: '3' },
+    { label: 'Benchmark Verification', status: 'upcoming', number: '◎' }
   ];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12 text-left">
+    <div className="space-y-8 max-w-7xl mx-auto pb-16 text-left">
+      
+      {/* If brand new user with 0 assessments, show prompt */}
+      {assessmentsCount === 0 && (
+        <div className="bg-[#0B2545] rounded-2xl p-6 text-[#FFFFFF] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md border border-[#0B2545]">
+          <div className="space-y-1">
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFFFFF]/10 text-[#D4AF37] border border-[#FFFFFF]/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Initial Setup Required</span>
+            </div>
+            <h3 className="text-xl font-bold text-[#FFFFFF]">Welcome to SmartLearn</h3>
+            <p className="text-xs text-[#FFFFFF]/80 max-w-xl">
+              Complete your initial baseline diagnostic to establish verified competency scores for your official role.
+            </p>
+          </div>
+          <Link to="/assessment">
+            <Button className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs px-6">
+              <span>Take Baseline Assessment</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* ============================================================ */}
       {/* 1. TOP HIGH-PRIORITY TRIAD (Readiness, Gap, Next Step)       */}
       {/* ============================================================ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
         {/* A. YOUR READINESS */}
         <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs flex flex-col justify-between space-y-4">
           <div>
@@ -196,22 +194,38 @@ export default function Dashboard() {
               YOUR READINESS
             </span>
             <div className="flex items-baseline gap-2.5 mt-2">
-              <span className="text-4xl font-black text-[#0B2545] font-mono">72%</span>
-              <span className="text-xs font-bold text-[#2E7D32] font-mono">↑ 12%</span>
+              <span className="text-4xl font-black text-[#0B2545] font-mono">{overallReadiness}%</span>
+              {deltaPoints > 0 && (
+                <span className="text-xs font-bold text-[#2E7D32] font-mono">↑ +{deltaPoints} pts</span>
+              )}
             </div>
             <p className="text-xs text-[#2B2D42]/70 mt-1">
-              since last assessment • 5 of 8 benchmarks achieved
+              {assessmentsCount > 0 
+                ? `${assessmentsCount} assessment${assessmentsCount > 1 ? 's' : ''} recorded • Live evidence profile`
+                : 'Pending initial assessment evaluation'}
             </p>
           </div>
 
-          {/* Mini Sparkline Visualization */}
+          {/* Sparkline from historical records */}
           <div className="pt-2">
             <div className="flex items-end gap-1.5 h-8 w-full bg-[#F4F6F9] p-2 rounded-lg border border-[#2B2D42]/10">
-              <div className="bg-[#1F7A8C]/30 w-1/5 h-[40%] rounded-xs" />
-              <div className="bg-[#1F7A8C]/40 w-1/5 h-[55%] rounded-xs" />
-              <div className="bg-[#1F7A8C]/60 w-1/5 h-[65%] rounded-xs" />
-              <div className="bg-[#1F7A8C]/80 w-1/5 h-[72%] rounded-xs" />
-              <div className="bg-[#1F7A8C] w-1/5 h-[85%] rounded-xs" />
+              {historyList.length > 0 ? (
+                historyList.slice(-5).map((h: any, i: number) => (
+                  <div 
+                    key={i} 
+                    style={{ height: `${Math.max(20, Math.min(100, h.score))}%` }} 
+                    className="bg-[#1F7A8C] flex-1 rounded-xs transition-all"
+                    title={`${h.competency_name}: ${h.score}%`}
+                  />
+                ))
+              ) : (
+                <>
+                  <div className="bg-[#1F7A8C]/20 w-1/4 h-[30%] rounded-xs" />
+                  <div className="bg-[#1F7A8C]/40 w-1/4 h-[50%] rounded-xs" />
+                  <div className="bg-[#1F7A8C]/60 w-1/4 h-[70%] rounded-xs" />
+                  <div className="bg-[#1F7A8C] w-1/4 h-[90%] rounded-xs" />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -223,21 +237,32 @@ export default function Dashboard() {
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#D4AF37]">
                 BIGGEST GAP
               </span>
-              <span className="text-xs font-mono font-bold text-[#0B2545]">48% → 70%</span>
+              {bottleneckGap && (
+                <span className="text-xs font-mono font-bold text-[#0B2545]">
+                  {bottleneckGap.current_score !== null ? `${bottleneckGap.current_score}%` : 'Unassessed'} → {bottleneckGap.target_score}%
+                </span>
+              )}
             </div>
-            <h3 className="text-base font-bold text-[#0B2545] mt-2">Sampling Techniques</h3>
-            <p className="text-xs text-[#2B2D42]/70 mt-1">
-              Variance estimation & Neyman stratification deficit
+            <h3 className="text-base font-bold text-[#0B2545] mt-2">
+              {bottleneckGap ? bottleneckGap.competency_name : (diagnosis?.primary_gap || 'Sampling Techniques')}
+            </h3>
+            <p className="text-xs text-[#2B2D42]/70 mt-1 line-clamp-2">
+              {diagnosis?.root_cause || (bottleneckGap ? `Active ${bottleneckGap.gap}% gap below official role standard` : 'Evaluate gaps across competencies')}
             </p>
           </div>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setSelectedNode(initialNodes[4])}
+            onClick={() => {
+              if (bottleneckGap) {
+                const targetNode = nodes.find(n => n.name === bottleneckGap.competency_name);
+                if (targetNode) setSelectedNode(targetNode);
+              }
+            }}
             className="w-full border-[#D4AF37]/50 text-[#0B2545] hover:bg-[#D4AF37]/10 font-bold text-xs h-9 cursor-pointer"
           >
-            Fix This Gap
+            Inspect Primary Gap
           </Button>
         </div>
 
@@ -247,10 +272,16 @@ export default function Dashboard() {
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C] block">
               NEXT STEP
             </span>
-            <h3 className="text-base font-bold text-[#0B2545] mt-2">NSS Stratification Lab</h3>
+            <h3 className="text-base font-bold text-[#0B2545] mt-2 truncate">
+              {topRecommendation ? topRecommendation.title : 'Take Adaptive Assessment'}
+            </h3>
             <p className="text-xs text-[#2B2D42]/70 mt-1 flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#1F7A8C]" />
-              <span>25 min · iGOT Micro-Learning</span>
+              <span>
+                {topRecommendation 
+                  ? `${topRecommendation.duration_hours}h • ${topRecommendation.provider}` 
+                  : '15 min • Multi-Competency Diagnostic'}
+              </span>
             </p>
           </div>
 
@@ -259,7 +290,7 @@ export default function Dashboard() {
               size="sm"
               className="w-full bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs h-9 flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>Start Learning</span>
+              <span>{topRecommendation ? 'Launch Recommended Module' : 'View Learning Path'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </Link>
@@ -281,7 +312,13 @@ export default function Dashboard() {
 
         {/* Right: Contextual Gap Inspector */}
         <div className="lg:col-span-5">
-          <GapInspector node={selectedNode} />
+          {selectedNode ? (
+            <GapInspector node={selectedNode} />
+          ) : (
+            <div className="bg-[#FFFFFF] p-8 rounded-2xl border border-[#2B2D42]/10 text-center text-xs text-[#2B2D42]/60">
+              Select a competency node in the network to inspect detailed evidence.
+            </div>
+          )}
         </div>
       </div>
 
@@ -297,21 +334,21 @@ export default function Dashboard() {
             </h3>
           </div>
           <span className="text-[11px] font-mono text-[#2B2D42]/70">
-            Step 2 of 5 Active
+            {pathItems.filter((p: any) => p.status === 'completed').length} of {Math.max(pathItems.length, journeySteps.length)} Milestones Completed
           </span>
         </div>
 
         {/* Horizontal Journey Stepper */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2">
-          {journeySteps.map((step, idx) => {
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 pt-2">
+          {journeySteps.map((step: any, idx: number) => {
             const isCompleted = step.status === 'completed';
             const isCurrent = step.status === 'current';
 
             return (
               <div
-                key={step.label}
+                key={idx}
                 className={cn(
-                  "p-3 rounded-xl border flex flex-col justify-between space-y-2 transition-all",
+                  "p-3 rounded-xl border flex flex-col justify-between space-y-2 transition-all text-left",
                   isCompleted 
                     ? "bg-[#2E7D32]/5 border-[#2E7D32]/30 text-[#2E7D32]"
                     : isCurrent
@@ -330,7 +367,7 @@ export default function Dashboard() {
                     {isCompleted ? 'Done' : isCurrent ? 'Active' : `0${idx + 1}`}
                   </span>
                 </div>
-                <h4 className="text-xs font-bold leading-tight">
+                <h4 className="text-xs font-bold leading-tight line-clamp-2">
                   {step.label}
                 </h4>
               </div>
@@ -347,24 +384,24 @@ export default function Dashboard() {
         <div className="lg:col-span-5 bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
             <h3 className="text-xs font-mono font-bold text-[#0B2545] uppercase tracking-wider">
-              iGOT RECOMMENDATIONS
+              ACCREDITED RECOMMENDATIONS
             </h3>
-            <span className="text-[10px] font-mono text-[#1F7A8C] font-semibold">Curated for your role</span>
+            <span className="text-[10px] font-mono text-[#1F7A8C] font-semibold">Ranked by Gap Deficit</span>
           </div>
 
           <div className="space-y-3">
-            {igotRecs.map((course) => (
-              <div key={course.title} className="p-3 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 flex items-center justify-between gap-3">
-                <div>
-                  <h4 className="text-xs font-bold text-[#0B2545]">{course.title}</h4>
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-[#2B2D42]/70 mt-0.5">
-                    <span>{course.competency}</span>
+            {recommendations.slice(0, 3).map((course: any) => (
+              <div key={course.id} className="p-3 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 flex items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <h4 className="text-xs font-bold text-[#0B2545] line-clamp-1">{course.title}</h4>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-[#2B2D42]/70">
+                    <span className="truncate max-w-[120px]">{course.competency_name}</span>
                     <span>•</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#1F7A8C]" /> {course.duration}</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#1F7A8C]" /> {course.duration_hours}h</span>
                   </div>
                 </div>
                 <span className="shrink-0 px-2 py-0.5 rounded-full bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20 text-[10px] font-mono font-bold">
-                  {course.match}% Match
+                  {Math.round(course.match_percent)}% Match
                 </span>
               </div>
             ))}
@@ -377,51 +414,41 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Right: Improvement Trajectory Curve */}
+        {/* Right: AI Diagnosis & Root Cause Insight */}
         <div className="lg:col-span-7 bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
             <div className="space-y-0.5">
               <span className="text-[10px] font-mono font-bold uppercase text-[#1F7A8C]">
-                MEASURED OUTCOME PROOF
+                DIAGNOSTIC EVIDENCE INSIGHT
               </span>
               <h3 className="text-sm font-bold text-[#0B2545]">
-                Survey Methodology Trajectory
+                {diagnosis?.primary_gap || 'Role Benchmark Calibration'}
               </h3>
             </div>
-            <span className="text-xs font-mono font-bold text-[#2E7D32] bg-[#2E7D32]/10 px-2.5 py-1 rounded-full border border-[#2E7D32]/20">
-              ✓ Gap reduced by 27 percentage points
+            <span className="text-xs font-mono font-bold text-[#1F7A8C] bg-[#1F7A8C]/10 px-2.5 py-1 rounded-full border border-[#1F7A8C]/20">
+              Confidence: {Math.round(diagnosis?.confidence || 88)}%
             </span>
           </div>
 
-          {/* Stepped Trajectory Progression */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-2">
-            {trajectoryPhases.map((phase) => (
-              <div
-                key={phase.label}
-                className={cn(
-                  "p-3 rounded-xl border space-y-1 text-center",
-                  phase.isTarget
-                    ? "bg-[#1F7A8C]/5 border-[#1F7A8C]/30"
-                    : phase.score >= 75
-                    ? "bg-[#2E7D32]/5 border-[#2E7D32]/30"
-                    : "bg-[#F4F6F9] border-[#2B2D42]/10"
-                )}
-              >
-                <span className="text-[9px] font-mono uppercase text-[#2B2D42]/60 block">{phase.phase}</span>
-                <span className={cn(
-                  "text-lg font-black font-mono block",
-                  phase.isTarget ? "text-[#1F7A8C]" : phase.score >= 75 ? "text-[#2E7D32]" : "text-[#0B2545]"
-                )}>
-                  {phase.score}%
-                </span>
-                <span className="text-[10px] font-bold text-[#0B2545] truncate block leading-tight">{phase.label}</span>
-              </div>
-            ))}
+          <div className="p-4 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 text-xs space-y-2">
+            <span className="text-[10px] font-mono font-bold text-[#1F7A8C] uppercase block">
+              AI Root-Cause Explanation
+            </span>
+            <p className="text-[#2B2D42] leading-relaxed">
+              {diagnosis?.explanation || insights?.diagnostic_summary || 'Your competency scores are calculated deterministically from assessment answers. Recommended modules target your diagnosed weak areas.'}
+            </p>
           </div>
 
-          <p className="text-[11px] text-[#2B2D42]/70 leading-relaxed font-mono pt-1">
-            Continuous reassessment validates that knowledge gaps are effectively closed rather than simply recording course completion.
-          </p>
+          <div className="flex items-center justify-between pt-1 text-xs">
+            <span className="font-mono text-[#2B2D42]/70">
+              Deterministic scoring verified • Zero self-rating bias
+            </span>
+            <Link to="/assessment">
+              <Button size="sm" variant="ghost" className="text-xs font-bold text-[#1F7A8C] hover:bg-[#1F7A8C]/10 h-8">
+                Take Reassessment <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

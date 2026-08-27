@@ -7,6 +7,8 @@ from models.assessment import Assessment, AssessmentAnswer, QuestionOption, Ques
 from schemas.assessment import (
     StartAssessmentRequest, 
     SubmitAnswerRequest, 
+    AdaptiveStepRequest,
+    AdaptiveStepResponse,
     AssessmentStartResponse, 
     AssessmentResultResponse,
     QuestionResponse,
@@ -18,6 +20,7 @@ from services.assessment_service import (
     score_assessment, 
     get_assessment_result
 )
+from services.adaptive_assessment_service import AdaptiveAssessmentService
 
 router = APIRouter(prefix="/api/assessments", tags=["assessments"])
 
@@ -29,14 +32,21 @@ def start_assessment(
 ):
     """
     Starts an official assessment (baseline, adaptive_reassessment, or practice).
-    Selects calibrated questions sampled evenly across all required competencies for the user's role.
+    Initializes adaptive state and selects calibrated questions.
     """
     ass_type = req.assessment_type or "baseline"
+    
+    # Initialize real-time adaptive state
+    adaptive_state = AdaptiveAssessmentService.initialize_adaptive_state(
+        db, current_user, req.competency_ids, req.question_count or 8
+    )
+
     assessment = Assessment(
         user_id=current_user.id, 
         assessment_type=ass_type,
         type=ass_type,
-        status="in_progress"
+        status="in_progress",
+        adaptive_state=adaptive_state
     )
     db.add(assessment)
     db.commit()
@@ -83,6 +93,68 @@ def start_assessment(
         questions=q_list
     )
 
+@router.post("/{id}/adaptive-next", response_model=AdaptiveStepResponse)
+def adaptive_next_step(
+    id: int,
+    req: AdaptiveStepRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Submits an answer and returns the next dynamically adapted question based on streak,
+    difficulty adjustments, and weak subtopic detection.
+    """
+    assessment = db.query(Assessment).filter(Assessment.id == id, Assessment.user_id == current_user.id).first()
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment session not found")
+
+    step_result = AdaptiveAssessmentService.process_adaptive_step(
+        db=db,
+        assessment_id=id,
+        user_id=current_user.id,
+        question_id=req.question_id,
+        selected_option_id=req.selected_option_id,
+        confidence_level=req.confidence_level or 2,
+        time_taken_seconds=req.time_taken_seconds or 15
+    )
+
+    if step_result.get("is_completed"):
+        return AdaptiveStepResponse(
+            is_completed=True,
+            result=step_result.get("result"),
+            message="Adaptive assessment completed successfully"
+        )
+
+    if step_result.get("question_generation_required"):
+        return AdaptiveStepResponse(
+            is_completed=False,
+            question_generation_required=True,
+            message="question_generation_required"
+        )
+
+    nq = step_result["next_question"]
+    opts = [OptionResponse(id=o["id"], text=o["text"], order=o["order"]) for o in nq["options"]]
+    
+    question_res = QuestionResponse(
+        id=nq["id"],
+        text=nq["text"],
+        question_text=nq["text"],
+        difficulty=nq["difficulty"],
+        competency_id=nq["competency_id"],
+        competency_name=nq["competency_name"],
+        topic_id=nq["topic_id"],
+        topic_name=nq["topic_name"],
+        cognitive_level=nq["cognitive_level"],
+        options=opts
+    )
+
+    return AdaptiveStepResponse(
+        is_completed=False,
+        step=step_result.get("step"),
+        total_steps=step_result.get("total_steps"),
+        next_question=question_res
+    )
+
 @router.get("/{id}")
 def get_assessment(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Fetch assessment session metadata."""
@@ -92,6 +164,7 @@ def get_assessment(id: int, db: Session = Depends(get_db), current_user: User = 
     return assessment
 
 @router.post("/{id}/answer")
+@router.post("/{id}/submit-answer")
 def submit_answer(
     id: int, 
     req: SubmitAnswerRequest, 

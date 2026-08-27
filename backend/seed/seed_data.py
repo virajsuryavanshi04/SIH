@@ -16,13 +16,12 @@ def seed_database(db: Session):
     if db.query(User).count() > 0:
         return
     
-    # --- 1. Roles ---
+    # --- 1. Roles (Professional Statistical Cadres) ---
     roles = [
         Role(id=1, name="Statistical Officer", description="Senior analysis, sampling design, and official reporting"),
         Role(id=2, name="Survey Officer", description="Field operations, survey methodology, and data collection"),
         Role(id=3, name="Data Analyst", description="Data validation, regression modeling, and statistical visualization"),
-        Role(id=4, name="Statistical Investigator", description="Registry verification, field auditing, and basic tabulation"),
-        Role(id=5, name="Administrator", description="System and national workforce competency governance")
+        Role(id=4, name="Statistical Investigator", description="Registry verification, field auditing, and basic tabulation")
     ]
     db.add_all(roles)
     db.commit()
@@ -134,8 +133,8 @@ def seed_database(db: Session):
     pwd = hash_password("admin123")
     lpwd = hash_password("learn123")
     users_data = [
-        ("admin@smartlearn.gov.in", pwd, "Priya Sharma", "admin", 5, 1, "Admin", 8),
-        ("manager@smartlearn.gov.in", pwd, "Rajesh Kumar", "admin", 5, 2, "Admin", 12),
+        ("admin@smartlearn.gov.in", pwd, "Priya Sharma", "admin", 1, 1, "Director General", 8),
+        ("manager@smartlearn.gov.in", pwd, "Rajesh Kumar", "admin", 1, 2, "Senior Statistical Officer", 12),
         ("arjun.patel@gov.in", lpwd, "Arjun Patel", "learner", 1, 1, "Statistical Officer", 5),
         ("meera.nair@gov.in", lpwd, "Meera Nair", "learner", 3, 3, "Data Analyst", 3),
         ("vikram.singh@gov.in", lpwd, "Vikram Singh", "learner", 2, 2, "Survey Officer", 6),

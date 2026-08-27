@@ -14,6 +14,12 @@ class SubmitAnswerRequest(BaseModel):
     confidence_level: Optional[int] = 2  # 1 = Low, 2 = Medium, 3 = High
     time_taken_seconds: Optional[int] = 15
 
+class AdaptiveStepRequest(BaseModel):
+    question_id: int
+    selected_option_id: int
+    confidence_level: Optional[int] = 2
+    time_taken_seconds: Optional[int] = 15
+
 class OptionResponse(BaseModel):
     id: int
     text: str
@@ -90,4 +96,14 @@ class AssessmentResultResponse(BaseModel):
     largest_gap: Optional[LargestGapSummary] = None
     competency_breakdown: List[CompetencyBreakdownItem] = []
     message: str = "Let's understand where you need to improve."
+    model_config = ConfigDict(from_attributes=True)
+
+class AdaptiveStepResponse(BaseModel):
+    is_completed: bool
+    question_generation_required: bool = False
+    step: Optional[int] = None
+    total_steps: Optional[int] = None
+    next_question: Optional[QuestionResponse] = None
+    result: Optional[Dict[str, Any]] = None
+    message: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)

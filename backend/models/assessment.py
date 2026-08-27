@@ -14,6 +14,7 @@ class Assessment(Base):
     started_at = Column(DateTime, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     overall_score = Column(Float, nullable=True)
+    adaptive_state = Column(JSON, nullable=True)  # stores real-time streak, per-topic difficulty, and progress
 
     user = relationship("User", back_populates="assessments")
     answers = relationship("AssessmentAnswer", back_populates="assessment", cascade="all, delete-orphan")

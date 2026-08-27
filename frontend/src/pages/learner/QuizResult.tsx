@@ -260,15 +260,19 @@ export default function QuizResult() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-          <Link to="/learning-path" className="w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto font-bold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs px-8">
-              Explore Learning Recommendations <ArrowRight className="w-4 h-4 ml-2" />
+          {/* Button 1: View Capability Landscape */}
+          <Link to="/competencies" className="w-full sm:w-auto">
+            <Button size="lg" className="w-full sm:w-auto font-bold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs px-6 flex items-center justify-center cursor-pointer">
+              <span>View Capability Landscape</span>
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
 
-          <Link to="/competencies" className="w-full sm:w-auto">
-            <Button variant="outline" size="lg" className="w-full sm:w-auto text-xs font-bold text-[#FFFFFF] border-[#FFFFFF]/20 hover:bg-[#FFFFFF]/10 hover:text-[#FFFFFF]">
-              <Compass className="w-4 h-4 mr-2" /> View Capability Landscape
+          {/* Button 2: Explore Learning Recommendations */}
+          <Link to="/learning-path" className="w-full sm:w-auto">
+            <Button size="lg" className="w-full sm:w-auto font-bold bg-[#FFFFFF]/10 hover:bg-[#FFFFFF]/20 text-[#FFFFFF] border border-[#FFFFFF]/20 shadow-xs px-6 flex items-center justify-center cursor-pointer">
+              <span>Explore Learning Recommendations</span>
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
         </div>

@@ -9,13 +9,13 @@ router = APIRouter(prefix="/api/roles", tags=["roles"])
 
 @router.get("/", response_model=list[RoleResponse])
 def list_roles(db: Session = Depends(get_db)):
-    """List all official roles in India's statistical system."""
-    return db.query(Role).all()
+    """List all selectable professional statistical roles (excludes privileged administrative system roles)."""
+    return db.query(Role).filter(~Role.name.ilike("%admin%")).all()
 
 @router.get("/{role_id}", response_model=RoleDetailResponse)
 def get_role(role_id: int, db: Session = Depends(get_db)):
     """Get role details and its mapped competency targets."""
-    role = db.query(Role).filter(Role.id == role_id).first()
+    role = db.query(Role).filter(Role.id == role_id, ~Role.name.ilike("%admin%")).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
     
@@ -42,7 +42,7 @@ def get_role(role_id: int, db: Session = Depends(get_db)):
 @router.get("/{role_id}/competencies", response_model=list[RoleCompetencyItem])
 def get_role_competencies(role_id: int, db: Session = Depends(get_db)):
     """List required competencies for a specific official role."""
-    role = db.query(Role).filter(Role.id == role_id).first()
+    role = db.query(Role).filter(Role.id == role_id, ~Role.name.ilike("%admin%")).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
     

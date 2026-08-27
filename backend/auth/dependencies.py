@@ -24,10 +24,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 def require_admin(user: User = Depends(get_current_user)):
     if user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+        raise HTTPException(
+            status_code=403, 
+            detail="AI question generation and material curation are restricted to Content Administrators."
+        )
     return user
 
 def require_learner(user: User = Depends(get_current_user)):
     if user.role not in ["learner", "admin"]:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+        raise HTTPException(
+            status_code=403, 
+            detail="Learner assessments are restricted to registered statistical cadre personnel."
+        )
     return user
+

@@ -34,6 +34,34 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
     return user
 
+from models.role import Role
+from models.department import Department
+
 @router.get("/me", response_model=UserResponse)
-def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+def get_me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    role_name = current_user.designation
+    if current_user.role_id:
+        role_obj = db.query(Role).filter(Role.id == current_user.role_id).first()
+        if role_obj:
+            role_name = role_obj.name
+            
+    dept_name = current_user.department_name
+    if current_user.department_id:
+        dept_obj = db.query(Department).filter(Department.id == current_user.department_id).first()
+        if dept_obj:
+            dept_name = dept_obj.name
+
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        full_name=current_user.full_name,
+        role=current_user.role,
+        role_id=current_user.role_id,
+        role_name=role_name,
+        department_id=current_user.department_id,
+        department_name=dept_name,
+        designation=current_user.designation,
+        experience_years=current_user.experience_years,
+        is_onboarded=bool(current_user.role_id or current_user.designation),
+        created_at=current_user.created_at
+    )

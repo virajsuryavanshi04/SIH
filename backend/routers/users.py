@@ -57,13 +57,18 @@ def complete_onboarding(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Complete initial professional onboarding: assign role, department, and initialize role competency framework."""
+    """Complete initial professional onboarding: assign professional cadre role, department, and initialize role competency framework."""
     role = db.query(Role).filter(Role.id == req.role_id).first()
     if not role:
-        raise HTTPException(status_code=404, detail="Selected role not found")
+        raise HTTPException(status_code=404, detail="Selected professional role not found")
+    
+    if "admin" in role.name.lower() or "administrator" in role.name.lower():
+        raise HTTPException(status_code=403, detail="Administrator is a privileged system role and cannot be self-selected.")
 
     current_user.role_id = role.id
     current_user.designation = role.name
+    if current_user.role != "admin":
+        current_user.role = "learner"
     
     if req.department_id:
         dept = db.query(Department).filter(Department.id == req.department_id).first()
@@ -106,18 +111,25 @@ def complete_onboarding(
     return get_current_user_profile(current_user, db)
 
 @router.put("/me/role", response_model=UserProfileResponse)
+@router.patch("/me/role", response_model=UserProfileResponse)
 def update_user_role(
     req: UserRoleUpdateRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Change official role. Recalculates gaps against new role targets without deleting historical assessment data."""
+    """Change official professional role. Recalculates gaps against new role targets without deleting historical assessment data."""
     role = db.query(Role).filter(Role.id == req.role_id).first()
     if not role:
-        raise HTTPException(status_code=404, detail="Selected role not found")
+        raise HTTPException(status_code=404, detail="Selected professional role not found")
+
+    if "admin" in role.name.lower() or "administrator" in role.name.lower():
+        raise HTTPException(status_code=403, detail="Administrator is a privileged system role and cannot be self-selected.")
 
     current_user.role_id = role.id
     current_user.designation = role.name
+    # System authorization role is strictly preserved and cannot be escalated
+    if current_user.role != "admin":
+        current_user.role = "learner"
 
     # Fetch new role competency requirements
     role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == role.id).all()
@@ -165,6 +177,38 @@ def update_user_role(
                 last_assessed=None
             )
             db.add(new_uc)
+
+    db.commit()
+    db.refresh(current_user)
+    return get_current_user_profile(current_user, db)
+
+@router.patch("/me", response_model=UserProfileResponse)
+@router.put("/me", response_model=UserProfileResponse)
+def update_profile(
+    req: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update profile attributes. Explicitly forbids privilege escalation on system roles.
+    """
+    if "role" in req or "system_role" in req:
+        new_role = req.get("role") or req.get("system_role")
+        if new_role != current_user.role and current_user.role != "admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Privilege escalation is forbidden. System authorization roles cannot be self-assigned by learners."
+            )
+        if current_user.role == "admin" and new_role:
+            current_user.role = new_role
+
+    if "full_name" in req and req["full_name"]:
+        current_user.full_name = req["full_name"]
+        current_user.name = req["full_name"]
+    if "experience_years" in req and req["experience_years"] is not None:
+        current_user.experience_years = req["experience_years"]
+    if "department_id" in req and req["department_id"] is not None:
+        current_user.department_id = req["department_id"]
 
     db.commit()
     db.refresh(current_user)

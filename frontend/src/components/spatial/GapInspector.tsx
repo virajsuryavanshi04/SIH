@@ -1,7 +1,7 @@
 import React from 'react';
 import { CapabilityNode } from './CapabilityLandscape';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, CheckCircle2, AlertTriangle, BookOpen, Clock, ShieldAlert, Target } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle2, AlertTriangle, BookOpen, Clock, ShieldAlert, Target, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -14,17 +14,21 @@ export default function GapInspector({ node }: Props) {
   const isAssessed = node.score !== null && node.status !== 'not_assessed';
   const isTargetMet = isAssessed && (node.score ?? 0) >= node.required;
   const isCritical = node.priority === 'CRITICAL';
+  const gapVal = node.gap ?? 0;
+
+  const targetLink = !isAssessed ? '/assessment' : '/learning-path';
 
   return (
     <div className="bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 p-5 sm:p-6 shadow-xs space-y-5 text-left h-full flex flex-col justify-between">
-      {/* Header */}
-      <div className="space-y-3 border-b border-[#2B2D42]/10 pb-4">
+      
+      {/* 1. Header: Domain + Priority Badge + Title */}
+      <div className="space-y-2.5 border-b border-[#2B2D42]/10 pb-4">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#1F7A8C]">
-            {node.domain} // TELEMETRY
+            {node.domain || 'STATISTICAL STANDARD'} // TELEMETRY
           </span>
           <span className={cn(
-            "text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border",
+            "text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border",
             !isAssessed
               ? "bg-[#2B2D42]/5 text-[#2B2D42]/70 border-[#2B2D42]/20"
               : isTargetMet 
@@ -33,49 +37,64 @@ export default function GapInspector({ node }: Props) {
               ? "bg-[#D4AF37]/15 text-[#0B2545] border-[#D4AF37]/35"
               : "bg-[#1F7A8C]/10 text-[#1F7A8C] border-[#1F7A8C]/20"
           )}>
-            {!isAssessed ? 'PENDING BASELINE' : `${node.priority} PRIORITY`}
+            {!isAssessed ? 'PENDING BASELINE' : isTargetMet ? 'PROFICIENT' : `${node.priority} PRIORITY`}
           </span>
         </div>
-        <h3 className="text-xl font-black text-[#0B2545] tracking-tight">
+        <h3 className="text-xl font-black text-[#0B2545] tracking-tight uppercase">
           {node.name}
         </h3>
       </div>
 
-      {/* 3 Metric Blocks: Current Level | Target Level | Deficit */}
+      {/* 2. Three Metric Blocks: Current Level | Target Level | Deficit Gap */}
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="p-3 bg-[#F4F6F9] rounded-xl border border-[#2B2D42]/10">
-          <span className="text-[9px] font-mono uppercase text-[#2B2D42]/60 font-bold block">Current Level</span>
+          <span className="text-[9px] font-mono uppercase text-[#2B2D42]/60 font-bold block">Current</span>
           <span className="text-xl font-black text-[#0B2545] font-mono mt-0.5 block">
-            {isAssessed ? `${node.score}%` : 'Not Assessed'}
+            {isAssessed ? `${node.score}%` : 'N/A'}
           </span>
         </div>
         <div className="p-3 bg-[#1F7A8C]/5 rounded-xl border border-[#1F7A8C]/20">
-          <span className="text-[9px] font-mono uppercase text-[#1F7A8C] font-bold block">Target Level</span>
+          <span className="text-[9px] font-mono uppercase text-[#1F7A8C] font-bold block">Target</span>
           <span className="text-xl font-black text-[#1F7A8C] font-mono mt-0.5 block">{node.required}%</span>
         </div>
         <div className={cn(
           "p-3 rounded-xl border",
           !isAssessed
             ? "bg-[#F4F6F9] border-[#2B2D42]/10"
-            : (node.gap ?? 0) > 0 
+            : gapVal > 0 
             ? "bg-[#D4AF37]/15 border-[#D4AF37]/30" 
             : "bg-[#2E7D32]/10 border-[#2E7D32]/30"
         )}>
-          <span className="text-[9px] font-mono uppercase text-[#2B2D42]/60 font-bold block">Deficit</span>
+          <span className="text-[9px] font-mono uppercase text-[#2B2D42]/60 font-bold block">Gap</span>
           <span className={cn(
             "text-xl font-black font-mono mt-0.5 block",
-            !isAssessed ? "text-[#2B2D42]/60" : (node.gap ?? 0) > 0 ? "text-[#0B2545]" : "text-[#2E7D32]"
+            !isAssessed ? "text-[#2B2D42]/60" : gapVal > 0 ? "text-[#0B2545]" : "text-[#2E7D32]"
           )}>
-            {!isAssessed ? 'Pending' : (node.gap ?? 0) > 0 ? `-${node.gap}%` : '0%'}
+            {!isAssessed ? 'Pending' : gapVal > 0 ? `-${gapVal}%` : '0%'}
           </span>
         </div>
       </div>
 
-      {/* Section: WHY THIS GAP? / UNASSESSED EXPLANATION */}
-      <div className="space-y-2.5">
+      {/* 3. Granular Weak Subtopic Area */}
+      {node.weakestSubtopic && (
+        <div className="p-3 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-between text-xs">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-mono font-bold text-[#0B2545] uppercase block">
+              Weakest Area
+            </span>
+            <span className="font-bold text-[#0B2545]">
+              {node.weakestSubtopic}
+            </span>
+          </div>
+          <AlertTriangle className="w-4 h-4 text-[#D4AF37] shrink-0" />
+        </div>
+      )}
+
+      {/* 4. WHY THIS GAP? / Evidence Telemetry */}
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h4 className="text-xs font-mono font-bold text-[#0B2545] uppercase tracking-wider">
-            {isAssessed ? 'WHY THIS GAP?' : 'DIAGNOSTIC STATUS'}
+            WHY?
           </h4>
           <span className="text-[10px] font-mono text-[#1F7A8C] font-bold">
             {isAssessed ? `AI Confidence: ${node.aiConfidence}%` : 'Evidence Required'}
@@ -94,38 +113,38 @@ export default function GapInspector({ node }: Props) {
             <li className="flex items-start gap-2 leading-relaxed">
               <span className="text-[#1F7A8C] font-bold mt-0.5">•</span>
               <span>
-                Competency scores are strictly calculated from assessment responses. Take a baseline assessment to establish evidence for this competency.
+                Competency scores are strictly calculated from assessment evidence. Complete a diagnostic assessment to calibrate this competency.
               </span>
             </li>
           )}
         </ul>
       </div>
 
-      {/* Section: RECOMMENDED INTERVENTION */}
+      {/* 5. RECOMMENDED ACTION / Direct CTA */}
       <div className="space-y-3 pt-2 border-t border-[#2B2D42]/10">
         <div>
           <span className="text-[10px] font-mono font-bold text-[#1F7A8C] uppercase tracking-wider block">
-            {isAssessed ? 'RECOMMENDED INTERVENTION' : 'NEXT STEP'}
+            RECOMMENDED ACTION
           </span>
-          <p className="text-xs font-bold text-[#0B2545] mt-0.5">
+          <p className="text-xs font-bold text-[#0B2545] mt-0.5 truncate">
             {isAssessed ? node.recommendedCourse.title : `Complete Baseline Assessment for ${node.name}`}
           </p>
         </div>
 
         <div className="flex items-center justify-between text-xs text-[#2B2D42]/70 font-mono">
           <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            {isAssessed ? node.recommendedCourse.duration : '15-20 min'}
+            <Clock className="w-3.5 h-3.5 text-[#1F7A8C]" />
+            {isAssessed ? node.recommendedCourse.duration : '15 min'}
           </span>
-          <span className="bg-[#1F7A8C]/10 text-[#1F7A8C] px-2 py-0.5 rounded font-bold">
+          <span className="bg-[#1F7A8C]/10 text-[#1F7A8C] px-2 py-0.5 rounded font-bold text-[10px]">
             {isAssessed ? node.recommendedCourse.type : 'MoSPI Standard Diagnostic'}
           </span>
         </div>
 
-        <Link to="/assessment" className="block w-full">
-          <Button className="w-full bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs">
-            {isAssessed ? 'Launch Recommended Module' : 'Take Baseline Assessment'}
-            <ArrowRight className="w-4 h-4 ml-2" />
+        <Link to={targetLink} className="block w-full">
+          <Button className="w-full bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs h-9 flex items-center justify-center gap-1.5 cursor-pointer">
+            <span>{isAssessed ? 'Start Learning' : 'Take Baseline Assessment'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </Link>
       </div>

@@ -1,162 +1,120 @@
-import { useState } from 'react';
-import { Compass, Sparkles, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Compass, Sparkles, ShieldCheck, Layers, BookOpen } from 'lucide-react';
 import CapabilityLandscape, { CapabilityNode } from '@/components/spatial/CapabilityLandscape';
 import GapInspector from '@/components/spatial/GapInspector';
+import { competencyApi, courseApi } from '@/lib/api';
+
+const defaultCoordinates = [
+  { x: 26, y: 22 },
+  { x: 74, y: 22 },
+  { x: 86, y: 50 },
+  { x: 74, y: 78 },
+  { x: 26, y: 78 },
+  { x: 14, y: 50 },
+  { x: 50, y: 18 },
+  { x: 50, y: 82 },
+];
 
 export default function Competencies() {
-  const initialNodes: CapabilityNode[] = [
-    {
-      id: 1,
-      name: 'Statistical Methods',
-      domain: 'Core Theory',
-      x: 24,
-      y: 22,
-      score: 86,
-      required: 80,
-      gap: 0,
-      priority: 'LOW',
-      status: 'proficient',
-      prerequisites: [],
-      reasons: [
-        '14 of 15 questions answered correctly on probability distributions and hypothesis testing',
-        'Demonstrates mastery over central limit theorem and statistical inferences',
-        'Strong mathematical foundation verified across 3 assessments'
-      ],
-      aiConfidence: 94,
-      recommendedCourse: {
-        title: 'Foundations of Statistical Inference (ISI-101)',
-        duration: '2h',
-        type: 'Refresher'
-      }
-    },
-    {
-      id: 2,
-      name: 'Data Quality',
-      domain: 'Governance',
-      x: 76,
-      y: 22,
-      score: 72,
-      required: 70,
-      gap: 0,
-      priority: 'LOW',
-      status: 'proficient',
-      prerequisites: [1],
-      reasons: [
-        'Consistently applies administrative registry validation checks',
-        'Anomaly scoring accuracy meets official MoSPI threshold',
-        'Passed validation framework diagnostic'
-      ],
-      aiConfidence: 89,
-      recommendedCourse: {
-        title: 'Data Quality Validation & Audit Frameworks',
-        duration: '8h',
-        type: 'MoSPI Certified'
-      }
-    },
-    {
-      id: 3,
-      name: 'Data Analysis',
-      domain: 'Analytics',
-      x: 84,
-      y: 50,
-      score: 64,
-      required: 80,
-      gap: 16,
-      priority: 'MEDIUM',
-      status: 'on_track',
-      prerequisites: [1],
-      reasons: [
-        'Solid grasp of univariate and bivariate descriptive metrics',
-        'Below required benchmark on multivariate regression synthesis',
-        'Role requires advanced regression analysis for policy reports'
-      ],
-      aiConfidence: 85,
-      recommendedCourse: {
-        title: 'Applied Regression Analysis & Modeling',
-        duration: '14h',
-        type: 'iGOT Course'
-      }
-    },
-    {
-      id: 4,
-      name: 'Survey Methodology',
-      domain: 'Operations',
-      x: 74,
-      y: 78,
-      score: 51,
-      required: 75,
-      gap: 24,
-      priority: 'HIGH',
-      status: 'needs_attention',
-      prerequisites: [5],
-      reasons: [
-        'Struggled with questionnaire logic and non-response adjustment factors',
-        'Directly impaired by underlying gap in Sampling Techniques',
-        'Role benchmark requires 75% for official survey publishing'
-      ],
-      aiConfidence: 91,
-      recommendedCourse: {
-        title: 'Survey Design & Field Operations',
-        duration: '12h',
-        type: 'iGOT Core'
-      }
-    },
-    {
-      id: 5,
-      name: 'Sampling Techniques',
-      domain: 'Operations',
-      x: 26,
-      y: 78,
-      score: 48,
-      required: 70,
-      gap: 22,
-      priority: 'CRITICAL',
-      status: 'needs_attention',
-      prerequisites: [1],
-      reasons: [
-        '4 of 7 assessment questions answered incorrectly',
-        'Low confidence in Stratified Sampling allocation calculations',
-        'Prerequisite weakness in Variance Estimation formulas',
-        'Role requires intermediate proficiency in multi-stage sampling'
-      ],
-      aiConfidence: 87,
-      recommendedCourse: {
-        title: 'Sampling Fundamentals',
-        duration: '15 min',
-        type: 'iGOT Course'
-      }
-    },
-    {
-      id: 6,
-      name: 'Statistical Programming',
-      domain: 'Technology',
-      x: 16,
-      y: 50,
-      score: 43,
-      required: 70,
-      gap: 27,
-      priority: 'CRITICAL',
-      status: 'needs_attention',
-      prerequisites: [1],
-      reasons: [
-        'Unable to write automated data validation scripts in Python/R',
-        'High error rate in pandas data cleaning syntax',
-        'Automation is essential for quarterly tabulation workflows'
-      ],
-      aiConfidence: 92,
-      recommendedCourse: {
-        title: 'Python for Statistical Automation',
-        duration: '10h',
-        type: 'iGOT Course'
-      }
-    }
-  ];
+  const [loading, setLoading] = useState<boolean>(true);
+  const [nodes, setNodes] = useState<CapabilityNode[]>([]);
+  const [selectedNode, setSelectedNode] = useState<CapabilityNode | null>(null);
 
-  const [nodes] = useState<CapabilityNode[]>(initialNodes);
-  const [selectedNode, setSelectedNode] = useState<CapabilityNode>(initialNodes[4]); // Default to Sampling Techniques
+  useEffect(() => {
+    const fetchCompetencyData = async () => {
+      try {
+        setLoading(true);
+        const [compRes, recRes, diagRes] = await Promise.allSettled([
+          competencyApi.getMyCompetencies(),
+          courseApi.getRecommended(),
+          competencyApi.getMyDiagnosis()
+        ]);
+
+        const rawComps = compRes.status === 'fulfilled' ? compRes.value.data || [] : [];
+        const rawRecs = recRes.status === 'fulfilled' ? recRes.value.data || [] : [];
+        const rawDiag = diagRes.status === 'fulfilled' ? diagRes.value.data || null : null;
+
+        const builtNodes: CapabilityNode[] = rawComps.map((c: any, index: number) => {
+          const coords = defaultCoordinates[index % defaultCoordinates.length];
+          const isAssessed = c.current_score !== null;
+          const matchingRec = rawRecs.find((r: any) => r.competency_id === c.competency_id);
+          
+          let nodeStatus: 'proficient' | 'on_track' | 'needs_attention' | 'not_assessed' = 'not_assessed';
+          if (isAssessed) {
+            if (c.current_score >= c.target_score) nodeStatus = 'proficient';
+            else if (c.gap <= 10) nodeStatus = 'on_track';
+            else nodeStatus = 'needs_attention';
+          }
+
+          const priorityLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 
+            c.gap > 20 ? 'CRITICAL' : c.gap > 10 ? 'HIGH' : c.gap > 0 ? 'MEDIUM' : 'LOW';
+
+          const reasons: string[] = [];
+          if (c.weakest_subtopic) {
+            reasons.push(`Subtopic focus needed: ${c.weakest_subtopic}`);
+          }
+          if (c.change_points !== null && c.change_points !== undefined) {
+            reasons.push(`Recent trajectory: ${c.change_points > 0 ? '+' : ''}${c.change_points} pts`);
+          }
+          if (c.assessment_count) {
+            reasons.push(`Measured across ${c.assessment_count} assessments`);
+          }
+          if (reasons.length === 0) {
+            reasons.push(isAssessed ? `Proficiency calibrated at ${c.current_score}% against ${c.target_score}% benchmark` : 'Pending initial baseline assessment');
+          }
+
+          return {
+            id: c.competency_id,
+            name: c.competency_name,
+            domain: c.domain || 'Statistical Standard',
+            x: coords.x,
+            y: coords.y,
+            score: c.current_score,
+            required: c.target_score,
+            gap: c.gap,
+            priority: priorityLevel,
+            status: nodeStatus,
+            prerequisites: index === 0 ? [] : [rawComps[0]?.competency_id || 1],
+            reasons: reasons,
+            weakestSubtopic: c.weakest_subtopic,
+            aiConfidence: Math.round(rawDiag?.confidence || 88),
+            recommendedCourse: {
+              title: matchingRec?.title || `Curriculum Module for ${c.competency_name}`,
+              duration: matchingRec?.duration_hours ? `${matchingRec.duration_hours}h` : '20 min',
+              type: matchingRec?.resource_type ? matchingRec.resource_type.toUpperCase().replace('_', ' ') : 'iGOT Course'
+            }
+          };
+        });
+
+        setNodes(builtNodes);
+
+        if (builtNodes.length > 0) {
+          const bottleneck = builtNodes.reduce((prev, curr) => ((curr.gap || 0) > (prev.gap || 0) ? curr : prev), builtNodes[0]);
+          setSelectedNode(bottleneck);
+        }
+      } catch (err) {
+        console.error('Failed to load capability map:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompetencyData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-3 border-[#1F7A8C] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#0B2545]">Rendering capability landscape from live telemetry...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12 text-left">
+    <div className="space-y-8 max-w-7xl mx-auto pb-16 text-left">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-widest mb-1">
@@ -182,7 +140,13 @@ export default function Competencies() {
         </div>
 
         <div className="lg:col-span-5">
-          <GapInspector node={selectedNode} />
+          {selectedNode ? (
+            <GapInspector node={selectedNode} />
+          ) : (
+            <div className="bg-[#FFFFFF] p-8 rounded-2xl border border-[#2B2D42]/10 text-center text-xs text-[#2B2D42]/60">
+              Select a competency node in the network to inspect detailed evidence.
+            </div>
+          )}
         </div>
       </div>
     </div>

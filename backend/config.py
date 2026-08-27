@@ -5,8 +5,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "smartlearn-secret-key-change-in-production"
     AI_PROVIDER: str = "mock"
     GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_MODEL: str = "google/gemini-2.0-flash-001"
+    OPENROUTER_MODEL: str = "meta-llama/llama-3.3-70b-instruct"
     DATABASE_URL: str = "sqlite:///./smartlearn.db"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     MAX_UPLOAD_SIZE_MB: int = 20

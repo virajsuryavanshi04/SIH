@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import QuestionCard, { QuestionData } from '@/components/quiz/QuestionCard';
 import ConfidenceSelector from '@/components/quiz/ConfidenceSelector';
-import { Brain, Clock, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Brain, Clock, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, Sparkles, TrendingUp, RefreshCw } from 'lucide-react';
 
 export default function Quiz() {
   const { id } = useParams<{ id: string }>();
@@ -15,10 +15,14 @@ export default function Quiz() {
   const [assessmentId, setAssessmentId] = useState<number | null>(
     id ? parseInt(id) : location.state?.assessmentId || null
   );
+  const [assessmentType, setAssessmentType] = useState<string>(
+    location.state?.assessmentType || 'baseline'
+  );
   const [questions, setQuestions] = useState<QuestionData[]>(location.state?.questions || []);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(!location.state?.questions);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [adaptiveMessage, setAdaptiveMessage] = useState<string | null>(null);
   
   // Track answers: { [qId]: { selectedOptionId: number|string, confidence: string } }
   const [answers, setAnswers] = useState<Record<number, { selectedOptionId: number | string; confidence: string }>>({});
@@ -39,8 +43,9 @@ export default function Quiz() {
       if (questions.length === 0) {
         try {
           setLoading(true);
-          const res = await assessmentApi.start({ assessment_type: 'baseline' });
+          const res = await assessmentApi.start({ assessment_type: 'adaptive' });
           setAssessmentId(res.data.assessment_id);
+          setAssessmentType(res.data.assessment_type || 'adaptive');
           setQuestions(res.data.questions);
         } catch (err) {
           console.error('Failed to start quiz session:', err);
@@ -91,32 +96,67 @@ export default function Quiz() {
       setSubmitting(true);
       const timeTaken = Math.max(5, Math.round((Date.now() - startTime) / 1000));
       
-      // Submit individual answer telemetry
-      await assessmentApi.submitAnswer(assessmentId, {
-        question_id: currentQuestion.id,
-        selected_option_id: Number(currentAnswer.selectedOptionId),
-        confidence_level: mapConfidenceToInt(currentAnswer.confidence),
-        time_taken_seconds: timeTaken
-      });
-
-      // Reset start time for next question
-      setStartTime(Date.now());
-
-      if (currentIndex < questions.length - 1) {
-        setCurrentIndex(curr => curr + 1);
-      } else {
-        // Finalize assessment with deterministic scoring engine
-        const resultRes = await assessmentApi.complete(assessmentId);
-        navigate(`/quiz/${assessmentId}/result`, {
-          state: {
-            result: resultRes.data,
-            assessmentId
-          }
+      if (assessmentType === 'adaptive') {
+        // Dynamic adaptive step progression
+        const stepRes = await assessmentApi.adaptiveNext(assessmentId, {
+          question_id: currentQuestion.id,
+          selected_option_id: Number(currentAnswer.selectedOptionId),
+          confidence_level: mapConfidenceToInt(currentAnswer.confidence),
+          time_taken_seconds: timeTaken
         });
+
+        setStartTime(Date.now());
+
+        if (stepRes.data.is_completed) {
+          navigate(`/quiz/${assessmentId}/result`, {
+            state: {
+              result: stepRes.data.result,
+              assessmentId
+            }
+          });
+          return;
+        }
+
+        // Show subtle non-leaky transition prompt
+        const wasCorrect = stepRes.data.feedback?.is_correct;
+        if (wasCorrect) {
+          setAdaptiveMessage("Let's calibrate at a higher difficulty tier...");
+        } else {
+          setAdaptiveMessage("Let's reinforce this foundational concept...");
+        }
+        setTimeout(() => setAdaptiveMessage(null), 2000);
+
+        if (stepRes.data.next_question) {
+          setQuestions(prev => [...prev, stepRes.data.next_question]);
+          setCurrentIndex(curr => curr + 1);
+        } else if (currentIndex < questions.length - 1) {
+          setCurrentIndex(curr => curr + 1);
+        }
+      } else {
+        // Standard baseline flow
+        await assessmentApi.submitAnswer(assessmentId, {
+          question_id: currentQuestion.id,
+          selected_option_id: Number(currentAnswer.selectedOptionId),
+          confidence_level: mapConfidenceToInt(currentAnswer.confidence),
+          time_taken_seconds: timeTaken
+        });
+
+        setStartTime(Date.now());
+
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(curr => curr + 1);
+        } else {
+          const resultRes = await assessmentApi.complete(assessmentId);
+          navigate(`/quiz/${assessmentId}/result`, {
+            state: {
+              result: resultRes.data,
+              assessmentId
+            }
+          });
+        }
       }
     } catch (err) {
-      console.error('Failed to submit answer or complete assessment:', err);
-      // Fallback navigation if needed
+      console.error('Failed to submit answer or advance adaptive step:', err);
       if (currentIndex === questions.length - 1 && assessmentId) {
         navigate(`/quiz/${assessmentId}/result`);
       }
@@ -136,7 +176,7 @@ export default function Quiz() {
       <div className="min-h-screen bg-[#F4F6F9] flex items-center justify-center">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-3 border-[#1F7A8C] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-semibold text-[#0B2545]">Calibrating questions across role competencies...</p>
+          <p className="text-xs font-semibold text-[#0B2545]">Calibrating questions across official role competencies...</p>
         </div>
       </div>
     );
@@ -147,7 +187,7 @@ export default function Quiz() {
       <div className="min-h-screen bg-[#F4F6F9] flex items-center justify-center p-4">
         <div className="bg-[#FFFFFF] p-8 rounded-2xl border border-[#2B2D42]/10 text-center space-y-4 max-w-md">
           <AlertCircle className="w-8 h-8 text-[#D4AF37] mx-auto" />
-          <h2 className="text-lg font-bold text-[#0B2545]">No Assessment Questions Loaded</h2>
+          <h2 className="text-lg font-bold text-[#0B2545]">Assessment Ready</h2>
           <p className="text-xs text-[#2B2D42]">Please configure a new assessment session.</p>
           <Button onClick={() => navigate('/assessment')} className="bg-[#1F7A8C] text-[#FFFFFF]">
             Go to Assessments
@@ -157,7 +197,7 @@ export default function Quiz() {
     );
   }
 
-  const progressPercent = ((currentIndex) / questions.length) * 100;
+  const progressPercent = questions.length > 0 ? ((currentIndex) / Math.max(questions.length, 8)) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-[#F4F6F9] flex flex-col">
@@ -167,7 +207,9 @@ export default function Quiz() {
           <div className="w-8 h-8 rounded-lg bg-[#1F7A8C] text-[#FFFFFF] flex items-center justify-center font-bold text-xs">
             <Brain className="w-4 h-4" />
           </div>
-          <span className="font-bold text-sm text-[#FFFFFF] hidden sm:inline">Baseline Competency Diagnostic</span>
+          <span className="font-bold text-sm text-[#FFFFFF] hidden sm:inline">
+            {assessmentType === 'adaptive' ? 'Adaptive Capability Assessment' : 'Baseline Competency Diagnostic'}
+          </span>
           <span className="font-bold text-xs text-[#FFFFFF] sm:hidden">Diagnostic Session</span>
         </div>
         
@@ -182,13 +224,24 @@ export default function Quiz() {
       {/* Main Content Area */}
       <div className="pt-20 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pb-28">
         
-        {/* Progress Bar & Header */}
-        <div className="py-5 space-y-2">
-          <div className="flex justify-between text-xs font-bold text-[#0B2545]">
-            <span>Question {currentIndex + 1} of {questions.length}</span>
-            <span className="font-mono">{Math.round(progressPercent)}% Completed</span>
+        {/* Subtle Adaptive Transition Alert */}
+        {adaptiveMessage && (
+          <div className="mb-3 p-3 rounded-xl bg-[#1F7A8C]/10 border border-[#1F7A8C]/20 text-xs font-mono font-bold text-[#1F7A8C] flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+            <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+            <span>{adaptiveMessage}</span>
           </div>
-          <Progress value={progressPercent} indicatorColor="bg-[#1F7A8C]" className="h-2" />
+        )}
+
+        {/* Progress Bar & Header */}
+        <div className="py-4 space-y-2">
+          <div className="flex justify-between text-xs font-bold text-[#0B2545]">
+            <span>Question {currentIndex + 1} {questions.length > 0 ? `of ${Math.max(questions.length, 8)}` : ''}</span>
+            <span className="font-mono flex items-center gap-1 text-[#1F7A8C]">
+              <Sparkles className="w-3 h-3" />
+              <span>Real-Time Difficulty Adaptation</span>
+            </span>
+          </div>
+          <Progress value={Math.min(100, Math.max(10, progressPercent))} indicatorColor="bg-[#1F7A8C]" className="h-2" />
         </div>
 
         {/* Question Card Arena */}
@@ -216,7 +269,7 @@ export default function Quiz() {
           <span className="text-xs text-[#2B2D42]/60 font-medium">
             {!canProceed 
               ? 'Select answer & confidence rating to advance' 
-              : 'Confidence recorded • Ready to submit'}
+              : 'Confidence recorded • Ready to advance'}
           </span>
           <Button 
             size="lg" 
@@ -226,8 +279,8 @@ export default function Quiz() {
           >
             <span>
               {submitting 
-                ? 'Submitting...' 
-                : currentIndex === questions.length - 1 
+                ? 'Adapting Question...' 
+                : currentIndex >= questions.length - 1 && assessmentType !== 'adaptive'
                 ? 'Finalize Assessment' 
                 : 'Next Question'}
             </span>
