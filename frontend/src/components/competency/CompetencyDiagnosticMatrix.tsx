@@ -90,27 +90,27 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
     <div className="space-y-6 text-left">
       
       {/* 1. TOP CAPABILITY TELEMETRY SUMMARY BAR */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-5 border border-[#2B2D42]/10 shadow-[0_1px_4px_rgba(11,37,69,0.04)] flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#FFFFFF] rounded-2xl p-5 border border-[#DCE5EA] shadow-[0_1px_4px_rgba(11,37,69,0.04)] flex flex-wrap items-center justify-between gap-4">
         
         {/* Left: Summary Metrics */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm">
           <div>
-            <span className="text-[10px] font-mono uppercase text-[#2B2D42]/60 font-semibold block">Framework Scale</span>
-            <span className="text-base sm:text-lg font-bold text-[#0B2545] font-mono">
-              {totalComps} <span className="text-xs font-normal text-[#2B2D42]/70 font-sans">Competencies</span>
+            <span className="text-[10px] font-mono uppercase text-[#62748A] font-semibold block">Framework Scale</span>
+            <span className="text-base sm:text-lg font-bold text-[#102A43] font-mono">
+              {totalComps} <span className="text-xs font-normal text-[#62748A] font-sans">Competencies</span>
             </span>
           </div>
 
-          <div className="h-8 w-px bg-[#2B2D42]/10 hidden sm:block" />
+          <div className="h-8 w-px bg-[#DCE5EA] hidden sm:block" />
 
           <div>
-            <span className="text-[10px] font-mono uppercase text-[#2B2D42]/60 font-semibold block">Topic Coverage</span>
+            <span className="text-[10px] font-mono uppercase text-[#62748A] font-semibold block">Topic Coverage</span>
             <span className="text-base sm:text-lg font-bold text-[#1F7A8C] font-mono">
-              {masteredTopics} <span className="text-xs font-normal text-[#2B2D42]/70 font-sans">/ {totalTopics} Mastered</span>
+              {masteredTopics} <span className="text-xs font-normal text-[#62748A] font-sans">/ {totalTopics} Mastered</span>
             </span>
           </div>
 
-          <div className="h-8 w-px bg-[#2B2D42]/10 hidden sm:block" />
+          <div className="h-8 w-px bg-[#DCE5EA] hidden sm:block" />
 
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/20 font-mono">
@@ -119,7 +119,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20 font-mono">
               ◐ {developingCount} Developing
             </span>
-            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#D4AF37]/15 text-[#0B2545] border border-[#D4AF37]/35 font-mono">
+            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#D4AF37]/15 text-[#102A43] border border-[#D4AF37]/35 font-mono">
               ⚠ {attentionCount} Gaps
             </span>
           </div>
@@ -127,7 +127,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
 
         {/* Right: Filter Controls */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-mono text-[#2B2D42]/60 font-semibold mr-1 flex items-center gap-1">
+          <span className="text-xs font-mono text-[#62748A] font-semibold mr-1 flex items-center gap-1">
             <Filter className="w-3.5 h-3.5" /> Filter:
           </span>
           {['ALL', 'STRONG', 'DEVELOPING', 'NEEDS_ATTENTION', 'CRITICAL'].map((fKey) => (
@@ -138,7 +138,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                 "px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border",
                 statusFilter === fKey
                   ? "bg-[#0B2545] text-[#FFFFFF] border-[#0B2545] shadow-xs"
-                  : "bg-[#F4F6F9] text-[#2B2D42] border-[#2B2D42]/10 hover:border-[#1F7A8C]/40"
+                  : "bg-[#EEF5F7] text-[#102A43] border-[#DCE5EA] hover:border-[#1F7A8C]/40"
               )}
             >
               {fKey === 'ALL' && 'All'}
@@ -153,10 +153,10 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
       </div>
 
       {/* 2. THE COMPETENCY DIAGNOSTIC MATRIX */}
-      <div className="bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 shadow-[0_1px_4px_rgba(11,37,69,0.04)] overflow-hidden">
+      <div className="bg-[#FFFFFF] rounded-2xl border border-[#DCE5EA] shadow-[0_1px_4px_rgba(11,37,69,0.04)] overflow-hidden">
         
         {/* Matrix Header Row (Desktop) */}
-        <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3.5 bg-[#F4F6F9] border-b border-[#2B2D42]/10 text-xs font-semibold text-[#0B2545] uppercase tracking-wider font-mono">
+        <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-3.5 bg-[#EEF5F7] border-b border-[#DCE5EA] text-xs font-semibold text-[#102A43] uppercase tracking-wider font-mono">
           <div className="col-span-4">Competency & Structure</div>
           <div className="col-span-2">Domain</div>
           <div className="col-span-2 text-center">Proficiency Level</div>
@@ -165,9 +165,9 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
         </div>
 
         {/* Matrix Body Rows */}
-        <div className="divide-y divide-[#2B2D42]/10">
+        <div className="divide-y divide-[#DCE5EA]">
           {filtered.length === 0 ? (
-            <div className="p-8 text-center text-xs text-[#2B2D42]/60">
+            <div className="p-8 text-center text-xs text-[#62748A]">
               No competencies match the selected filter criteria.
             </div>
           ) : (
@@ -181,7 +181,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                   key={comp.id}
                   className={cn(
                     "transition-colors",
-                    isExpanded ? "bg-[#1F7A8C]/5" : "hover:bg-[#F4F6F9]/50"
+                    isExpanded ? "bg-[#1F7A8C]/5" : "hover:bg-[#EEF5F7]/50"
                   )}
                 >
                   {/* Primary Row Header */}
@@ -192,7 +192,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                     {/* Col 1: Competency & Prerequisites */}
                     <div className="lg:col-span-4 space-y-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-sm sm:text-base text-[#0B2545]">
+                        <span className="font-semibold text-sm sm:text-base text-[#102A43]">
                           {comp.name}
                         </span>
                         <ChevronDown className={cn("w-4 h-4 text-[#1F7A8C] transition-transform duration-200", isExpanded && "rotate-180")} />
@@ -217,7 +217,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                     {/* Col 3: Proficiency Level */}
                     <div className="lg:col-span-2 flex flex-col lg:items-center">
                       <div className="flex items-center space-x-1.5">
-                        <span className="text-xs font-bold text-[#0B2545] font-mono">
+                        <span className="text-xs font-bold text-[#102A43] font-mono">
                           Level {comp.level} / {comp.maxLevel}
                         </span>
                       </div>
@@ -228,7 +228,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                             key={idx}
                             className={cn(
                               "w-2 h-2 rounded-full",
-                              idx < comp.level ? "bg-[#1F7A8C]" : "bg-[#2B2D42]/20"
+                              idx < comp.level ? "bg-[#1F7A8C]" : "bg-[#DCE5EA]"
                             )}
                           />
                         ))}
@@ -237,10 +237,10 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
 
                     {/* Col 4: Topic Coverage Micro-Bar */}
                     <div className="lg:col-span-2 flex flex-col lg:items-center space-y-1">
-                      <span className="text-xs font-semibold text-[#0B2545] font-mono">
+                      <span className="text-xs font-semibold text-[#102A43] font-mono">
                         {comp.topicsMastered} / {comp.topicsTotal} topics
                       </span>
-                      <div className="w-24 h-1.5 bg-[#2B2D42]/10 rounded-full overflow-hidden">
+                      <div className="w-24 h-1.5 bg-[#DCE5EA] rounded-full overflow-hidden">
                         <div
                           className="h-full bg-[#1F7A8C] rounded-full transition-all duration-500"
                           style={{ width: `${coveragePct}%` }}
@@ -258,10 +258,10 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                             : comp.status === 'DEVELOPING'
                             ? "bg-[#1F7A8C]/10 text-[#1F7A8C] border-[#1F7A8C]/20"
                             : comp.status === 'NEEDS_ATTENTION'
-                            ? "bg-[#D4AF37]/15 text-[#0B2545] border-[#D4AF37]/35"
+                            ? "bg-[#D4AF37]/15 text-[#102A43] border-[#D4AF37]/35"
                             : comp.status === 'CRITICAL'
                             ? "bg-red-50 text-red-700 border-red-200"
-                            : "bg-[#2B2D42]/5 text-[#2B2D42]/60 border-[#2B2D42]/20"
+                            : "bg-[#EEF5F7] text-[#62748A] border-[#DCE5EA]"
                         )}
                       >
                         {comp.status === 'STRONG' && <>● STRONG</>}
@@ -286,13 +286,13 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
 
                   {/* Expanded Diagnostic Details Drawer */}
                   {isExpanded && (
-                    <div className="p-5 sm:p-6 bg-[#FFFFFF] border-t border-[#2B2D42]/10 space-y-5 animate-in fade-in duration-150">
+                    <div className="p-5 sm:p-6 bg-[#FFFFFF] border-t border-[#DCE5EA] space-y-5 animate-in fade-in duration-150">
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         
                         {/* 1. Underlying Subtopics Coverage */}
                         <div className="md:col-span-2 space-y-2">
-                          <span className="text-xs font-mono font-semibold text-[#0B2545] uppercase tracking-wider block">
+                          <span className="text-xs font-mono font-semibold text-[#102A43] uppercase tracking-wider block">
                             Subtopic Mastery Breakdown ({comp.topicsMastered}/{comp.topicsTotal})
                           </span>
                           
@@ -309,8 +309,8 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                                     isStrong
                                       ? "bg-[#2E7D32]/5 border-[#2E7D32]/20 text-[#2E7D32]"
                                       : isWeak
-                                      ? "bg-[#D4AF37]/10 border-[#D4AF37]/30 text-[#0B2545]"
-                                      : "bg-[#F4F6F9] border-[#2B2D42]/10 text-[#2B2D42]"
+                                      ? "bg-[#D4AF37]/10 border-[#D4AF37]/30 text-[#102A43]"
+                                      : "bg-[#EEF5F7] border-[#DCE5EA] text-[#102A43]"
                                   )}
                                 >
                                   <div className="flex items-center space-x-2 truncate">
@@ -319,7 +319,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                                     ) : isWeak ? (
                                       <AlertTriangle className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                                     ) : (
-                                      <span className="w-3.5 h-3.5 rounded-full border border-[#2B2D42]/30 shrink-0" />
+                                      <span className="w-3.5 h-3.5 rounded-full border border-[#DCE5EA] shrink-0" />
                                     )}
                                     <span className="font-medium truncate">{sub.name}</span>
                                   </div>
@@ -333,28 +333,28 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                         </div>
 
                         {/* 2. Structural Dependencies & Prerequisite Context */}
-                        <div className="space-y-2 bg-[#F4F6F9] p-4 rounded-xl border border-[#2B2D42]/10 text-xs">
+                        <div className="space-y-2 bg-[#EEF5F7] p-4 rounded-xl border border-[#DCE5EA] text-xs">
                           <span className="text-xs font-mono font-semibold text-[#1F7A8C] uppercase tracking-wider block">
                             Topology & Graph Vector
                           </span>
                           
-                          <div className="space-y-1.5 text-[#2B2D42]/85">
+                          <div className="space-y-1.5 text-[#102A43]">
                             <p>
-                              <strong className="text-[#0B2545]">Prerequisites:</strong>{' '}
+                              <strong className="text-[#102A43]">Prerequisites:</strong>{' '}
                               {comp.prerequisites.length > 0 ? comp.prerequisites.join(', ') : 'None (Foundation Root)'}
                             </p>
                             <p>
-                              <strong className="text-[#0B2545]">Dependent Competencies:</strong>{' '}
+                              <strong className="text-[#102A43]">Dependent Competencies:</strong>{' '}
                               {comp.dependentCompetencies.length > 0 ? comp.dependentCompetencies.join(', ') : 'Terminal Node'}
                             </p>
-                            <p>
-                              <strong className="text-[#0B2545]">Evaluated Telemetry:</strong>{' '}
+                            <p className="text-[#62748A]">
+                              <strong className="text-[#102A43]">Evaluated Telemetry:</strong>{' '}
                               {comp.assessmentCount > 0 ? `${comp.assessmentCount} verified assessments` : 'Pending initial baseline diagnostic'}
                             </p>
                           </div>
 
                           {/* Quick Action CTA */}
-                          <div className="pt-2 border-t border-[#2B2D42]/10">
+                          <div className="pt-2 border-t border-[#DCE5EA]">
                             <Link to="/assessment" className="block">
                               <Button
                                 size="sm"

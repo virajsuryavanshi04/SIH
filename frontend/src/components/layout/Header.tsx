@@ -141,13 +141,13 @@ export default function Header() {
   };
 
   return (
-    <header className="h-16 bg-[#FFFFFF] border-b border-[#2B2D42]/10 flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
+    <header className="h-16 bg-[#FFFFFF] border-b border-[#DCE5EA] flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
       {/* Left: Greeting & Active Intelligence Status */}
       <div className="flex flex-col text-left">
-        <h2 className="text-base sm:text-lg font-bold text-[#0B2545] tracking-tight">
+        <h2 className="text-base sm:text-lg font-bold text-[#102A43] tracking-tight">
           {getGreeting()}, <span className="text-[#1F7A8C]">{firstName}</span>
         </h2>
-        <div className="flex items-center space-x-1.5 text-[11px] font-medium text-[#2B2D42]/70">
+        <div className="flex items-center space-x-1.5 text-[11px] font-medium text-[#62748A]">
           <span className="w-2 h-2 rounded-full bg-[#2E7D32] animate-pulse" />
           <span>Capacity Intelligence Active</span>
         </div>
@@ -166,7 +166,7 @@ export default function Header() {
               setProfileOpen(false);
             }}
             aria-label="Notifications"
-            className="text-[#2B2D42] hover:text-[#1F7A8C] hover:bg-[#F4F6F9] rounded-lg h-9 w-9 relative cursor-pointer"
+            className="text-[#62748A] hover:text-[#1F7A8C] hover:bg-[#EEF5F7] rounded-lg h-9 w-9 relative cursor-pointer"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -176,10 +176,10 @@ export default function Header() {
 
           {/* Notifications Dropdown Panel */}
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#2B2D42]/15 py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="px-4 py-2.5 border-b border-[#2B2D42]/10 flex items-center justify-between">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#DCE5EA] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="px-4 py-2.5 border-b border-[#DCE5EA] flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">Notifications</span>
+                  <span className="text-xs font-bold text-[#102A43] uppercase tracking-wider">Notifications</span>
                   {unreadCount > 0 && (
                     <span className="px-1.5 py-0.2 bg-[#1F7A8C]/15 text-[#1F7A8C] font-mono text-[10px] font-bold rounded-full">
                       {unreadCount} new
@@ -196,9 +196,9 @@ export default function Header() {
                 )}
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-[#2B2D42]/5">
+              <div className="max-h-80 overflow-y-auto divide-y divide-[#DCE5EA]">
                 {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-[#2B2D42]/60">
+                  <div className="p-6 text-center text-xs text-[#62748A]">
                     No new notifications
                   </div>
                 ) : (
@@ -207,23 +207,23 @@ export default function Header() {
                       key={n.id}
                       onClick={() => markAsRead(n.id)}
                       className={cn(
-                        "p-3.5 hover:bg-[#F4F6F9] transition-colors cursor-pointer flex items-start space-x-3 text-left",
+                        "p-3.5 hover:bg-[#EEF5F7] transition-colors cursor-pointer flex items-start space-x-3 text-left",
                         !n.read ? "bg-[#1F7A8C]/5" : "bg-[#FFFFFF]"
                       )}
                     >
-                      <div className="p-1.5 rounded-lg bg-[#FFFFFF] border border-[#2B2D42]/10 shrink-0 mt-0.5 shadow-2xs">
+                      <div className="p-1.5 rounded-lg bg-[#FFFFFF] border border-[#DCE5EA] shrink-0 mt-0.5 shadow-2xs">
                         {getNotificationIcon(n.type)}
                       </div>
                       <div className="flex-1 min-w-0 space-y-0.5">
                         <div className="flex items-center justify-between gap-1">
-                          <p className={cn("text-xs font-bold text-[#0B2545] truncate", !n.read && "font-black")}>
+                          <p className={cn("text-xs font-bold text-[#102A43] truncate", !n.read && "font-black")}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] font-mono text-[#2B2D42]/50 shrink-0">
+                          <span className="text-[10px] font-mono text-[#62748A] shrink-0">
                             {n.timestamp}
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#2B2D42]/80 leading-snug line-clamp-2">
+                        <p className="text-[11px] text-[#62748A] leading-snug line-clamp-2">
                           {n.message}
                         </p>
                       </div>
@@ -239,7 +239,7 @@ export default function Header() {
         </div>
 
         {/* Profile Avatar with Popover */}
-        <div className="relative border-l border-[#2B2D42]/10 pl-3" ref={profileRef}>
+        <div className="relative border-l border-[#DCE5EA] pl-3" ref={profileRef}>
           <button 
             onClick={() => {
               setProfileOpen(!profileOpen);
@@ -248,23 +248,23 @@ export default function Header() {
             aria-label="User Profile Menu"
             className="flex items-center space-x-2 rounded-full p-0.5 hover:ring-2 hover:ring-[#1F7A8C]/30 transition-all cursor-pointer"
           >
-            <Avatar className="h-8 w-8 ring-1 ring-[#2B2D42]/15">
+            <Avatar className="h-8 w-8 ring-1 ring-[#DCE5EA]">
               <AvatarFallback className="bg-[#0B2545] text-[#FFFFFF] font-bold text-xs font-mono">
                 {user?.full_name?.charAt(0) || 'A'}
               </AvatarFallback>
             </Avatar>
-            <ChevronDown className="w-3 h-3 text-[#2B2D42]/60 hidden sm:block" />
+            <ChevronDown className="w-3 h-3 text-[#62748A] hidden sm:block" />
           </button>
 
           {/* Profile Dropdown Menu */}
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#2B2D42]/15 py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute right-0 mt-2 w-64 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#DCE5EA] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               {/* User Details Header */}
-              <div className="px-4 py-3 border-b border-[#2B2D42]/10 space-y-1">
-                <p className="text-xs font-bold text-[#0B2545] leading-tight">
+              <div className="px-4 py-3 border-b border-[#DCE5EA] space-y-1">
+                <p className="text-xs font-bold text-[#102A43] leading-tight">
                   {user?.full_name || 'Arjun Patel'}
                 </p>
-                <p className="text-[11px] text-[#2B2D42]/60 font-mono truncate">
+                <p className="text-[11px] text-[#62748A] font-mono truncate">
                   {user?.email || 'arjun.patel@gov.in'}
                 </p>
                 <div className="pt-1">
@@ -279,7 +279,7 @@ export default function Header() {
                 <Link
                   to="/profile"
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#2B2D42] hover:bg-[#F4F6F9] hover:text-[#1F7A8C] transition-colors"
+                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#102A43] hover:bg-[#EEF5F7] hover:text-[#1F7A8C] transition-colors"
                 >
                   <UserIcon className="w-3.5 h-3.5 text-[#1F7A8C]" />
                   <span>View Profile & Credentials</span>
@@ -287,10 +287,10 @@ export default function Header() {
               </div>
 
               {/* Sign Out Button */}
-              <div className="pt-1 border-t border-[#2B2D42]/10">
+              <div className="pt-1 border-t border-[#DCE5EA]">
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center space-x-2.5 px-4 py-2 w-full text-xs font-medium text-[#0B2545] hover:bg-[#F4F6F9] hover:text-[#D4AF37] transition-colors cursor-pointer text-left"
+                  className="flex items-center space-x-2.5 px-4 py-2 w-full text-xs font-medium text-[#102A43] hover:bg-[#EEF5F7] hover:text-[#D4AF37] transition-colors cursor-pointer text-left"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

@@ -4,8 +4,9 @@
   --color-navy: #0B2545;
   --color-gold: #D4AF37;
   --color-teal: #1F7A8C;
-  --color-slate: #2B2D42;
-  --color-background: #F4F6F9;
+  --color-slate: #62748A;
+  --color-background: #F4F7FA;
+  --color-surface-subtle: #EEF5F7;
   --color-white: #FFFFFF;
   --color-success: #2E7D32;
 
@@ -13,9 +14,11 @@
   --color-primary: #1F7A8C;
   --color-primary-dark: #0B2545;
   --color-accent: #D4AF37;
-  --color-text: #2B2D42;
+  --color-text-primary: #102A43;
+  --color-text-secondary: #62748A;
+  --color-text: #102A43;
   --color-dark: #0B2545;
-  --color-border: #F4F6F9;
+  --color-border: #DCE5EA;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -45,13 +48,13 @@
 @layer base {
   body {
     font-family: var(--font-sans);
-    color: #2B2D42;
-    background-color: #F4F6F9;
+    color: #102A43;
+    background-color: #F4F7FA;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    color: #0B2545;
+    color: #102A43;
     letter-spacing: -0.02em;
   }
 }

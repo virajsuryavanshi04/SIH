@@ -86,26 +86,26 @@ export default function RadialCapabilityOverview({
   };
 
   return (
-    <div className={cn("relative w-full h-[540px] sm:h-[580px] bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 shadow-[0_1px_4px_rgba(11,37,69,0.04)] overflow-hidden select-none flex flex-col justify-between text-left", className)}>
+    <div className={cn("relative w-full h-[540px] sm:h-[580px] bg-[#FFFFFF] rounded-2xl border border-[#DCE5EA] shadow-[0_1px_4px_rgba(11,37,69,0.04)] overflow-hidden select-none flex flex-col justify-between text-left", className)}>
       
       {/* Header & Status Legend */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#2B2D42]/10 bg-[#F4F6F9]/60 px-5 py-3 gap-2 z-20">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#DCE5EA] bg-[#EEF5F7]/70 px-5 py-3 gap-2 z-20">
         <div>
-          <h3 className="text-xs font-mono font-bold text-[#0B2545] uppercase tracking-wider">
+          <h3 className="text-xs font-mono font-bold text-[#102A43] uppercase tracking-wider">
             CAPABILITY OVERVIEW
           </h3>
-          <p className="text-[11px] text-[#2B2D42]/70">
+          <p className="text-[11px] text-[#62748A]">
             Click any competency to explore your capability insights.
           </p>
         </div>
 
         {/* Compact Legend */}
-        <div className="flex items-center space-x-2.5 text-[11px] font-mono text-[#2B2D42]/75 flex-wrap">
+        <div className="flex items-center space-x-2.5 text-[11px] font-mono text-[#62748A] flex-wrap">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2E7D32]" /> Strong</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#1F7A8C]" /> On Track</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]" /> Attention</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#DC2626]" /> Critical</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2B2D42]/30" /> Unassessed</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#62748A]/30" /> Unassessed</span>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function RadialCapabilityOverview({
             rx={`${orbitRadiusX}%`}
             ry={`${orbitRadiusY}%`}
             fill="none"
-            stroke="#2B2D42"
+            stroke="#102A43"
             strokeOpacity="0.08"
             strokeDasharray="4 4"
             strokeWidth="1.5"
@@ -144,7 +144,7 @@ export default function RadialCapabilityOverview({
                 y1={`${centerY}%`}
                 x2={`${x}%`}
                 y2={`${y}%`}
-                stroke={isSelected || isHovered ? "#1F7A8C" : "#2B2D42"}
+                stroke={isSelected || isHovered ? "#1F7A8C" : "#102A43"}
                 strokeOpacity={isSelected || isHovered ? "0.6" : "0.15"}
                 strokeWidth={isSelected || isHovered ? "2" : "1"}
                 strokeDasharray={isSelected || isHovered ? "none" : "2 2"}
@@ -207,7 +207,7 @@ export default function RadialCapabilityOverview({
                   ? "border-[#1F7A8C] ring-4 ring-[#1F7A8C]/25 shadow-md"
                   : isHovered
                   ? "border-[#1F7A8C] shadow-xs"
-                  : "border-[#2B2D42]/15"
+                  : "border-[#DCE5EA]"
               )}>
                 {/* SVG Progress Ring */}
                 <svg className="absolute inset-0 w-full h-full -rotate-90">
@@ -217,7 +217,7 @@ export default function RadialCapabilityOverview({
                     cy="50%"
                     r={radius}
                     fill="none"
-                    stroke="#2B2D42"
+                    stroke="#102A43"
                     strokeOpacity="0.08"
                     strokeWidth="3"
                   />
@@ -253,17 +253,17 @@ export default function RadialCapabilityOverview({
               >
                 <div className={cn(
                   "px-2 py-0.5 rounded-md transition-all flex flex-col items-center justify-center text-center",
-                  isSelected ? "bg-[#1F7A8C]/10 font-bold" : "bg-[#FFFFFF]/90"
+                  isSelected ? "bg-[#1F7A8C]/10 font-bold" : "bg-[#FFFFFF]/95 shadow-2xs border border-[#DCE5EA]/60"
                 )}>
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] leading-tight block text-center truncate max-w-[130px]">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#102A43] leading-tight block text-center truncate max-w-[130px]">
                     {line1}
                   </span>
                   {line2 && (
-                    <span className="text-[11px] sm:text-xs font-semibold text-[#0B2545] leading-tight block text-center truncate max-w-[130px] -mt-0.5">
+                    <span className="text-[11px] sm:text-xs font-semibold text-[#102A43] leading-tight block text-center truncate max-w-[130px] -mt-0.5">
                       {line2}
                     </span>
                   )}
-                  <span className="text-[9px] font-mono text-[#2B2D42]/60 uppercase tracking-tighter block mt-0.5 text-center">
+                  <span className="text-[9px] font-mono text-[#62748A] uppercase tracking-tighter block mt-0.5 text-center">
                     REQ: {node.required}%
                   </span>
                 </div>
@@ -276,7 +276,7 @@ export default function RadialCapabilityOverview({
       </div>
 
       {/* Footer Context / Capability Matrix CTA */}
-      <div className="border-t border-[#2B2D42]/10 bg-[#F4F6F9]/40 px-5 py-2.5 text-xs font-mono text-[#2B2D42]/70 flex items-center justify-between z-20">
+      <div className="border-t border-[#DCE5EA] bg-[#EEF5F7]/50 px-5 py-2.5 text-xs font-mono text-[#62748A] flex items-center justify-between z-20">
         <span>8 Competencies • Official MoSPI Benchmark Calibration</span>
         <Link to="/competencies">
           <Button variant="ghost" size="sm" className="text-xs font-semibold text-[#1F7A8C] hover:bg-[#1F7A8C]/10 h-7 px-2 flex items-center gap-1 cursor-pointer">

@@ -213,18 +213,18 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
         {/* A. YOUR READINESS */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs flex flex-col justify-between space-y-4">
           <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#2B2D42]/60 block">
+            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#62748A] block">
               YOUR READINESS
             </span>
             <div className="flex items-baseline gap-2.5 mt-2">
-              <span className="text-4xl font-black text-[#0B2545] font-mono">{overallReadiness}%</span>
+              <span className="text-4xl font-black text-[#102A43] font-mono">{overallReadiness}%</span>
               {deltaPoints > 0 && (
                 <span className="text-xs font-bold text-[#2E7D32] font-mono">↑ +{deltaPoints} pts</span>
               )}
             </div>
-            <p className="text-xs text-[#2B2D42]/70 mt-1">
+            <p className="text-xs text-[#62748A] mt-1">
               {assessmentsCount > 0 
                 ? `${assessmentsCount} assessment${assessmentsCount > 1 ? 's' : ''} recorded • Live evidence profile`
                 : 'Pending initial assessment evaluation'}
@@ -233,7 +233,7 @@ export default function Dashboard() {
 
           {/* Sparkline from historical records */}
           <div className="pt-2">
-            <div className="flex items-end gap-1.5 h-8 w-full bg-[#F4F6F9] p-2 rounded-lg border border-[#2B2D42]/10">
+            <div className="flex items-end gap-1.5 h-8 w-full bg-[#EEF5F7] p-2 rounded-lg border border-[#DCE5EA]">
               {historyList.length > 0 ? (
                 historyList.slice(-5).map((h: any, i: number) => (
                   <div 
@@ -256,22 +256,22 @@ export default function Dashboard() {
         </div>
 
         {/* B. BIGGEST GAP */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#D4AF37]">
                 BIGGEST GAP
               </span>
               {bottleneckGap && (
-                <span className="text-xs font-mono font-bold text-[#0B2545]">
+                <span className="text-xs font-mono font-bold text-[#102A43]">
                   {bottleneckGap.current_score !== null ? `${bottleneckGap.current_score}%` : 'Unassessed'} → {bottleneckGap.target_score}%
                 </span>
               )}
             </div>
-            <h3 className="text-base font-bold text-[#0B2545] mt-2">
+            <h3 className="text-base font-bold text-[#102A43] mt-2">
               {bottleneckGap ? bottleneckGap.competency_name : (diagnosis?.primary_gap || 'Sampling Techniques')}
             </h3>
-            <p className="text-xs text-[#2B2D42]/70 mt-1 line-clamp-2">
+            <p className="text-xs text-[#62748A] mt-1 line-clamp-2">
               {diagnosis?.root_cause || (bottleneckGap ? `Active ${bottleneckGap.gap}% gap below official role standard` : 'Evaluate gaps across competencies')}
             </p>
           </div>
@@ -287,22 +287,22 @@ export default function Dashboard() {
                 if (targetNode) setSelectedRadialNode(targetNode);
               }
             }}
-            className="w-full border-[#D4AF37]/50 text-[#0B2545] hover:bg-[#D4AF37]/10 font-bold text-xs h-9 cursor-pointer"
+            className="w-full border-[#D4AF37]/50 text-[#102A43] hover:bg-[#D4AF37]/10 font-bold text-xs h-9 cursor-pointer"
           >
             Inspect Primary Gap
           </Button>
         </div>
 
         {/* C. NEXT STEP */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C] block">
               NEXT STEP
             </span>
-            <h3 className="text-base font-bold text-[#0B2545] mt-2 truncate">
+            <h3 className="text-base font-bold text-[#102A43] mt-2 truncate">
               {topRecommendation ? topRecommendation.title : 'Take Adaptive Assessment'}
             </h3>
-            <p className="text-xs text-[#2B2D42]/70 mt-1 flex items-center gap-1">
+            <p className="text-xs text-[#62748A] mt-1 flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#1F7A8C]" />
               <span>
                 {topRecommendation 
@@ -354,15 +354,15 @@ export default function Dashboard() {
       {/* ============================================================ */}
       {/* 3. LEARNING JOURNEY (Horizontal Sequence)                     */}
       {/* ============================================================ */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
+      <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-[#DCE5EA] pb-3">
           <div className="flex items-center space-x-2">
             <Route className="w-4 h-4 text-[#1F7A8C]" />
-            <h3 className="text-xs font-mono font-bold text-[#0B2545] uppercase tracking-wider">
+            <h3 className="text-xs font-mono font-bold text-[#102A43] uppercase tracking-wider">
               YOUR LEARNING JOURNEY
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-[#2B2D42]/70">
+          <span className="text-[11px] font-mono text-[#62748A]">
             {pathItems.filter((p: any) => p.status === 'completed').length} of {Math.max(pathItems.length, journeySteps.length)} Milestones Completed
           </span>
         </div>
@@ -381,14 +381,14 @@ export default function Dashboard() {
                   isCompleted 
                     ? "bg-[#2E7D32]/5 border-[#2E7D32]/30 text-[#2E7D32]"
                     : isCurrent
-                    ? "bg-[#1F7A8C]/5 border-[#1F7A8C] ring-2 ring-[#1F7A8C]/20 text-[#0B2545]"
-                    : "bg-[#F4F6F9] border-[#2B2D42]/10 text-[#2B2D42]/60"
+                    ? "bg-[#1F7A8C]/5 border-[#1F7A8C] ring-2 ring-[#1F7A8C]/20 text-[#102A43]"
+                    : "bg-[#EEF5F7] border-[#DCE5EA] text-[#62748A]"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className={cn(
                     "w-5 h-5 rounded-full flex items-center justify-center font-mono font-bold text-[10px]",
-                    isCompleted ? "bg-[#2E7D32] text-[#FFFFFF]" : isCurrent ? "bg-[#1F7A8C] text-[#FFFFFF]" : "bg-[#2B2D42]/20 text-[#2B2D42]"
+                    isCompleted ? "bg-[#2E7D32] text-[#FFFFFF]" : isCurrent ? "bg-[#1F7A8C] text-[#FFFFFF]" : "bg-[#62748A]/20 text-[#102A43]"
                   )}>
                     {step.number}
                   </span>
@@ -410,9 +410,9 @@ export default function Dashboard() {
       {/* ============================================================ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: iGOT Recommendations (Compact Data List) */}
-        <div className="lg:col-span-5 bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
-            <h3 className="text-xs font-mono font-bold text-[#0B2545] uppercase tracking-wider">
+        <div className="lg:col-span-5 bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-[#DCE5EA] pb-3">
+            <h3 className="text-xs font-mono font-bold text-[#102A43] uppercase tracking-wider">
               ACCREDITED RECOMMENDATIONS
             </h3>
             <span className="text-[10px] font-mono text-[#1F7A8C] font-semibold">Ranked by Gap Deficit</span>
@@ -420,10 +420,10 @@ export default function Dashboard() {
 
           <div className="space-y-3">
             {recommendations.slice(0, 3).map((course: any) => (
-              <div key={course.id} className="p-3 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 flex items-center justify-between gap-3">
+              <div key={course.id} className="p-3 rounded-xl bg-[#EEF5F7] border border-[#DCE5EA] flex items-center justify-between gap-3">
                 <div className="space-y-0.5">
-                  <h4 className="text-xs font-bold text-[#0B2545] line-clamp-1">{course.title}</h4>
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-[#2B2D42]/70">
+                  <h4 className="text-xs font-bold text-[#102A43] line-clamp-1">{course.title}</h4>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-[#62748A]">
                     <span className="truncate max-w-[120px]">{course.competency_name}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#1F7A8C]" /> {course.duration_hours}h</span>
@@ -437,20 +437,20 @@ export default function Dashboard() {
           </div>
 
           <Link to="/courses" className="block pt-1">
-            <Button variant="outline" className="w-full text-xs font-bold border-[#2B2D42]/20 text-[#0B2545] hover:bg-[#F4F6F9] h-8.5">
+            <Button variant="outline" className="w-full text-xs font-bold border-[#DCE5EA] text-[#102A43] hover:bg-[#EEF5F7] h-8.5">
               Explore All Courses <ArrowRight className="w-3 h-3 ml-1.5" />
             </Button>
           </Link>
         </div>
 
         {/* Right: AI Diagnosis & Root Cause Insight */}
-        <div className="lg:col-span-7 bg-[#FFFFFF] rounded-2xl p-6 border border-[#2B2D42]/10 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-[#2B2D42]/10 pb-3">
+        <div className="lg:col-span-7 bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-[#DCE5EA] pb-3">
             <div className="space-y-0.5">
               <span className="text-[10px] font-mono font-bold uppercase text-[#1F7A8C]">
                 DIAGNOSTIC EVIDENCE INSIGHT
               </span>
-              <h3 className="text-sm font-bold text-[#0B2545]">
+              <h3 className="text-sm font-bold text-[#102A43]">
                 {diagnosis?.primary_gap || 'Role Benchmark Calibration'}
               </h3>
             </div>
@@ -459,17 +459,17 @@ export default function Dashboard() {
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F4F6F9] border border-[#2B2D42]/10 text-xs space-y-2">
+          <div className="p-4 rounded-xl bg-[#EEF5F7] border border-[#DCE5EA] text-xs space-y-2">
             <span className="text-[10px] font-mono font-bold text-[#1F7A8C] uppercase block">
               AI Root-Cause Explanation
             </span>
-            <p className="text-[#2B2D42] leading-relaxed">
+            <p className="text-[#102A43] leading-relaxed">
               {diagnosis?.explanation || insights?.diagnostic_summary || 'Your competency scores are calculated deterministically from assessment answers. Recommended modules target your diagnosed weak areas.'}
             </p>
           </div>
 
           <div className="flex items-center justify-between pt-1 text-xs">
-            <span className="font-mono text-[#2B2D42]/70">
+            <span className="font-mono text-[#62748A]">
               Deterministic scoring verified • Zero self-rating bias
             </span>
             <Link to="/assessment">

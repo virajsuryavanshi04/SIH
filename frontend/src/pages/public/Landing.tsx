@@ -15,7 +15,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F4F6F9] text-[#2B2D42] selection:bg-[#1F7A8C]/20 selection:text-[#0B2545]">
+    <div className="flex flex-col min-h-screen bg-[#F4F7FA] text-[#102A43] selection:bg-[#1F7A8C]/20 selection:text-[#0B2545]">
       {/* 1. HERO: Problem Definition & Spatial Topology Preview */}
       <HeroIntelligence
         onExploreClick={() => scrollToSection('competency-landscape')}

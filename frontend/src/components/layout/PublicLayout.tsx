@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 export default function PublicLayout() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F6F9]">
+    <div className="min-h-screen flex flex-col bg-[#F4F7FA]">
       <nav className="border-b border-[#0B2545] bg-[#0B2545] text-[#FFFFFF] sticky top-0 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
