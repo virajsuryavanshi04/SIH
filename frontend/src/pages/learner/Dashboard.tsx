@@ -210,30 +210,32 @@ export default function Dashboard() {
       {/* ============================================================ */}
       {/* 1. TOP HIGH-PRIORITY TRIAD (Readiness, Gap, Next Step)       */}
       {/* ============================================================ */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* A. YOUR READINESS */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs flex flex-col justify-between space-y-4">
-          <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#62748A] block">
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between space-y-4">
+          <div className="space-y-1.5">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#62748A] block">
               YOUR READINESS
             </span>
-            <div className="flex items-baseline gap-2.5 mt-2">
-              <span className="text-4xl font-black text-[#102A43] font-mono">{overallReadiness}%</span>
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-4xl font-extrabold text-[#102A43] font-mono">{overallReadiness}%</span>
               {deltaPoints > 0 && (
-                <span className="text-xs font-bold text-[#2E7D32] font-mono">↑ +{deltaPoints} pts</span>
+                <span className="text-xs font-bold text-[#2E7D32] font-mono bg-[#2E7D32]/10 px-2 py-0.5 rounded-md border border-[#2E7D32]/20">
+                  ↑ +{deltaPoints} pts
+                </span>
               )}
             </div>
-            <p className="text-xs text-[#62748A] mt-1">
+            <p className="text-xs text-[#62748A] leading-relaxed">
               {assessmentsCount > 0 
-                ? `${assessmentsCount} assessment${assessmentsCount > 1 ? 's' : ''} recorded • Live evidence profile`
+                ? `${assessmentsCount} verified assessment${assessmentsCount > 1 ? 's' : ''} recorded • Continuous evidence`
                 : 'Pending initial assessment evaluation'}
             </p>
           </div>
 
           {/* Sparkline from historical records */}
-          <div className="pt-2">
-            <div className="flex items-end gap-1.5 h-8 w-full bg-[#EEF5F7] p-2 rounded-lg border border-[#DCE5EA]">
+          <div className="pt-1">
+            <div className="flex items-end gap-1.5 h-9 w-full bg-[#EEF5F7] p-2 rounded-xl border border-[#DCE5EA]">
               {historyList.length > 0 ? (
                 historyList.slice(-5).map((h: any, i: number) => (
                   <div 
@@ -256,29 +258,29 @@ export default function Dashboard() {
         </div>
 
         {/* B. BIGGEST GAP */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs flex flex-col justify-between space-y-4">
-          <div>
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between space-y-4">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#D4AF37]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D4AF37]">
                 BIGGEST GAP
               </span>
               {bottleneckGap && (
-                <span className="text-xs font-mono font-bold text-[#102A43]">
+                <span className="text-xs font-mono font-bold text-[#102A43] bg-[#D4AF37]/15 px-2 py-0.5 rounded-md border border-[#D4AF37]/30">
                   {bottleneckGap.current_score !== null ? `${bottleneckGap.current_score}%` : 'Unassessed'} → {bottleneckGap.target_score}%
                 </span>
               )}
             </div>
-            <h3 className="text-base font-bold text-[#102A43] mt-2">
+            <h3 className="text-base sm:text-lg font-bold text-[#102A43] leading-snug">
               {bottleneckGap ? bottleneckGap.competency_name : (diagnosis?.primary_gap || 'Sampling Techniques')}
             </h3>
-            <p className="text-xs text-[#62748A] mt-1 line-clamp-2">
-              {diagnosis?.root_cause || (bottleneckGap ? `Active ${bottleneckGap.gap}% gap below official role standard` : 'Evaluate gaps across competencies')}
+            <p className="text-xs text-[#62748A] leading-relaxed line-clamp-2">
+              {diagnosis?.root_cause || (bottleneckGap ? `Active ${bottleneckGap.gap}% gap below official role benchmark` : 'Evaluate gaps across competencies')}
             </p>
           </div>
 
           <Button
             variant="outline"
-            size="sm"
+            size="default"
             onClick={() => {
               if (bottleneckGap) {
                 const targetItem = scorecardItems.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
@@ -287,24 +289,24 @@ export default function Dashboard() {
                 if (targetNode) setSelectedRadialNode(targetNode);
               }
             }}
-            className="w-full border-[#D4AF37]/50 text-[#102A43] hover:bg-[#D4AF37]/10 font-bold text-xs h-9 cursor-pointer"
+            className="w-full border-[#D4AF37]/40 text-[#102A43] hover:bg-[#D4AF37]/10 font-semibold text-xs sm:text-sm h-9.5 rounded-xl cursor-pointer"
           >
             Inspect Primary Gap
           </Button>
         </div>
 
         {/* C. NEXT STEP */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-xs flex flex-col justify-between space-y-4">
-          <div>
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C] block">
+        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#DCE5EA] shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between space-y-4">
+          <div className="space-y-1.5">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1F7A8C] block">
               NEXT STEP
             </span>
-            <h3 className="text-base font-bold text-[#102A43] mt-2 truncate">
+            <h3 className="text-base sm:text-lg font-bold text-[#102A43] leading-snug truncate">
               {topRecommendation ? topRecommendation.title : 'Take Adaptive Assessment'}
             </h3>
-            <p className="text-xs text-[#62748A] mt-1 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-[#1F7A8C]" />
-              <span>
+            <p className="text-xs text-[#62748A] leading-relaxed flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#1F7A8C] shrink-0" />
+              <span className="truncate">
                 {topRecommendation 
                   ? `${topRecommendation.duration_hours}h • ${topRecommendation.provider}` 
                   : '15 min • Multi-Competency Diagnostic'}
@@ -314,8 +316,8 @@ export default function Dashboard() {
 
           <Link to="/learning-path" className="block w-full">
             <Button
-              size="sm"
-              className="w-full bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs h-9 flex items-center justify-center gap-1.5 cursor-pointer"
+              size="default"
+              className="w-full bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs h-9.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>{topRecommendation ? 'Launch Recommended Module' : 'View Learning Path'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
