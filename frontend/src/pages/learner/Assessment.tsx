@@ -113,33 +113,33 @@ export default function Assessment() {
       </div>
 
       {/* Role Context Notification */}
-      <div className="p-4 rounded-xl bg-[#0B2545] text-[#FFFFFF] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-        <div className="space-y-0.5">
+      <div className="p-5 sm:p-6 rounded-2xl bg-[#0B2545] text-[#FFFFFF] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-[#D4AF37]" />
             <span className="text-xs font-mono uppercase font-bold text-[#D4AF37]">Active Designation:</span>
             <span className="text-xs font-bold text-[#FFFFFF]">{activeRoleName}</span>
           </div>
-          <p className="text-[11px] text-[#FFFFFF]/80">
+          <p className="text-xs text-[#FFFFFF]/80">
             Baseline diagnostics will sample questions across {activeRoleName}'s required competencies to establish your verified readiness score.
           </p>
         </div>
         <div className="shrink-0">
-          <span className="text-[11px] font-mono font-bold bg-[#1F7A8C] text-[#FFFFFF] px-3 py-1 rounded-md">
+          <span className="text-xs font-mono font-semibold bg-[#1F7A8C] text-[#FFFFFF] px-3 py-1 rounded-lg">
             {competencies.length || 8} Role Benchmarks
           </span>
         </div>
       </div>
 
       {/* Configuration Card */}
-      <Card className="border-t-4 border-t-[#1F7A8C] bg-[#FFFFFF] shadow-xs border-[#2B2D42]/10">
-        <CardHeader className="pb-4 border-b border-[#2B2D42]/10">
-          <div className="flex items-center space-x-2 text-xs font-bold text-[#1F7A8C] uppercase tracking-wider mb-1">
+      <Card className="border-t-4 border-t-[#1F7A8C] bg-[#FFFFFF] shadow-xs border-[#DCE5EA] rounded-2xl">
+        <CardHeader className="pb-4 border-b border-[#DCE5EA]">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-wider mb-1">
             <Sparkles className="w-3.5 h-3.5 text-[#1F7A8C]" />
             <span>Telemetry Question Engine</span>
           </div>
-          <CardTitle className="text-lg font-bold text-[#0B2545]">Configure Assessment Session</CardTitle>
-          <CardDescription className="text-xs text-[#2B2D42]/70">
+          <CardTitle className="text-lg sm:text-xl font-semibold text-[#102A43]">Configure Assessment Session</CardTitle>
+          <CardDescription className="text-sm text-[#62748A]">
             Assembles cognitive-level questions mapped directly to official MoSPI competency definitions for {activeRoleName}.
           </CardDescription>
         </CardHeader>
@@ -148,9 +148,9 @@ export default function Assessment() {
             
             {/* Assessment Type */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#0B2545]">Assessment Scope</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">Assessment Scope</label>
               <Select value={focusType} onValueChange={setFocusType}>
-                <SelectTrigger className="border-[#2B2D42]/20 focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-xs font-medium">
+                <SelectTrigger className="border-[#DCE5EA] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-sm font-medium text-[#102A43] h-10 rounded-xl">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -163,9 +163,9 @@ export default function Assessment() {
             
             {/* Competency Filter (Optional) */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#0B2545]">Competency Focus</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">Competency Focus</label>
               <Select value={selectedCompId} onValueChange={setSelectedCompId}>
-                <SelectTrigger className="border-[#2B2D42]/20 focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-xs font-medium">
+                <SelectTrigger className="border-[#DCE5EA] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-sm font-medium text-[#102A43] h-10 rounded-xl">
                   <SelectValue placeholder="Select competency" />
                 </SelectTrigger>
                 <SelectContent>
@@ -179,9 +179,9 @@ export default function Assessment() {
 
             {/* Question Count */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#0B2545]">Question Length</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">Question Length</label>
               <Select value={questionCount} onValueChange={setQuestionCount}>
-                <SelectTrigger className="border-[#2B2D42]/20 focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-xs font-medium">
+                <SelectTrigger className="border-[#DCE5EA] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-sm font-medium text-[#102A43] h-10 rounded-xl">
                   <SelectValue placeholder="Select length" />
                 </SelectTrigger>
                 <SelectContent>
@@ -192,15 +192,15 @@ export default function Assessment() {
             </div>
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#2B2D42]/10">
-            <div className="text-xs text-[#2B2D42]/70 flex items-center gap-1.5">
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#DCE5EA]">
+            <div className="text-xs text-[#62748A] flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-[#1F7A8C]" />
               <span>Estimated duration: ~10-15 minutes • Confidence rating active</span>
             </div>
 
             <Button 
-              size="lg" 
-              className="w-full sm:w-auto font-bold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs px-8 cursor-pointer" 
+              size="default" 
+              className="w-full sm:w-auto font-semibold text-sm bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs px-6 h-10 rounded-xl cursor-pointer" 
               onClick={handleStartAssessment} 
               disabled={loading}
             >
@@ -218,55 +218,63 @@ export default function Assessment() {
       </Card>
 
       {/* Past Assessment History */}
-      <div className="space-y-3">
-        <h2 className="text-base font-bold text-[#0B2545] flex items-center gap-2">
-          <History className="w-4 h-4 text-[#1F7A8C]" />
-          Historical Assessment Telemetry
-        </h2>
-        
-        <div className="bg-[#FFFFFF] rounded-xl shadow-xs border border-[#2B2D42]/10 overflow-hidden">
+      <Card className="bg-[#FFFFFF] shadow-xs border border-[#DCE5EA] rounded-2xl">
+        <CardHeader className="border-b border-[#DCE5EA] p-5 sm:p-6">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base sm:text-lg font-semibold text-[#102A43] flex items-center gap-2">
+              <History className="w-4.5 h-4.5 text-[#1F7A8C]" />
+              <span>Recorded Diagnostic Telemetry</span>
+            </CardTitle>
+            <span className="text-xs font-mono text-[#62748A]">
+              {pastAssessments.length} sessions logged
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
           {pastAssessments.length === 0 ? (
-            <div className="p-8 text-center space-y-2">
-              <AlertCircle className="w-6 h-6 text-[#2B2D42]/40 mx-auto" />
-              <p className="text-xs font-semibold text-[#0B2545]">No historical assessments recorded yet.</p>
-              <p className="text-[11px] text-[#2B2D42]/60">Launch a baseline assessment session above to log your initial capability profile.</p>
+            <div className="text-center p-8 space-y-2">
+              <AlertCircle className="w-8 h-8 text-[#62748A]/30 mx-auto" />
+              <p className="text-sm font-semibold text-[#102A43]">No prior assessment sessions found.</p>
+              <p className="text-xs text-[#62748A]">Complete your first baseline audit above to populate your capability telemetry.</p>
             </div>
           ) : (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 text-[#0B2545] uppercase font-mono font-bold text-[10px]">
-                <tr>
-                  <th className="px-5 py-3">Session ID</th>
-                  <th className="px-5 py-3">Diagnostic Type</th>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3">Overall Score</th>
-                  <th className="px-5 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#2B2D42]/10 font-medium text-[#2B2D42]">
-                {pastAssessments.map(item => (
-                  <tr key={item.id} className="hover:bg-[#F4F6F9]/50 transition-colors">
-                    <td className="px-5 py-3 font-mono text-[#0B2545] font-bold">#{item.id}</td>
-                    <td className="px-5 py-3 font-bold text-[#1F7A8C] uppercase text-[11px]">{item.assessment_type || item.type || 'Baseline'}</td>
-                    <td className="px-5 py-3 text-[#2B2D42]/60 font-mono">
-                      {item.started_at ? new Date(item.started_at).toLocaleDateString() : 'Recent'}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="font-bold text-sm text-[#0B2545] font-mono">
-                        {item.overall_score !== null ? `${item.overall_score}%` : 'In Progress'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/30">
-                        {item.status || 'Completed'}
-                      </span>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#EEF5F7] border-b border-[#DCE5EA] text-[#102A43] uppercase font-mono font-semibold text-[10px]">
+                  <tr>
+                    <th className="px-5 py-3">Session ID</th>
+                    <th className="px-5 py-3">Diagnostic Type</th>
+                    <th className="px-5 py-3">Date</th>
+                    <th className="px-5 py-3">Overall Score</th>
+                    <th className="px-5 py-3">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#DCE5EA] font-medium text-[#102A43]">
+                  {pastAssessments.map(item => (
+                    <tr key={item.id} className="hover:bg-[#EEF5F7]/50 transition-colors">
+                      <td className="px-5 py-3 font-mono text-[#102A43] font-bold">#{item.id}</td>
+                      <td className="px-5 py-3 font-semibold text-[#1F7A8C] uppercase text-xs">{item.assessment_type || item.type || 'Baseline'}</td>
+                      <td className="px-5 py-3 text-[#62748A] font-mono">
+                        {item.started_at ? new Date(item.started_at).toLocaleDateString() : 'Recent'}
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className="font-bold text-sm text-[#102A43] font-mono">
+                          {item.overall_score !== null ? `${item.overall_score}%` : 'In Progress'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/30">
+                          {item.status || 'Completed'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

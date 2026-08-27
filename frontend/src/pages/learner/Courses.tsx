@@ -83,19 +83,19 @@ export default function Courses() {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-[#FFFFFF] rounded-xl shadow-xs border border-[#2B2D42]/10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 sm:p-5 bg-[#FFFFFF] rounded-2xl shadow-xs border border-[#DCE5EA]">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2B2D42]/60 w-4 h-4" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#62748A] w-4 h-4" />
           <Input 
             placeholder="Search resources, topics..." 
-            className="pl-10 border-[#2B2D42]/20 focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-xs font-medium" 
+            className="pl-10 border-[#DCE5EA] focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-sm font-medium text-[#102A43] h-10 rounded-xl" 
             value={search} 
             onChange={(e) => setSearch(e.target.value)} 
           />
         </div>
 
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs font-medium">
+          <SelectTrigger className="border-[#DCE5EA] bg-[#FFFFFF] text-sm font-medium text-[#102A43] h-10 rounded-xl">
             <SelectValue placeholder="Filter Competency" />
           </SelectTrigger>
           <SelectContent>
@@ -107,7 +107,7 @@ export default function Courses() {
         </Select>
 
         <Select value={resourceTypeFilter} onValueChange={setResourceTypeFilter}>
-          <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs font-medium">
+          <SelectTrigger className="border-[#DCE5EA] bg-[#FFFFFF] text-sm font-medium text-[#102A43] h-10 rounded-xl">
             <SelectValue placeholder="Resource Type" />
           </SelectTrigger>
           <SelectContent>
@@ -120,22 +120,22 @@ export default function Courses() {
       </div>
 
       {/* Recommendations Grid */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#0B2545] flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#1F7A8C]" />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg sm:text-xl font-semibold text-[#102A43] flex items-center gap-2">
+            <Layers className="w-5 h-5 text-[#1F7A8C]" />
             Recommended Resources ({filteredCourses.length})
           </h2>
-          <span className="text-xs font-mono text-[#2B2D42]/60 font-semibold">
+          <span className="text-xs font-mono text-[#62748A] font-semibold">
             Ranked by Deficit Impact
           </span>
         </div>
 
         {filteredCourses.length === 0 ? (
-          <div className="p-12 text-center bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 space-y-3">
-            <BookOpen className="w-8 h-8 text-[#2B2D42]/30 mx-auto" />
-            <p className="text-sm font-bold text-[#0B2545]">No matching learning resources found</p>
-            <p className="text-xs text-[#2B2D42]/60">Try adjusting your keyword filter or competency selection.</p>
+          <div className="p-12 text-center bg-[#FFFFFF] rounded-2xl border border-[#DCE5EA] space-y-3">
+            <BookOpen className="w-8 h-8 text-[#62748A]/30 mx-auto" />
+            <p className="text-sm font-bold text-[#102A43]">No matching learning resources found</p>
+            <p className="text-xs text-[#62748A]">Try adjusting your keyword filter or competency selection.</p>
           </div>
         ) : (
           <div className="grid lg:grid-cols-2 gap-6">
