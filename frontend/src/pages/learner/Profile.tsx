@@ -89,37 +89,37 @@ export default function Profile() {
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>OFFICER CREDENTIALS & CAPABILITY EVIDENCE</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#102A43] tracking-tight leading-tight">
           Evidence & Profile Portfolio
         </h1>
-        <p className="text-xs sm:text-sm text-[#2B2D42]/80 mt-1">
+        <p className="text-sm text-[#62748A] mt-1.5 leading-relaxed">
           Official competency credentials, verified assessments, and continuous capability telemetry for {user?.full_name || 'Arjun Patel'}.
         </p>
       </div>
 
       {/* Officer Summary Card */}
-      <div className="bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 p-6 sm:p-8 shadow-xs">
+      <div className="bg-[#FFFFFF] rounded-2xl border border-[#DCE5EA] p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <Avatar className="w-20 h-20 border-2 border-[#1F7A8C]/30 shadow-xs shrink-0">
-            <AvatarFallback className="text-2xl bg-[#0B2545] text-[#FFFFFF] font-black font-mono">
+          <Avatar className="w-20 h-20 border-2 border-[#1F7A8C]/30 shadow-xs shrink-0 ring-4 ring-[#1F7A8C]/15">
+            <AvatarFallback className="text-2xl bg-[#0B2545] text-[#FFFFFF] font-bold font-mono">
               {user?.full_name?.charAt(0) || 'A'}
             </AvatarFallback>
           </Avatar>
           
           <div className="space-y-3 flex-1 text-center sm:text-left">
             <div>
-              <h2 className="text-xl font-bold text-[#0B2545]">{user?.full_name || 'Arjun Patel'}</h2>
-              <p className="text-xs font-mono text-[#2B2D42]/60 mt-0.5">{user?.email || 'arjun.patel@gov.in'}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-[#102A43]">{user?.full_name || 'Arjun Patel'}</h2>
+              <p className="text-sm font-mono text-[#62748A] mt-0.5">{user?.email || 'arjun.patel@gov.in'}</p>
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start text-xs font-mono">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#1F7A8C]/10 text-[#1F7A8C] font-bold border border-[#1F7A8C]/20">
+              <span className="px-3 py-1 rounded-full bg-[#1F7A8C]/10 text-[#1F7A8C] font-semibold border border-[#1F7A8C]/20">
                 {activeRoleName}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#F4F6F9] text-[#2B2D42] border border-[#2B2D42]/10">
+              <span className="px-3 py-1 rounded-full bg-[#EEF5F7] text-[#102A43] border border-[#DCE5EA]">
                 Division: {user?.department_name || 'Statistical Services'}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#F4F6F9] text-[#2B2D42] border border-[#2B2D42]/10">
+              <span className="px-3 py-1 rounded-full bg-[#EEF5F7] text-[#102A43] border border-[#DCE5EA]">
                 Experience: {user?.experience_years || 5} Years
               </span>
             </div>

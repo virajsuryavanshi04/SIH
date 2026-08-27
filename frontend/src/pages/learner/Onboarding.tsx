@@ -134,7 +134,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F4F7FA] py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header Title Section */}
@@ -143,10 +143,10 @@ export default function Onboarding() {
             <Sparkles className="w-3.5 h-3.5 text-[#1F7A8C]" />
             <span>Professional Capability Framework</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0B2545] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#102A43] tracking-tight leading-tight">
             Let's personalize your learning journey.
           </h1>
-          <p className="text-[#2B2D42] max-w-2xl mx-auto text-sm leading-relaxed">
+          <p className="text-[#62748A] max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
             Select your official designation to benchmark required competencies for India's Statistical System. 
             Scores are derived purely from assessment evidence—never self-reported.
           </p>
@@ -162,12 +162,12 @@ export default function Onboarding() {
             <button
               key={step.num}
               onClick={() => setActiveStep(step.num)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 activeStep === step.num
                   ? 'bg-[#0B2545] text-[#FFFFFF] shadow-sm ring-2 ring-[#0B2545]/20'
                   : activeStep > step.num
                   ? 'bg-[#2E7D32]/15 text-[#2E7D32] border border-[#2E7D32]/30'
-                  : 'bg-[#FFFFFF] text-[#2B2D42]/60 border border-[#2B2D42]/10 hover:bg-[#FFFFFF]/80'
+                  : 'bg-[#FFFFFF] text-[#62748A] border border-[#DCE5EA] hover:bg-[#EEF5F7]'
               }`}
             >
               <span>{step.num}</span>
@@ -179,19 +179,19 @@ export default function Onboarding() {
         {/* STEP 1: Role Selection */}
         {activeStep === 1 && (
           <div className="space-y-6">
-            <Card className="bg-[#FFFFFF] border border-[#2B2D42]/10 shadow-sm">
-              <CardHeader className="border-b border-[#2B2D42]/10 pb-4">
+            <Card className="bg-[#FFFFFF] border border-[#DCE5EA] shadow-sm rounded-2xl">
+              <CardHeader className="border-b border-[#DCE5EA] pb-4">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg font-bold text-[#0B2545] flex items-center gap-2">
+                  <div className="space-y-1 text-left">
+                    <CardTitle className="text-lg sm:text-xl font-semibold text-[#102A43] flex items-center gap-2">
                       <Briefcase className="w-5 h-5 text-[#1F7A8C]" /> Step 1: Select your professional role
                     </CardTitle>
-                    <CardDescription className="text-xs text-[#2B2D42]">
+                    <CardDescription className="text-sm text-[#62748A]">
                       This helps us personalize your competency framework and learning path.
                     </CardDescription>
                   </div>
-                  <span className="text-xs font-mono font-bold text-[#1F7A8C] px-2.5 py-1 bg-[#1F7A8C]/10 rounded-md">
-                    {roles.length} Professional Cadres
+                  <span className="text-xs font-mono font-semibold text-[#1F7A8C] px-2.5 py-1 bg-[#1F7A8C]/10 rounded-md border border-[#1F7A8C]/20">
+                    {roles.length} Cadres
                   </span>
                 </div>
               </CardHeader>

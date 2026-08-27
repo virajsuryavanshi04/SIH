@@ -69,10 +69,10 @@ export default function Progress() {
           <TrendingUp className="w-3.5 h-3.5" />
           <span>LONGITUDINAL CONTINUOUS EVALUATION</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#102A43] tracking-tight leading-tight">
           Competency Progression Over Time
         </h1>
-        <p className="text-xs sm:text-sm text-[#2B2D42]/80 mt-1">
+        <p className="text-sm text-[#62748A] mt-1.5 leading-relaxed">
           Verified capability growth trajectories tracked across baseline diagnostics, adaptive learning modules, and reassessments.
         </p>
       </div>
@@ -80,23 +80,23 @@ export default function Progress() {
       {/* Hero Achievement Summary Banner */}
       <div className="bg-[#0B2545] rounded-2xl p-6 sm:p-8 text-[#FFFFFF] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-md border border-[#0B2545] relative overflow-hidden">
         <div className="space-y-2 z-10">
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FFFFFF]/10 text-[#FFFFFF] border border-[#FFFFFF]/20">
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#FFFFFF]/10 text-[#FFFFFF] border border-[#FFFFFF]/20">
             <Award className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>Continuous Evidence Pipeline Active</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#FFFFFF]">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#FFFFFF] leading-tight">
             Overall Role Readiness: {overallReadiness}%
           </h2>
-          <p className="text-xs sm:text-sm text-[#FFFFFF]/80 max-w-xl leading-relaxed">
+          <p className="text-sm text-[#FFFFFF]/80 max-w-xl leading-relaxed">
             {insights?.diagnostic_summary || 'Continuous evaluation tracks capability gains without relying on unverified self-ratings.'}
           </p>
         </div>
         
-        <div className="text-left sm:text-right bg-[#FFFFFF]/10 p-4 rounded-xl border border-[#FFFFFF]/20 z-10 shrink-0">
-          <span className="text-[10px] font-mono font-bold text-[#FFFFFF]/70 uppercase tracking-wider block">
+        <div className="text-left sm:text-right bg-[#FFFFFF]/10 p-4 sm:p-5 rounded-2xl border border-[#FFFFFF]/20 z-10 shrink-0">
+          <span className="text-[11px] font-mono font-bold text-[#FFFFFF]/70 uppercase tracking-wider block">
             Net Capacity Gained
           </span>
-          <div className="text-3xl sm:text-4xl font-black text-[#FFFFFF] mt-0.5 font-mono">
+          <div className="text-3xl sm:text-4xl font-extrabold text-[#FFFFFF] mt-0.5 font-mono">
             {totalGrowth > 0 ? `+${totalGrowth} pts` : `${totalGrowth} pts`}
           </div>
           <span className="text-[11px] font-mono text-[#D4AF37] block mt-0.5">

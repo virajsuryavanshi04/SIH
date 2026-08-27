@@ -47,49 +47,49 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-[#F4F6F9] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <Card className="w-full max-w-md shadow-md border border-[#2B2D42]/10 relative z-10 bg-[#FFFFFF]">
-        <CardHeader className="space-y-3 text-center pb-6 border-b border-[#2B2D42]/10">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-[#F4F7FA] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <Card className="w-full max-w-md shadow-md border border-[#DCE5EA] relative z-10 bg-[#FFFFFF] rounded-2xl">
+        <CardHeader className="space-y-3 text-center pb-6 border-b border-[#DCE5EA]">
           <div className="flex justify-center">
             <div className="w-14 h-14 rounded-2xl bg-[#0B2545] flex items-center justify-center text-[#FFFFFF] shadow-sm">
               <Brain className="w-8 h-8 text-[#1F7A8C]" />
             </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold tracking-tight text-[#0B2545]">Official Portal Access</CardTitle>
-            <CardDescription className="text-[#2B2D42]/60 mt-1">SmartLearn Competency Intelligence System</CardDescription>
+            <CardTitle className="text-2xl font-bold tracking-tight text-[#102A43]">Official Portal Access</CardTitle>
+            <CardDescription className="text-sm text-[#62748A] mt-1">SmartLearn Competency Intelligence System</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
           <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#2B2D42]">Official Email Address</label>
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">Official Email Address</label>
               <Input 
                 type="email" 
                 placeholder="officer@gov.in" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border-[#2B2D42]/20 focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF]" 
+                className="border-[#DCE5EA] focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-sm text-[#102A43]" 
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#2B2D42]">Password</label>
+            <div className="space-y-1.5 text-left">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">Password</label>
               <Input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border-[#2B2D42]/20 focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF]" 
+                className="border-[#DCE5EA] focus:border-[#1F7A8C] focus:ring-[#1F7A8C]/20 bg-[#FFFFFF] text-sm text-[#102A43]" 
                 required
               />
             </div>
-            <Button type="submit" className="w-full font-bold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs mt-2 cursor-pointer" disabled={loading}>
+            <Button type="submit" className="w-full font-semibold text-sm bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs mt-2 cursor-pointer h-10" disabled={loading}>
               {loading ? 'Authenticating...' : 'Sign In to Portal'}
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-[#2B2D42]/10 space-y-3">
-            <div className="flex items-center justify-center space-x-2 text-xs font-bold text-[#1F7A8C]">
+          <div className="mt-6 pt-6 border-t border-[#DCE5EA] space-y-3">
+            <div className="flex items-center justify-center space-x-2 text-xs font-semibold text-[#1F7A8C]">
               <Sparkles className="w-3.5 h-3.5 text-[#1F7A8C]" />
               <span>Quick Demo Credentials</span>
             </div>
@@ -98,18 +98,20 @@ export default function Login() {
               <Button 
                 variant="secondary" 
                 onClick={() => handleDemoLogin('learner')} 
-                className="text-xs py-2 h-auto flex items-center justify-center space-x-1.5 shadow-2xs font-semibold"
+                type="button"
+                className="bg-[#EEF5F7] hover:bg-[#EEF5F7]/80 text-[#102A43] text-xs font-semibold border border-[#DCE5EA] flex items-center justify-center gap-1.5 cursor-pointer h-9"
               >
                 <User className="w-3.5 h-3.5 text-[#1F7A8C]" />
-                <span>Learner (Arjun)</span>
+                <span>Learner Demo</span>
               </Button>
               <Button 
                 variant="secondary" 
                 onClick={() => handleDemoLogin('admin')} 
-                className="text-xs py-2 h-auto flex items-center justify-center space-x-1.5 shadow-2xs font-semibold"
+                type="button"
+                className="bg-[#EEF5F7] hover:bg-[#EEF5F7]/80 text-[#102A43] text-xs font-semibold border border-[#DCE5EA] flex items-center justify-center gap-1.5 cursor-pointer h-9"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#1F7A8C]" />
-                <span>Admin (Manager)</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0B2545]" />
+                <span>Admin Demo</span>
               </Button>
             </div>
 

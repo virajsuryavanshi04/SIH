@@ -43,26 +43,26 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
       {/* Classification Metadata Badges */}
       <div className="flex flex-wrap items-center gap-2">
         {question.competency_name && (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#0B2545] text-[#FFFFFF]">
-            <Target className="w-3 h-3 text-[#D4AF37]" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-mono font-bold bg-[#0B2545] text-[#FFFFFF]">
+            <Target className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>{question.competency_name}</span>
           </span>
         )}
 
         {question.topic_name && (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-[#F4F6F9] text-[#2B2D42] border border-[#2B2D42]/15">
-            <Layers className="w-3 h-3 text-[#1F7A8C]" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-[#EEF5F7] text-[#102A43] border border-[#DCE5EA]">
+            <Layers className="w-3.5 h-3.5 text-[#1F7A8C]" />
             <span>{question.topic_name}</span>
           </span>
         )}
 
-        <span className={cn("px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold border", diffTag.color)}>
+        <span className={cn("px-3 py-1 rounded-md text-xs font-mono font-bold border", diffTag.color)}>
           {diffTag.label}
         </span>
       </div>
 
       {/* Question Text */}
-      <h2 className="text-lg sm:text-xl font-bold text-[#0B2545] leading-relaxed pt-1">
+      <h2 className="text-lg sm:text-xl font-bold text-[#102A43] leading-snug pt-1">
         {question.question_text || question.text}
       </h2>
       
@@ -78,20 +78,20 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
                 "cursor-pointer transition-all border rounded-xl",
                 isSelected 
                   ? "border-[#1F7A8C] bg-[#1F7A8C]/5 shadow-xs ring-2 ring-[#1F7A8C]/20" 
-                  : "border-[#2B2D42]/15 hover:border-[#1F7A8C]/50 hover:bg-[#F4F6F9] bg-[#FFFFFF]"
+                  : "border-[#DCE5EA] hover:border-[#1F7A8C]/50 hover:bg-[#EEF5F7] bg-[#FFFFFF]"
               )}
               onClick={() => onSelect(option.id)}
             >
-              <div className="p-4 flex items-center gap-3.5">
+              <div className="p-4 sm:p-4.5 flex items-center gap-3.5">
                 <div className={cn(
                   "flex-shrink-0 transition-colors",
-                  isSelected ? "text-[#1F7A8C]" : "text-[#2B2D42]/40"
+                  isSelected ? "text-[#1F7A8C]" : "text-[#62748A]/40"
                 )}>
                   {isSelected ? <CheckCircle2 className="w-5 h-5 text-[#1F7A8C]" /> : <Circle className="w-5 h-5" />}
                 </div>
                 <span className={cn(
-                  "text-xs sm:text-sm leading-relaxed",
-                  isSelected ? "font-bold text-[#0B2545]" : "text-[#2B2D42] font-medium"
+                  "text-sm sm:text-[15px] leading-relaxed",
+                  isSelected ? "font-semibold text-[#102A43]" : "text-[#102A43] font-normal"
                 )}>
                   {option.text}
                 </span>

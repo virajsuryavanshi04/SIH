@@ -189,10 +189,10 @@ export default function Materials() {
             <GraduationCap className="w-3.5 h-3.5" />
             <span>LEARNER PRACTICE & STUDY HUB</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-[#0B2545] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#102A43] tracking-tight leading-tight">
             Targeted Practice & Personal Notes
           </h1>
-          <p className="text-xs sm:text-sm text-[#2B2D42]/80 mt-1">
+          <p className="text-sm text-[#62748A] mt-1.5 leading-relaxed">
             Launch targeted drills on official standards, upload your personal field notes for AI summaries, or synthesize 3-5 question comprehension quizzes.
           </p>
         </div>
@@ -201,9 +201,9 @@ export default function Materials() {
           <Button
             size="sm"
             onClick={() => setShowNotesUploader(!showNotesUploader)}
-            className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer flex items-center gap-1.5"
+            className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer flex items-center gap-1.5 h-9"
           >
-            <UploadCloud className="w-3.5 h-3.5" />
+            <UploadCloud className="w-4 h-4" />
             <span>{showNotesUploader ? 'Close Notes Uploader' : '+ Upload Notes / PDF'}</span>
           </Button>
 
