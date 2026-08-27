@@ -128,21 +128,21 @@ export default function Profile() {
       </div>
 
       {/* Role Management & Dynamic Competency Targets */}
-      <Card className="bg-[#FFFFFF] border border-[#2B2D42]/10 shadow-xs">
-        <CardHeader className="border-b border-[#2B2D42]/10 pb-3">
+      <Card className="bg-[#FFFFFF] border border-[#DCE5EA] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
+        <CardHeader className="border-b border-[#DCE5EA] p-5 pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-bold text-[#0B2545] flex items-center gap-2">
+            <CardTitle className="text-base font-bold text-[#102A43] flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-[#1F7A8C]" /> Official Designation & Benchmark Framework
             </CardTitle>
-            <span className="text-xs font-mono text-[#1F7A8C] font-semibold bg-[#1F7A8C]/10 px-2.5 py-0.5 rounded">
+            <span className="text-xs font-mono text-[#1F7A8C] font-semibold bg-[#1F7A8C]/10 px-2.5 py-0.5 rounded-full border border-[#1F7A8C]/20">
               Active: {activeRoleName}
             </span>
           </div>
         </CardHeader>
-        <CardContent className="p-6 space-y-4">
+        <CardContent className="p-5 sm:p-6 space-y-4">
           
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#0B2545] uppercase tracking-wider block">
+            <label className="text-xs font-bold text-[#102A43] uppercase tracking-wider block">
               Change Official Role (Recalculates Benchmark Targets)
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -153,14 +153,14 @@ export default function Profile() {
                     key={r.id}
                     disabled={updatingRole}
                     onClick={() => handleRoleChange(r.id)}
-                    className={`p-3 rounded-xl border text-left transition-all text-xs font-bold ${
+                    className={`p-3 rounded-xl border text-left transition-all text-xs font-bold cursor-pointer ${
                       isSelected
                         ? 'bg-[#0B2545] text-[#FFFFFF] border-[#0B2545] shadow-xs'
-                        : 'bg-[#F4F6F9] text-[#2B2D42] border-[#2B2D42]/15 hover:border-[#1F7A8C]/40 hover:bg-[#FFFFFF]'
+                        : 'bg-[#EEF5F7] text-[#102A43] border-[#DCE5EA] hover:border-[#1F7A8C]/40 hover:bg-[#FFFFFF]'
                     }`}
                   >
                     <div>{r.name}</div>
-                    <div className={`text-[10px] font-normal mt-0.5 line-clamp-1 ${isSelected ? 'text-[#FFFFFF]/70' : 'text-[#2B2D42]/60'}`}>
+                    <div className={`text-[10px] font-normal mt-0.5 line-clamp-1 ${isSelected ? 'text-[#FFFFFF]/70' : 'text-[#62748A]'}`}>
                       {r.description}
                     </div>
                   </button>
@@ -170,23 +170,23 @@ export default function Profile() {
           </div>
 
           {feedbackMsg && (
-            <div className="p-3 rounded-lg bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-xs font-medium text-[#2E7D32] flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-xs font-medium text-[#2E7D32] flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{feedbackMsg}</span>
             </div>
           )}
 
           {/* Current Benchmark Requirements */}
-          <div className="pt-3 border-t border-[#2B2D42]/10 space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-[#2B2D42]/70 uppercase tracking-wider">
+          <div className="pt-3 border-t border-[#DCE5EA] space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-[#62748A] uppercase tracking-wider">
               <span>Required Competencies for {activeRoleName}</span>
               <span>Target Benchmark</span>
             </div>
             <div className="grid sm:grid-cols-2 gap-2">
               {roleCompetencies.map(rc => (
-                <div key={rc.competency_id} className="p-2.5 rounded-lg bg-[#F4F6F9] border border-[#2B2D42]/10 flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#0B2545]">{rc.competency_name}</span>
-                  <span className="font-mono font-bold text-[#1F7A8C] bg-[#FFFFFF] px-2 py-0.5 rounded border border-[#2B2D42]/10">
+                <div key={rc.competency_id} className="p-2.5 rounded-xl bg-[#EEF5F7] border border-[#DCE5EA] flex items-center justify-between text-xs">
+                  <span className="font-bold text-[#102A43]">{rc.competency_name}</span>
+                  <span className="font-mono font-bold text-[#1F7A8C] bg-[#FFFFFF] px-2 py-0.5 rounded-md border border-[#DCE5EA]">
                     Target: {rc.target_score}%
                   </span>
                 </div>
@@ -199,26 +199,26 @@ export default function Profile() {
 
       {/* Verified iGOT & Institutional Certifications */}
       <div className="space-y-4">
-        <h3 className="text-sm font-mono font-bold text-[#0B2545] uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-sm font-mono font-bold text-[#102A43] uppercase tracking-wider flex items-center gap-2">
           <Award className="w-4 h-4 text-[#1F7A8C]" />
           Verified Competency Certifications
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {certifications.map((cert) => (
-            <div key={cert.title} className="p-4 rounded-xl bg-[#FFFFFF] border border-[#2B2D42]/10 shadow-xs space-y-3 flex flex-col justify-between">
+            <div key={cert.title} className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#DCE5EA] shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-3 flex flex-col justify-between">
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono font-bold text-[#1F7A8C] uppercase">{cert.date}</span>
-                  <span className="text-xs font-mono font-bold text-[#2E7D32] bg-[#2E7D32]/10 px-2 py-0.2 rounded">
+                  <span className="text-xs font-mono font-bold text-[#2E7D32] bg-[#2E7D32]/10 px-2 py-0.5 rounded border border-[#2E7D32]/30">
                     {cert.score}
                   </span>
                 </div>
-                <h4 className="text-xs font-bold text-[#0B2545] leading-snug">{cert.title}</h4>
-                <p className="text-[11px] text-[#2B2D42]/70">{cert.issuer}</p>
+                <h4 className="text-xs sm:text-sm font-bold text-[#102A43] leading-snug">{cert.title}</h4>
+                <p className="text-xs text-[#62748A]">{cert.issuer}</p>
               </div>
 
-              <div className="pt-2 border-t border-[#2B2D42]/10 flex items-center text-[10px] text-[#2E7D32] font-semibold">
+              <div className="pt-2 border-t border-[#DCE5EA] flex items-center text-xs text-[#2E7D32] font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                 <span>Verified in iGOT Registry</span>
               </div>
@@ -229,38 +229,40 @@ export default function Profile() {
 
       {/* Assessment Telemetry Audit Log */}
       <div className="space-y-4">
-        <h3 className="text-sm font-mono font-bold text-[#0B2545] uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-sm font-mono font-bold text-[#102A43] uppercase tracking-wider flex items-center gap-2">
           <FileText className="w-4 h-4 text-[#1F7A8C]" />
           Assessment Telemetry Audit Trail
         </h3>
 
-        <div className="bg-[#FFFFFF] rounded-xl border border-[#2B2D42]/10 overflow-hidden shadow-xs">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 text-[#0B2545] uppercase font-mono font-bold text-[10px]">
-              <tr>
-                <th className="p-3.5">Assessment Focus</th>
-                <th className="p-3.5">Competency Domain</th>
-                <th className="p-3.5">Assessed Score</th>
-                <th className="p-3.5">Audit Date</th>
-                <th className="p-3.5">Evidence Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#2B2D42]/10 font-medium text-[#2B2D42]">
-              {assessmentEvidence.map((row, i) => (
-                <tr key={i} className="hover:bg-[#F4F6F9]/50 transition-colors">
-                  <td className="p-3.5 font-bold text-[#0B2545]">{row.assessment}</td>
-                  <td className="p-3.5 text-[#1F7A8C]">{row.domain}</td>
-                  <td className="p-3.5 font-mono font-bold text-[#0B2545]">{row.score}</td>
-                  <td className="p-3.5 font-mono text-[#2B2D42]/60">{row.date}</td>
-                  <td className="p-3.5">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20">
-                      {row.status}
-                    </span>
-                  </td>
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#DCE5EA] overflow-hidden shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead className="bg-[#EEF5F7] border-b border-[#DCE5EA] text-[#102A43] uppercase font-mono font-semibold text-[10px]">
+                <tr>
+                  <th className="p-3.5 px-5">Assessment Focus</th>
+                  <th className="p-3.5">Competency Domain</th>
+                  <th className="p-3.5">Assessed Score</th>
+                  <th className="p-3.5">Audit Date</th>
+                  <th className="p-3.5 px-5">Evidence Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#DCE5EA] font-medium text-[#102A43]">
+                {assessmentEvidence.map((row, i) => (
+                  <tr key={i} className="hover:bg-[#EEF5F7]/50 transition-colors">
+                    <td className="p-3.5 px-5 font-bold text-[#102A43]">{row.assessment}</td>
+                    <td className="p-3.5 text-[#1F7A8C]">{row.domain}</td>
+                    <td className="p-3.5 font-mono font-bold text-[#102A43]">{row.score}</td>
+                    <td className="p-3.5 font-mono text-[#62748A]">{row.date}</td>
+                    <td className="p-3.5 px-5">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20">
+                        {row.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
