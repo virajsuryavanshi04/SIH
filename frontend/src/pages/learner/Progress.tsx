@@ -108,11 +108,11 @@ export default function Progress() {
       {/* Skill Trajectory Cards */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#0B2545] flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#1F7A8C]" />
+          <h2 className="text-lg sm:text-xl font-bold text-[#102A43] flex items-center gap-2">
+            <Layers className="w-4.5 h-4.5 text-[#1F7A8C]" />
             Skill Trajectory Curves by Competency
           </h2>
-          <span className="text-xs font-mono text-[#2B2D42]/60 font-semibold">
+          <span className="text-xs font-mono text-[#62748A] font-semibold">
             {competencies.length} Competencies Monitored
           </span>
         </div>
@@ -129,34 +129,34 @@ export default function Progress() {
               : [{ date: 'Initial', score: currentVal }];
 
             return (
-              <Card key={comp.competency_id} className="overflow-hidden bg-[#FFFFFF] shadow-xs border border-[#2B2D42]/10 flex flex-col justify-between">
-                <CardHeader className="bg-[#F4F6F9] border-b border-[#2B2D42]/10 p-4">
+              <Card key={comp.competency_id} className="overflow-hidden bg-[#FFFFFF] shadow-[0_1px_3px_rgba(11,37,69,0.04)] border border-[#DCE5EA] rounded-2xl flex flex-col justify-between">
+                <CardHeader className="bg-[#EEF5F7] border-b border-[#DCE5EA] p-5">
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#1F7A8C]">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1F7A8C]">
                         {comp.domain || 'Statistical'} // {comp.trend?.toUpperCase() || 'UNASSESSED'}
                       </span>
-                      <CardTitle className="text-base font-bold text-[#0B2545] mt-0.5">
+                      <CardTitle className="text-base sm:text-lg font-bold text-[#102A43] mt-1">
                         {comp.competency_name}
                       </CardTitle>
                     </div>
                     {isTargetMet ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/30">
-                        <CheckCircle2 className="w-3 h-3" /> Target Met
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/30">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Target Met
                       </span>
                     ) : isAssessed ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#D4AF37]/15 text-[#0B2545] border border-[#D4AF37]/35">
-                        <AlertTriangle className="w-3 h-3 text-[#D4AF37]" /> Gap: -{comp.gap}%
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[#D4AF37]/15 text-[#102A43] border border-[#D4AF37]/35">
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#D4AF37]" /> Gap: -{comp.gap}%
                       </span>
                     ) : (
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#2B2D42]/5 text-[#2B2D42]/60 border border-[#2B2D42]/20">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-[#EEF5F7] text-[#62748A] border border-[#DCE5EA]">
                         Not Assessed
                       </span>
                     )}
                   </div>
                 </CardHeader>
 
-                <CardContent className="p-5 space-y-4">
+                <CardContent className="p-5 sm:p-6 space-y-4">
                   {/* Delta Component */}
                   {isAssessed && comp.previous_score !== null ? (
                     <CompetencyDelta 
@@ -165,12 +165,12 @@ export default function Progress() {
                       delta={changePoints} 
                     />
                   ) : isAssessed ? (
-                    <div className="flex items-center justify-between p-3 bg-[#F4F6F9] rounded-xl border border-[#2B2D42]/10 text-xs">
-                      <span className="font-mono text-[#2B2D42]/70 font-semibold">Baseline Verified Score</span>
-                      <span className="font-mono font-bold text-base text-[#0B2545]">{currentVal}%</span>
+                    <div className="flex items-center justify-between p-3.5 bg-[#EEF5F7] rounded-xl border border-[#DCE5EA] text-xs">
+                      <span className="font-mono text-[#62748A] font-semibold">Baseline Verified Score</span>
+                      <span className="font-mono font-bold text-base text-[#102A43]">{currentVal}%</span>
                     </div>
                   ) : (
-                    <div className="p-3 bg-[#F4F6F9] rounded-xl border border-[#2B2D42]/10 text-xs text-[#2B2D42]/60">
+                    <div className="p-3.5 bg-[#EEF5F7] rounded-xl border border-[#DCE5EA] text-xs text-[#62748A]">
                       Pending baseline assessment to establish initial evidence score.
                     </div>
                   )}
@@ -184,13 +184,13 @@ export default function Progress() {
 
                   {/* Subtopics Granular Breakdown */}
                   {comp.subtopics && comp.subtopics.length > 0 && (
-                    <div className="space-y-2 pt-2 border-t border-[#2B2D42]/10">
+                    <div className="space-y-2 pt-3 border-t border-[#DCE5EA]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold text-[#0B2545] uppercase tracking-wider">
+                        <span className="text-xs font-mono font-bold text-[#102A43] uppercase tracking-wider">
                           Subtopic Evidence
                         </span>
                         {comp.weakest_subtopic && (
-                          <span className="text-[10px] font-mono text-[#D4AF37] font-bold">
+                          <span className="text-xs font-mono text-[#D4AF37] font-bold">
                             Weakest: {comp.weakest_subtopic}
                           </span>
                         )}
@@ -198,17 +198,17 @@ export default function Progress() {
 
                       <div className="grid grid-cols-2 gap-2">
                         {comp.subtopics.map((st: any) => (
-                          <div key={st.topic_id} className="p-2 rounded-lg bg-[#F4F6F9] border border-[#2B2D42]/10 text-[11px] flex items-center justify-between">
-                            <span className="truncate max-w-[140px] text-[#2B2D42] font-medium" title={st.topic_name}>
+                          <div key={st.topic_id} className="p-2.5 rounded-xl bg-[#EEF5F7] border border-[#DCE5EA] text-xs flex items-center justify-between">
+                            <span className="truncate max-w-[140px] text-[#102A43] font-medium" title={st.topic_name}>
                               {st.topic_name}
                             </span>
                             <span className={cn(
-                              "font-mono font-bold text-[10px] px-1.5 py-0.5 rounded",
+                              "font-mono font-bold text-[11px] px-1.5 py-0.5 rounded",
                               st.score === null 
-                                ? "text-[#2B2D42]/40"
+                                ? "text-[#62748A]/60"
                                 : st.score >= 80 
                                 ? "bg-[#2E7D32]/10 text-[#2E7D32]" 
-                                : "bg-[#D4AF37]/15 text-[#0B2545]"
+                                : "bg-[#D4AF37]/15 text-[#102A43]"
                             )}>
                               {st.score !== null ? `${st.score}%` : 'Pending'}
                             </span>
