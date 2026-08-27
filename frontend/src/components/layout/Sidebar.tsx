@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -9,6 +10,7 @@ import {
 
 export default function Sidebar() {
   const { isLearner, isAdmin, logout, user } = useAuth();
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const learnerGroups = [
     {
@@ -64,16 +66,43 @@ export default function Sidebar() {
   const groups = isLearner ? learnerGroups : (isAdmin ? adminGroups : []);
 
   return (
-    <div className="flex flex-col h-full w-64 bg-[#0B2545] text-[#FFFFFF] border-r border-[#0B2545] z-20 shadow-md">
+    <aside
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+      onFocusCapture={() => setIsExpanded(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setIsExpanded(false);
+        }
+      }}
+      className={cn(
+        "flex flex-col h-screen bg-[#0B2545] text-[#FFFFFF] border-r border-[#0B2545] z-30 shadow-md shrink-0 select-none",
+        "transition-all duration-300 ease-in-out overflow-x-hidden overflow-y-hidden",
+        isExpanded ? "w-[272px]" : "w-[76px]"
+      )}
+    >
       {/* Brand Header */}
-      <div className="p-5 flex items-center justify-between border-b border-[#FFFFFF]/10">
-        <Link to="/" className="flex items-center space-x-3 text-left">
-          <div className="w-9 h-9 rounded-xl bg-[#1F7A8C] flex items-center justify-center text-[#FFFFFF] shadow-xs">
-            <Brain className="w-5 h-5" />
+      <div className="px-3 h-14 border-b border-[#FFFFFF]/10 shrink-0 flex items-center overflow-hidden">
+        <Link
+          to="/"
+          className={cn(
+            "flex items-center text-left w-full transition-all duration-200",
+            isExpanded ? "px-1.5 space-x-3" : "justify-center px-0"
+          )}
+        >
+          <div className="w-8.5 h-8.5 rounded-lg bg-[#1F7A8C] flex items-center justify-center text-[#FFFFFF] shadow-xs shrink-0">
+            <Brain className="w-4.5 h-4.5" />
           </div>
-          <div>
-            <span className="text-lg font-black tracking-tight text-[#FFFFFF] block leading-none">SmartLearn</span>
-            <span className="text-[10px] font-medium text-[#FFFFFF]/70 tracking-wider block mt-1">
+          <div
+            className={cn(
+              "min-w-0 transition-opacity duration-200 ease-in-out whitespace-nowrap overflow-hidden flex-col justify-center",
+              isExpanded ? "opacity-100 flex" : "opacity-0 hidden"
+            )}
+          >
+            <span className="text-[16px] font-bold tracking-tight text-[#FFFFFF] leading-tight block">
+              SmartLearn
+            </span>
+            <span className="text-[10px] font-medium text-[#FFFFFF]/75 tracking-wider leading-tight mt-0.5 block">
               Competency Intelligence
             </span>
           </div>
@@ -81,30 +110,47 @@ export default function Sidebar() {
       </div>
 
       {/* Grouped Navigation */}
-      <nav className="flex-1 px-3 py-5 space-y-6 overflow-y-auto">
+      <nav className="flex-1 px-2.5 sm:px-3 py-2 sm:py-2.5 space-y-2.5 sm:space-y-3 overflow-hidden">
         {groups.map((group) => (
-          <div key={group.title} className="space-y-1">
-            <div className="px-3 pb-1.5 text-[10px] font-mono font-bold tracking-widest text-[#FFFFFF]/50 uppercase text-left">
+          <div key={group.title} className="space-y-0.5">
+            {/* Section Heading */}
+            <div
+              className={cn(
+                "px-3 pt-1 pb-0.5 text-[11px] font-semibold tracking-wider text-[#FFFFFF]/50 uppercase text-left whitespace-nowrap transition-opacity duration-200 overflow-hidden",
+                isExpanded ? "opacity-100 block" : "opacity-0 hidden"
+              )}
+            >
               {group.title}
             </div>
+
+            {/* Navigation Links */}
             {group.links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === '/admin' || link.to === '/dashboard'}
+                title={!isExpanded ? link.label : undefined}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center space-x-3 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all duration-150 text-left",
+                    "flex items-center rounded-xl text-[14px] sm:text-[15px] transition-all duration-150 text-left h-9",
+                    isExpanded ? "px-3 space-x-3 w-full" : "px-0 justify-center w-10 mx-auto",
                     isActive 
-                      ? "bg-[#1F7A8C] text-[#FFFFFF] shadow-xs font-bold" 
-                      : "text-[#FFFFFF]/75 hover:bg-[#FFFFFF]/10 hover:text-[#FFFFFF]"
+                      ? "bg-[#1F7A8C] text-[#FFFFFF] shadow-xs font-semibold" 
+                      : "text-[#FFFFFF]/80 hover:bg-[#FFFFFF]/10 hover:text-[#FFFFFF] font-medium"
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <link.icon className={cn("w-4 h-4 shrink-0", isActive ? "text-[#FFFFFF]" : "text-[#FFFFFF]/70")} />
-                    <span className="truncate">{link.label}</span>
+                    <link.icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-[#FFFFFF]" : "text-[#FFFFFF]/70")} />
+                    <span
+                      className={cn(
+                        "truncate whitespace-nowrap transition-opacity duration-200",
+                        isExpanded ? "opacity-100 inline-block" : "opacity-0 hidden"
+                      )}
+                    >
+                      {link.label}
+                    </span>
                   </>
                 )}
               </NavLink>
@@ -114,26 +160,49 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile & Sign Out Footer */}
-      <div className="p-4 border-t border-[#FFFFFF]/10 bg-[#0B2545]">
-        <div className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-[#FFFFFF]/5 border border-[#FFFFFF]/10 mb-2 text-left">
-          <div className="w-8 h-8 rounded-lg bg-[#1F7A8C] text-[#FFFFFF] flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+      <div className="p-2.5 sm:p-3 border-t border-[#FFFFFF]/10 bg-[#0B2545] shrink-0 overflow-hidden">
+        <div
+          className={cn(
+            "flex items-center rounded-xl bg-[#FFFFFF]/5 border border-[#FFFFFF]/10 mb-1.5 transition-all duration-200",
+            isExpanded ? "p-2 space-x-2.5 text-left w-full" : "p-1 justify-center w-10 mx-auto"
+          )}
+        >
+          <div className="w-8 h-8 rounded-lg bg-[#1F7A8C] text-[#FFFFFF] flex items-center justify-center font-semibold text-xs shadow-xs shrink-0 font-mono">
             {user?.full_name?.charAt(0) || 'A'}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-[#FFFFFF] truncate">{user?.full_name || 'Arjun Patel'}</p>
-            <p className="text-[10px] text-[#FFFFFF]/70 truncate font-medium">
+          <div
+            className={cn(
+              "flex-1 min-w-0 transition-opacity duration-200 whitespace-nowrap overflow-hidden",
+              isExpanded ? "opacity-100 block" : "opacity-0 hidden"
+            )}
+          >
+            <p className="text-sm font-semibold text-[#FFFFFF] truncate leading-tight">{user?.full_name || 'Arjun Patel'}</p>
+            <p className="text-xs text-[#FFFFFF]/75 truncate font-medium mt-0.5">
               {user?.designation || (isAdmin ? 'System Administrator' : 'Statistical Officer')}
             </p>
           </div>
         </div>
         <button
           onClick={logout}
-          className="flex items-center space-x-2.5 px-3 py-1.5 w-full rounded-lg text-xs font-medium text-[#FFFFFF]/70 hover:text-[#D4AF37] hover:bg-[#FFFFFF]/10 transition-colors cursor-pointer text-left"
+          title={!isExpanded ? 'Sign Out' : undefined}
+          className={cn(
+            "flex items-center rounded-xl text-xs sm:text-sm font-medium text-[#FFFFFF]/75 hover:text-[#D4AF37] hover:bg-[#FFFFFF]/10 transition-colors cursor-pointer text-left h-8",
+            isExpanded ? "px-2.5 space-x-2 w-full" : "px-0 justify-center w-10 mx-auto"
+          )}
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out</span>
+          <LogOut className="w-4 h-4 shrink-0" />
+          <span
+            className={cn(
+              "whitespace-nowrap transition-opacity duration-200",
+              isExpanded ? "opacity-100 inline-block" : "opacity-0 hidden"
+            )}
+          >
+            Sign Out
+          </span>
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
+
+

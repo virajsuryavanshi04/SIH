@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Clock, BookOpen, Route, Award, Play, AlertCircle, AlertTriangle } from 'lucide-react';
-import CapabilityLandscape, { CapabilityNode } from '@/components/spatial/CapabilityLandscape';
-import GapInspector from '@/components/spatial/GapInspector';
+import RadialCapabilityOverview, { RadialCompetencyNode } from '@/components/dashboard/RadialCapabilityOverview';
+import { CompetencyScorecardItem } from '@/components/dashboard/CompetencyScorecard';
+import DashboardPriorityGap from '@/components/dashboard/DashboardPriorityGap';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { competencyApi, courseApi, learningPathApi } from '@/lib/api';
-
-const defaultCoordinates = [
-  { x: 26, y: 22 },
-  { x: 74, y: 22 },
-  { x: 86, y: 50 },
-  { x: 74, y: 78 },
-  { x: 26, y: 78 },
-  { x: 14, y: 50 },
-  { x: 50, y: 18 },
-  { x: 50, y: 82 },
-];
 
 export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -27,8 +17,10 @@ export default function Dashboard() {
   const [learningPath, setLearningPath] = useState<any>(null);
   const [historyList, setHistoryList] = useState<any[]>([]);
   
-  const [nodes, setNodes] = useState<CapabilityNode[]>([]);
-  const [selectedNode, setSelectedNode] = useState<CapabilityNode | null>(null);
+  const [scorecardItems, setScorecardItems] = useState<CompetencyScorecardItem[]>([]);
+  const [selectedScorecardItem, setSelectedScorecardItem] = useState<CompetencyScorecardItem | null>(null);
+  const [radialNodes, setRadialNodes] = useState<RadialCompetencyNode[]>([]);
+  const [selectedRadialNode, setSelectedRadialNode] = useState<RadialCompetencyNode | null>(null);
 
   useEffect(() => {
     const fetchDashboardTelemetry = async () => {
@@ -57,49 +49,30 @@ export default function Dashboard() {
         setLearningPath(rawPath);
         setHistoryList(rawHist);
 
-        // Transform raw competencies into visual CapabilityNode[]
-        const builtNodes: CapabilityNode[] = rawComps.map((c: any, index: number) => {
-          const coords = defaultCoordinates[index % defaultCoordinates.length];
+        // 1. Build Radial Competency Nodes
+        const builtRadialNodes: RadialCompetencyNode[] = rawComps.map((c: any) => {
           const isAssessed = c.current_score !== null;
+          const score = c.current_score ?? 0;
+          const target = c.target_score ?? 70;
+          const gap = c.gap ?? Math.max(0, target - score);
           const matchingRec = rawRecs.find((r: any) => r.competency_id === c.competency_id);
-          
-          let nodeStatus: 'proficient' | 'on_track' | 'needs_attention' | 'not_assessed' = 'not_assessed';
+
+          let status: 'proficient' | 'on_track' | 'needs_attention' | 'critical' | 'not_assessed' = 'not_assessed';
           if (isAssessed) {
-            if (c.current_score >= c.target_score) nodeStatus = 'proficient';
-            else if (c.gap <= 10) nodeStatus = 'on_track';
-            else nodeStatus = 'needs_attention';
-          }
-
-          const priorityLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 
-            c.gap > 20 ? 'CRITICAL' : c.gap > 10 ? 'HIGH' : c.gap > 0 ? 'MEDIUM' : 'LOW';
-
-          const reasons: string[] = [];
-          if (c.weakest_subtopic) {
-            reasons.push(`Subtopic focus needed: ${c.weakest_subtopic}`);
-          }
-          if (c.change_points !== null && c.change_points !== undefined) {
-            reasons.push(`Recent trajectory: ${c.change_points > 0 ? '+' : ''}${c.change_points} pts since previous evaluation`);
-          }
-          if (c.assessment_count) {
-            reasons.push(`Telemetry aggregated across ${c.assessment_count} assessments`);
-          }
-          if (reasons.length === 0) {
-            reasons.push(isAssessed ? `Proficiency calibrated at ${c.current_score}% against ${c.target_score}% benchmark` : 'Pending initial baseline assessment');
+            if (score >= target) status = 'proficient';
+            else if (gap <= 10) status = 'on_track';
+            else if (gap <= 20) status = 'needs_attention';
+            else status = 'critical';
           }
 
           return {
             id: c.competency_id,
             name: c.competency_name,
             domain: c.domain || 'Statistical Standard',
-            x: coords.x,
-            y: coords.y,
             score: c.current_score,
-            required: c.target_score,
-            gap: c.gap,
-            priority: priorityLevel,
-            status: nodeStatus,
-            prerequisites: index === 0 ? [] : [rawComps[0]?.competency_id || 1],
-            reasons: reasons,
+            required: target,
+            gap: gap,
+            status: status,
             weakestSubtopic: c.weakest_subtopic,
             aiConfidence: Math.round(rawDiag?.confidence || 88),
             recommendedCourse: {
@@ -110,12 +83,64 @@ export default function Dashboard() {
           };
         });
 
-        setNodes(builtNodes);
+        // 2. Build Scorecard Items for Inspector Synchronization
+        const builtScorecardItems: CompetencyScorecardItem[] = rawComps.map((c: any) => {
+          const isAssessed = c.current_score !== null;
+          const score = c.current_score ?? 0;
+          const target = c.target_score ?? 70;
+          const gap = c.gap ?? Math.max(0, target - score);
+          const matchingRec = rawRecs.find((r: any) => r.competency_id === c.competency_id);
+
+          let status: 'STRONG' | 'GOOD' | 'NEEDS_WORK' | 'CRITICAL' | 'PENDING' = 'PENDING';
+          let gapText = 'Pending baseline evaluation';
+
+          if (isAssessed) {
+            if (score >= target) {
+              status = 'STRONG';
+              const pts = score - target;
+              gapText = pts > 0 ? `+${pts} pts above target` : 'Target benchmark met';
+            } else if (gap <= 10) {
+              status = 'GOOD';
+              gapText = `${gap} points below target`;
+            } else if (gap <= 20) {
+              status = 'NEEDS_WORK';
+              gapText = `${gap} points below target`;
+            } else {
+              status = 'CRITICAL';
+              gapText = `${gap} points below target`;
+            }
+          }
+
+          return {
+            id: c.competency_id,
+            name: c.competency_name,
+            domain: c.domain || 'Statistical Standard',
+            current_score: c.current_score,
+            target_score: target,
+            gap: gap,
+            weakest_subtopic: c.weakest_subtopic,
+            status: status,
+            gapText: gapText,
+            recommendation: {
+              title: matchingRec?.title || `Targeted Module for ${c.competency_name}`,
+              duration: matchingRec?.duration_hours ? `${matchingRec.duration_hours}h` : '25 min',
+              type: matchingRec?.resource_type ? matchingRec.resource_type.toUpperCase().replace('_', ' ') : 'iGOT Micro-Learning'
+            }
+          };
+        });
+
+        setRadialNodes(builtRadialNodes);
+        setScorecardItems(builtScorecardItems);
 
         // Select the biggest gap node by default, or the first node
-        if (builtNodes.length > 0) {
-          const bottleneck = builtNodes.reduce((prev, curr) => ((curr.gap || 0) > (prev.gap || 0) ? curr : prev), builtNodes[0]);
-          setSelectedNode(bottleneck);
+        if (builtRadialNodes.length > 0) {
+          const bottleneck = builtRadialNodes.find(i => i.status === 'critical') 
+            || builtRadialNodes.find(i => i.status === 'needs_attention')
+            || builtRadialNodes[0];
+          setSelectedRadialNode(bottleneck);
+
+          const matchingScorecard = builtScorecardItems.find(s => s.id === bottleneck.id) || builtScorecardItems[0];
+          setSelectedScorecardItem(matchingScorecard);
         }
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
@@ -256,8 +281,10 @@ export default function Dashboard() {
             size="sm"
             onClick={() => {
               if (bottleneckGap) {
-                const targetNode = nodes.find(n => n.name === bottleneckGap.competency_name);
-                if (targetNode) setSelectedNode(targetNode);
+                const targetItem = scorecardItems.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
+                if (targetItem) setSelectedScorecardItem(targetItem);
+                const targetNode = radialNodes.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
+                if (targetNode) setSelectedRadialNode(targetNode);
               }
             }}
             className="w-full border-[#D4AF37]/50 text-[#0B2545] hover:bg-[#D4AF37]/10 font-bold text-xs h-9 cursor-pointer"
@@ -298,27 +325,29 @@ export default function Dashboard() {
       </div>
 
       {/* ============================================================ */}
-      {/* 2. SIGNATURE CAPABILITY LANDSCAPE & CONTEXTUAL GAP INSPECTOR  */}
+      {/* 2. RADIAL CAPABILITY OVERVIEW & PRIORITY GAP INSPECTOR       */}
       {/* ============================================================ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: Capability Landscape Visualization */}
+        {/* Left: Mathematical Radial Capability Overview */}
         <div className="lg:col-span-7">
-          <CapabilityLandscape
-            nodes={nodes}
-            selectedNode={selectedNode}
-            onSelectNode={(node) => setSelectedNode(node)}
+          <RadialCapabilityOverview
+            nodes={radialNodes}
+            selectedNode={selectedRadialNode}
+            onSelectNode={(node) => {
+              setSelectedRadialNode(node);
+              const matchingScorecard = scorecardItems.find(s => s.id === node.id);
+              if (matchingScorecard) setSelectedScorecardItem(matchingScorecard);
+            }}
           />
         </div>
 
-        {/* Right: Contextual Gap Inspector */}
+        {/* Right: Priority Gap / Selected Competency Inspector */}
         <div className="lg:col-span-5">
-          {selectedNode ? (
-            <GapInspector node={selectedNode} />
-          ) : (
-            <div className="bg-[#FFFFFF] p-8 rounded-2xl border border-[#2B2D42]/10 text-center text-xs text-[#2B2D42]/60">
-              Select a competency node in the network to inspect detailed evidence.
-            </div>
-          )}
+          <DashboardPriorityGap
+            item={selectedScorecardItem}
+            diagnosis={diagnosis}
+            recommendation={recommendations.find(r => r.competency_id === selectedScorecardItem?.id) || recommendations[0]}
+          />
         </div>
       </div>
 
