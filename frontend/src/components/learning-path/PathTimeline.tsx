@@ -21,7 +21,7 @@ interface Props {
 
 export default function PathTimeline({ items }: Props) {
   const getIcon = (type: string, status: string) => {
-    if (status === 'locked') return <Lock className="w-3.5 h-3.5 text-[#2B2D42]/40" />;
+    if (status === 'locked') return <Lock className="w-3.5 h-3.5 text-[#5D7180]/40" />;
     if (status === 'completed') return <CheckCircle2 className="w-3.5 h-3.5 text-[#FFFFFF]" />;
     
     switch (type.toLowerCase()) {
@@ -46,7 +46,7 @@ export default function PathTimeline({ items }: Props) {
               <div 
                 className={cn(
                   "absolute left-[-21px] top-7 bottom-[-32px] w-0.5",
-                  isCompleted ? "bg-[#2E7D32]" : isCurrent ? "bg-[#1F7A8C]" : "bg-[#DCE5EA]"
+                  isCompleted ? "bg-[#2E8B57]" : isCurrent ? "bg-[#176B87]" : "bg-[#D8E5EC]"
                 )}
               />
             )}
@@ -54,9 +54,9 @@ export default function PathTimeline({ items }: Props) {
             {/* Node Icon */}
             <div className={cn(
               "absolute left-[-31px] w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all",
-              isCompleted ? "border-[#2E7D32] bg-[#2E7D32] text-[#FFFFFF] shadow-xs" : 
-              isCurrent ? "border-[#1F7A8C] bg-[#1F7A8C] text-[#FFFFFF] ring-2 ring-[#1F7A8C]/20 shadow-xs" : 
-              "border-[#DCE5EA] bg-[#FFFFFF]"
+              isCompleted ? "border-[#2E8B57] bg-[#2E8B57] text-[#FFFFFF] shadow-xs" : 
+              isCurrent ? "border-[#176B87] bg-[#176B87] text-[#FFFFFF] ring-2 ring-[#176B87]/20 shadow-xs" : 
+              "border-[#D8E5EC] bg-[#FFFFFF]"
             )}>
               {getIcon(item.item_type, item.status)}
             </div>
@@ -64,37 +64,37 @@ export default function PathTimeline({ items }: Props) {
             {/* Content Card */}
             <div className={cn(
               "ml-6 p-5 sm:p-6 rounded-2xl border transition-all bg-[#FFFFFF]",
-              isCurrent ? "border-[#1F7A8C] shadow-sm ring-1 ring-[#1F7A8C]/20" : 
-              isCompleted ? "border-[#2E7D32]/30 bg-[#2E7D32]/5" : 
-              "border-[#DCE5EA] opacity-85"
+              isCurrent ? "border-[#176B87] shadow-sm ring-1 ring-[#176B87]/20" : 
+              isCompleted ? "border-[#2E8B57]/30 bg-[#2E8B57]/5" : 
+              "border-[#D8E5EC] opacity-85"
             )}>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-wider">{item.item_type}</span>
+                    <span className="text-xs font-mono font-bold text-[#176B87] uppercase tracking-wider">{item.item_type}</span>
                     {item.competency_name && (
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20">
                         {item.competency_name}
                       </span>
                     )}
                   </div>
-                  <h3 className={cn("text-base sm:text-lg font-bold leading-snug", isCurrent ? "text-[#1F7A8C]" : "text-[#102A43]")}>
+                  <h3 className={cn("text-base sm:text-lg font-bold leading-snug", isCurrent ? "text-[#176B87]" : "text-[#123047]")}>
                     {item.title}
                   </h3>
                 </div>
                 {item.estimated_duration && (
-                  <span className="text-xs font-mono font-semibold text-[#102A43] bg-[#EEF5F7] px-2.5 py-1 rounded-md border border-[#DCE5EA] shadow-2xs self-start">
+                  <span className="text-xs font-mono font-semibold text-[#123047] bg-[#EAF3F7] px-2.5 py-1 rounded-md border border-[#D8E5EC] shadow-2xs self-start">
                     ⏱ {item.estimated_duration}
                   </span>
                 )}
               </div>
               
-              <p className="text-sm text-[#62748A] mb-4 leading-relaxed">{item.description}</p>
+              <p className="text-sm text-[#5D7180] mb-4 leading-relaxed">{item.description}</p>
               
-              <div className="flex justify-between items-center pt-3 border-t border-[#DCE5EA]">
+              <div className="flex justify-between items-center pt-3 border-t border-[#D8E5EC]">
                 <div className="flex gap-2">
                   {item.difficulty && (
-                    <span className="text-xs font-medium text-[#102A43] bg-[#EEF5F7] px-2.5 py-0.5 rounded border border-[#DCE5EA]">
+                    <span className="text-xs font-medium text-[#123047] bg-[#EAF3F7] px-2.5 py-0.5 rounded border border-[#D8E5EC]">
                       Level: {item.difficulty}
                     </span>
                   )}
@@ -102,7 +102,7 @@ export default function PathTimeline({ items }: Props) {
 
                 {isCurrent && (
                   <Link to="/courses">
-                    <Button size="sm" className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs h-8.5 px-4 flex items-center gap-1.5 cursor-pointer">
+                    <Button size="sm" className="bg-[#176B87] hover:bg-[#123B5D] text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs h-8.5 px-4 flex items-center gap-1.5 cursor-pointer">
                       <span>Start Learning</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Button>
@@ -110,7 +110,7 @@ export default function PathTimeline({ items }: Props) {
                 )}
 
                 {isCompleted && (
-                  <span className="text-xs font-bold font-mono text-[#2E7D32] flex items-center gap-1">
+                  <span className="text-xs font-bold font-mono text-[#2E8B57] flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4" /> Completed
                   </span>
                 )}
@@ -122,3 +122,4 @@ export default function PathTimeline({ items }: Props) {
     </div>
   );
 }
+

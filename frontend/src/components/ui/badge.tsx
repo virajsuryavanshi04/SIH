@@ -3,19 +3,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#1F7A8C]/20 focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#176B87]/20 focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "border-[#1F7A8C]/20 bg-[#1F7A8C]/10 text-[#1F7A8C]",
-        secondary: "border-[#2B2D42]/15 bg-[#F4F6F9] text-[#2B2D42]",
-        accent: "border-[#D4AF37]/30 bg-[#D4AF37]/15 text-[#D4AF37]",
-        success: "border-[#2E7D32]/30 bg-[#2E7D32]/10 text-[#2E7D32]",
-        warning: "border-[#D4AF37]/30 bg-[#D4AF37]/15 text-[#D4AF37]",
-        destructive: "border-[#D4AF37]/30 bg-[#D4AF37]/15 text-[#D4AF37]",
-        danger: "border-[#D4AF37]/30 bg-[#D4AF37]/15 text-[#D4AF37]",
-        navy: "border-[#0B2545]/20 bg-[#0B2545]/10 text-[#0B2545]",
-        outline: "border-[#2B2D42]/20 text-[#2B2D42]",
+        default: "border-[#176B87]/20 bg-[#176B87]/10 text-[#176B87]",
+        secondary: "border-[#D8E5EC] bg-[#EAF3F7] text-[#123047]",
+        accent: "border-[#35A7A0]/30 bg-[#35A7A0]/15 text-[#176B87]",
+        success: "border-[#2E8B57]/30 bg-[#2E8B57]/10 text-[#2E8B57]",
+        warning: "border-[#D49A2A]/30 bg-[#D49A2A]/15 text-[#123047]",
+        destructive: "border-[#D9534F]/30 bg-[#D9534F]/10 text-[#D9534F]",
+        danger: "border-[#D9534F]/30 bg-[#D9534F]/10 text-[#D9534F]",
+        navy: "border-[#123B5D]/20 bg-[#123B5D]/10 text-[#123B5D]",
+        outline: "border-[#D8E5EC] text-[#5D7180]",
       },
     },
     defaultVariants: {
@@ -35,3 +35,4 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants }
+

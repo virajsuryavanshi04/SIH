@@ -80,17 +80,17 @@ export default function ClosedLoopConduit() {
   return (
     <div className="w-full space-y-6">
       {/* Closed Loop Continuous Pipeline Header */}
-      <div className="bg-[#FFFFFF] p-6 rounded-2xl border border-[#2B2D42]/10 shadow-xs">
+      <div className="bg-[#FFFFFF] p-6 rounded-2xl border border-[#123047]/10 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-widest mb-1">
+            <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Closed-Loop Capability Stream</span>
             </div>
-            <h3 className="text-xl font-bold text-[#0B2545]">The Closed-Loop Transformation Conduit</h3>
+            <h3 className="text-xl font-bold text-[#123B5D]">The Closed-Loop Transformation Conduit</h3>
           </div>
-          <div className="flex items-center space-x-2 bg-[#1F7A8C]/10 px-3 py-1.5 rounded-full border border-[#1F7A8C]/20 text-xs font-bold text-[#1F7A8C]">
-            <span className="w-2 h-2 rounded-full bg-[#1F7A8C] animate-pulse" />
+          <div className="flex items-center space-x-2 bg-[#176B87]/10 px-3 py-1.5 rounded-full border border-[#176B87]/20 text-xs font-bold text-[#176B87]">
+            <span className="w-2 h-2 rounded-full bg-[#176B87] animate-pulse" />
             <span>Active Closed Loop // Step 3 of 6</span>
           </div>
         </div>
@@ -106,25 +106,25 @@ export default function ClosedLoopConduit() {
                 className={cn(
                   "p-3 rounded-xl border transition-all cursor-pointer text-center relative",
                   isSelected
-                    ? "bg-[#1F7A8C] text-[#FFFFFF] border-[#1F7A8C] shadow-xs font-bold"
+                    ? "bg-[#176B87] text-[#FFFFFF] border-[#176B87] shadow-xs font-bold"
                     : stage.status === 'completed'
-                    ? "bg-[#2E7D32]/10 border-[#2E7D32]/30 text-[#2E7D32] hover:border-[#2E7D32]"
+                    ? "bg-[#2E8B57]/10 border-[#2E8B57]/30 text-[#2E8B57] hover:border-[#2E8B57]"
                     : stage.status === 'active'
-                    ? "bg-[#1F7A8C]/10 border-[#1F7A8C] text-[#1F7A8C] hover:bg-[#1F7A8C]/15"
-                    : "bg-[#FFFFFF] border-[#2B2D42]/10 text-[#2B2D42]/60 hover:bg-[#F4F6F9] hover:text-[#0B2545]"
+                    ? "bg-[#176B87]/10 border-[#176B87] text-[#176B87] hover:bg-[#176B87]/15"
+                    : "bg-[#FFFFFF] border-[#123047]/10 text-[#123047]/60 hover:bg-[#EAF3F7] hover:text-[#123B5D]"
                 )}
               >
                 <div className="flex justify-center mb-1.5">
                   {stage.status === 'completed' ? (
-                    <CheckCircle2 className={cn("w-4 h-4", isSelected ? "text-[#FFFFFF]" : "text-[#2E7D32]")} />
+                    <CheckCircle2 className={cn("w-4 h-4", isSelected ? "text-[#FFFFFF]" : "text-[#2E8B57]")} />
                   ) : stage.status === 'active' ? (
-                    <Circle className={cn("w-4 h-4", isSelected ? "text-[#FFFFFF]" : "text-[#1F7A8C] animate-pulse")} />
+                    <Circle className={cn("w-4 h-4", isSelected ? "text-[#FFFFFF]" : "text-[#176B87] animate-pulse")} />
                   ) : (
-                    <Circle className="w-4 h-4 text-[#2B2D42]/30" />
+                    <Circle className="w-4 h-4 text-[#123047]/30" />
                   )}
                 </div>
                 <div className="text-[11px] font-bold tracking-wider">{stage.label}</div>
-                <div className={cn("text-[9px] truncate mt-0.5", isSelected ? "text-[#FFFFFF]/90" : "text-[#2B2D42]/60")}>
+                <div className={cn("text-[9px] truncate mt-0.5", isSelected ? "text-[#FFFFFF]/90" : "text-[#123047]/60")}>
                   {stage.sublabel}
                 </div>
               </div>
@@ -135,43 +135,43 @@ export default function ClosedLoopConduit() {
 
       {/* Selected Step Detail Panel */}
       {activeStage && (
-        <div className="p-6 bg-[#FFFFFF] rounded-2xl border border-[#2B2D42]/10 shadow-xs space-y-4 animate-in fade-in duration-200">
+        <div className="p-6 bg-[#FFFFFF] rounded-2xl border border-[#123047]/10 shadow-xs space-y-4 animate-in fade-in duration-200">
           {(() => {
             const current = stages.find(s => s.id === activeStage)!;
             return (
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#2B2D42]/10 pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#123047]/10 pb-3">
                   <div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#1F7A8C]">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#176B87]">
                       PHASE 0{current.id} // {current.label}
                     </span>
-                    <h4 className="text-lg font-bold text-[#0B2545]">{current.sublabel}</h4>
+                    <h4 className="text-lg font-bold text-[#123B5D]">{current.sublabel}</h4>
                   </div>
                   {current.metric && (
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-lg bg-[#F4F6F9] border border-[#2B2D42]/10 text-[#0B2545] shadow-xs">
+                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-lg bg-[#EAF3F7] border border-[#123047]/10 text-[#123B5D] shadow-xs">
                       {current.metric}
                     </span>
                   )}
                 </div>
 
-                <p className="text-xs text-[#2B2D42] leading-relaxed max-w-3xl">
+                <p className="text-xs text-[#123047] leading-relaxed max-w-3xl">
                   {current.detail}
                 </p>
 
                 {current.igotModule && (
-                  <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#2B2D42]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#123047]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#1F7A8C]/10 flex items-center justify-center text-[#1F7A8C] shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-[#176B87]/10 flex items-center justify-center text-[#176B87] shrink-0">
                         <BookOpen className="w-5 h-5" />
                       </div>
                       <div>
-                        <div className="text-[10px] font-bold uppercase text-[#1F7A8C] font-mono">Integrated Course Module</div>
-                        <h5 className="font-bold text-xs text-[#0B2545]">{current.igotModule}</h5>
+                        <div className="text-[10px] font-bold uppercase text-[#176B87] font-mono">Integrated Course Module</div>
+                        <h5 className="font-bold text-xs text-[#123B5D]">{current.igotModule}</h5>
                       </div>
                     </div>
                     {current.actionRoute && (
                       <Link to={current.actionRoute}>
-                        <Button size="sm" className="font-bold bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] shadow-xs">
+                        <Button size="sm" className="font-bold bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] shadow-xs">
                           {current.actionText} <ArrowRight className="w-3.5 h-3.5 ml-1" />
                         </Button>
                       </Link>

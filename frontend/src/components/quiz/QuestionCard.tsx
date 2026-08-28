@@ -30,9 +30,9 @@ interface Props {
 
 export default function QuestionCard({ question, selectedOption, onSelect }: Props) {
   const getDifficultyLabel = (diff?: string) => {
-    if (diff === '1' || diff === 'beginner') return { label: 'Level 1: Foundational', color: 'bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]/30' };
-    if (diff === '2' || diff === 'intermediate') return { label: 'Level 2: Applied', color: 'bg-[#1F7A8C]/10 text-[#1F7A8C] border-[#1F7A8C]/30' };
-    return { label: 'Level 3: Policy & Analysis', color: 'bg-[#D4AF37]/15 text-[#0B2545] border-[#D4AF37]/40' };
+    if (diff === '1' || diff === 'beginner') return { label: 'Level 1: Foundational', color: 'bg-[#2E8B57]/10 text-[#2E8B57] border-[#2E8B57]/30' };
+    if (diff === '2' || diff === 'intermediate') return { label: 'Level 2: Applied', color: 'bg-[#176B87]/10 text-[#176B87] border-[#176B87]/30' };
+    return { label: 'Level 3: Policy & Analysis', color: 'bg-[#D49A2A]/15 text-[#123047] border-[#D49A2A]/40' };
   };
 
   const diffTag = getDifficultyLabel(question.difficulty);
@@ -43,15 +43,15 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
       {/* Classification Metadata Badges */}
       <div className="flex flex-wrap items-center gap-2">
         {question.competency_name && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-mono font-bold bg-[#0B2545] text-[#FFFFFF]">
-            <Target className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-mono font-bold bg-[#123B5D] text-[#FFFFFF]">
+            <Target className="w-3.5 h-3.5 text-[#D49A2A]" />
             <span>{question.competency_name}</span>
           </span>
         )}
 
         {question.topic_name && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-[#EEF5F7] text-[#102A43] border border-[#DCE5EA]">
-            <Layers className="w-3.5 h-3.5 text-[#1F7A8C]" />
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-[#EAF3F7] text-[#123047] border border-[#D8E5EC]">
+            <Layers className="w-3.5 h-3.5 text-[#176B87]" />
             <span>{question.topic_name}</span>
           </span>
         )}
@@ -62,7 +62,7 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
       </div>
 
       {/* Question Text */}
-      <h2 className="text-lg sm:text-xl font-bold text-[#102A43] leading-snug pt-1">
+      <h2 className="text-lg sm:text-xl font-bold text-[#123047] leading-snug pt-1">
         {question.question_text || question.text}
       </h2>
       
@@ -77,21 +77,21 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
               className={cn(
                 "cursor-pointer transition-all border rounded-xl",
                 isSelected 
-                  ? "border-[#1F7A8C] bg-[#1F7A8C]/5 shadow-xs ring-2 ring-[#1F7A8C]/20" 
-                  : "border-[#DCE5EA] hover:border-[#1F7A8C]/50 hover:bg-[#EEF5F7] bg-[#FFFFFF]"
+                  ? "border-[#176B87] bg-[#176B87]/5 shadow-xs ring-2 ring-[#176B87]/20" 
+                  : "border-[#D8E5EC] hover:border-[#176B87]/50 hover:bg-[#EAF3F7] bg-[#FFFFFF]"
               )}
               onClick={() => onSelect(option.id)}
             >
               <div className="p-4 sm:p-4.5 flex items-center gap-3.5">
                 <div className={cn(
                   "flex-shrink-0 transition-colors",
-                  isSelected ? "text-[#1F7A8C]" : "text-[#62748A]/40"
+                  isSelected ? "text-[#176B87]" : "text-[#5D7180]/40"
                 )}>
-                  {isSelected ? <CheckCircle2 className="w-5 h-5 text-[#1F7A8C]" /> : <Circle className="w-5 h-5" />}
+                  {isSelected ? <CheckCircle2 className="w-5 h-5 text-[#176B87]" /> : <Circle className="w-5 h-5" />}
                 </div>
                 <span className={cn(
                   "text-sm sm:text-[15px] leading-relaxed",
-                  isSelected ? "font-semibold text-[#102A43]" : "text-[#102A43] font-normal"
+                  isSelected ? "font-semibold text-[#123047]" : "text-[#123047] font-normal"
                 )}>
                   {option.text}
                 </span>
@@ -103,3 +103,4 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
     </div>
   );
 }
+

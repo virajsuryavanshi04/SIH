@@ -8,16 +8,16 @@ interface Props {
 
 export default function ConfidenceSelector({ selectedLevel, onSelect }: Props) {
   const levels = [
-    { id: 'low', label: 'Not Sure', icon: HelpCircle, color: 'text-[#D4AF37]', bg: 'bg-[#D4AF37]/15', activeBg: 'bg-[#D4AF37]/25 border-[#D4AF37] ring-2 ring-[#D4AF37]/20' },
-    { id: 'medium', label: 'Somewhat Confident', icon: ThumbsUp, color: 'text-[#1F7A8C]', bg: 'bg-[#1F7A8C]/10', activeBg: 'bg-[#1F7A8C]/20 border-[#1F7A8C] ring-2 ring-[#1F7A8C]/20' },
-    { id: 'high', label: 'Very Confident', icon: CheckCircle, color: 'text-[#2E7D32]', bg: 'bg-[#2E7D32]/10', activeBg: 'bg-[#2E7D32]/20 border-[#2E7D32] ring-2 ring-[#2E7D32]/20' },
+    { id: 'low', label: 'Not Sure', icon: HelpCircle, color: 'text-[#D49A2A]', bg: 'bg-[#D49A2A]/15', activeBg: 'bg-[#D49A2A]/25 border-[#D49A2A] ring-2 ring-[#D49A2A]/20' },
+    { id: 'medium', label: 'Somewhat Confident', icon: ThumbsUp, color: 'text-[#176B87]', bg: 'bg-[#176B87]/10', activeBg: 'bg-[#176B87]/20 border-[#176B87] ring-2 ring-[#176B87]/20' },
+    { id: 'high', label: 'Very Confident', icon: CheckCircle, color: 'text-[#2E8B57]', bg: 'bg-[#2E8B57]/10', activeBg: 'bg-[#2E8B57]/20 border-[#2E8B57] ring-2 ring-[#2E8B57]/20' },
   ];
 
   return (
-    <div className="space-y-3 pt-6 border-t border-[#DCE5EA]">
+    <div className="space-y-3 pt-6 border-t border-[#D8E5EC]">
       <div className="text-center space-y-0.5">
-        <span className="text-xs sm:text-sm font-semibold text-[#102A43] uppercase tracking-wider">Metacognition: How confident are you?</span>
-        <p className="text-xs text-[#62748A]">Helps AI distinguish genuine mastery from lucky guessing</p>
+        <span className="text-xs sm:text-sm font-semibold text-[#123047] uppercase tracking-wider">Metacognition: How confident are you?</span>
+        <p className="text-xs text-[#5D7180]">Helps AI distinguish genuine mastery from lucky guessing</p>
       </div>
       <div className="flex gap-3 sm:gap-4">
         {levels.map((level) => {
@@ -31,7 +31,7 @@ export default function ConfidenceSelector({ selectedLevel, onSelect }: Props) {
                 "flex-1 py-3 px-2 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer",
                 isSelected 
                   ? `${level.activeBg} ${level.color} shadow-xs font-semibold` 
-                  : `border-[#DCE5EA] ${level.bg} text-[#102A43] hover:border-[#1F7A8C] font-medium`
+                  : `border-[#D8E5EC] ${level.bg} text-[#123047] hover:border-[#176B87] font-medium`
               )}
             >
               <level.icon className="w-5 h-5" />

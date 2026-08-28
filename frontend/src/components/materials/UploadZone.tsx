@@ -124,8 +124,8 @@ export default function UploadZone({ onUploadSuccess }: Props) {
     <div className="space-y-5 text-left">
       
       {error && (
-        <div className="p-3.5 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/35 text-xs font-bold text-[#0B2545] flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-[#D4AF37] shrink-0" />
+        <div className="p-3.5 rounded-xl bg-[#D49A2A]/15 border border-[#D49A2A]/35 text-xs font-bold text-[#123047] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-[#D49A2A] shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -133,24 +133,24 @@ export default function UploadZone({ onUploadSuccess }: Props) {
       {/* Structured Upload Form */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+          <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
             Document Title
           </label>
           <Input 
             value={title} 
             onChange={(e) => setTitle(e.target.value)} 
             placeholder="e.g., National Survey Sampling Handbook (NSS 2026)" 
-            className="text-xs border-[#2B2D42]/20 bg-[#FFFFFF]"
+            className="text-xs border-[#D8E5EC] bg-[#FFFFFF] text-[#123047]"
             disabled={uploading}
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-[#0B2545] uppercase tracking-wider">
+          <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
             Primary Competency Domain
           </label>
           <Select value={competencyId} onValueChange={setCompetencyId} disabled={uploading}>
-            <SelectTrigger className="border-[#2B2D42]/20 bg-[#FFFFFF] text-xs">
+            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs text-[#123047]">
               <SelectValue placeholder="Select competency" />
             </SelectTrigger>
             <SelectContent>
@@ -167,8 +167,8 @@ export default function UploadZone({ onUploadSuccess }: Props) {
         className={cn(
           "border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all relative bg-[#FFFFFF]",
           dragActive 
-            ? "border-[#1F7A8C] bg-[#1F7A8C]/5 ring-2 ring-[#1F7A8C]/20" 
-            : "border-[#2B2D42]/20 hover:border-[#1F7A8C]",
+            ? "border-[#176B87] bg-[#176B87]/5 ring-2 ring-[#176B87]/20" 
+            : "border-[#D8E5EC] hover:border-[#176B87]",
           uploading && "pointer-events-none opacity-80"
         )}
         onDragEnter={handleDrag}
@@ -186,33 +186,33 @@ export default function UploadZone({ onUploadSuccess }: Props) {
         
         {!uploading ? (
           <div className="flex flex-col items-center pointer-events-none space-y-2">
-            <div className="w-10 h-10 bg-[#1F7A8C]/10 rounded-xl flex items-center justify-center border border-[#1F7A8C]/20 text-[#1F7A8C] shadow-2xs">
+            <div className="w-10 h-10 bg-[#176B87]/10 rounded-xl flex items-center justify-center border border-[#176B87]/20 text-[#176B87] shadow-2xs">
               <UploadCloud className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-bold text-[#0B2545]">
+              <p className="text-xs sm:text-sm font-bold text-[#123047]">
                 {file ? file.name : "Drag & drop official training PDF / document here"}
               </p>
-              <p className="text-[11px] text-[#2B2D42]/60 mt-0.5">
+              <p className="text-[11px] text-[#5D7180] mt-0.5">
                 {file ? `${(file.size / 1024).toFixed(1)} KB • Click or drop new file to replace` : "or click to select file from your system"}
               </p>
             </div>
             <div className="flex gap-1.5 pt-1">
-              <span className="px-2 py-0.5 bg-[#FFFFFF] border border-[#2B2D42]/20 rounded text-[10px] font-bold text-[#1F7A8C]">PDF</span>
-              <span className="px-2 py-0.5 bg-[#FFFFFF] border border-[#2B2D42]/20 rounded text-[10px] font-bold text-[#1F7A8C]">DOCX</span>
-              <span className="px-2 py-0.5 bg-[#FFFFFF] border border-[#2B2D42]/20 rounded text-[10px] font-bold text-[#1F7A8C]">TXT</span>
+              <span className="px-2 py-0.5 bg-[#FFFFFF] border border-[#D8E5EC] rounded text-[10px] font-bold text-[#176B87]">PDF</span>
+              <span className="px-2 py-0.5 bg-[#FFFFFF] border border-[#D8E5EC] rounded text-[10px] font-bold text-[#176B87]">DOCX</span>
+              <span className="px-2 py-0.5 bg-[#FFFFFF] border border-[#D8E5EC] rounded text-[10px] font-bold text-[#176B87]">TXT</span>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center max-w-md mx-auto space-y-3">
-            <div className="w-10 h-10 bg-[#1F7A8C]/10 rounded-xl flex items-center justify-center text-[#1F7A8C] animate-pulse">
+            <div className="w-10 h-10 bg-[#176B87]/10 rounded-xl flex items-center justify-center text-[#176B87] animate-pulse">
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-xs text-[#0B2545]">{statusMessage}</h3>
-              <p className="text-[10px] text-[#2B2D42]/60 mt-0.5 font-mono">{progress}% parsed & indexed</p>
+              <h3 className="font-bold text-xs text-[#123047]">{statusMessage}</h3>
+              <p className="text-[10px] text-[#5D7180] mt-0.5 font-mono">{progress}% parsed & indexed</p>
             </div>
-            <Progress value={progress} indicatorColor="bg-[#1F7A8C]" className="h-1.5 w-full" />
+            <Progress value={progress} indicatorColor="bg-[#176B87]" className="h-1.5 w-full" />
           </div>
         )}
       </div>
@@ -223,7 +223,7 @@ export default function UploadZone({ onUploadSuccess }: Props) {
           size="sm"
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer px-5"
+          className="bg-[#176B87] hover:bg-[#123B5D] text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer px-5 rounded-xl"
         >
           {uploading ? (
             <div className="flex items-center gap-2">

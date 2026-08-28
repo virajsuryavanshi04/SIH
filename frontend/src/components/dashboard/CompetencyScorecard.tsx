@@ -35,25 +35,25 @@ export default function CompetencyScorecard({
   roleName = 'Statistical Officer'
 }: CompetencyScorecardProps) {
   return (
-    <div className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#2B2D42]/10 shadow-[0_1px_4px_rgba(11,37,69,0.04)] space-y-5 text-left h-full flex flex-col justify-between">
+    <div className="bg-[#FFFFFF] rounded-2xl p-5 sm:p-6 border border-[#D8E5EC] shadow-[0_1px_4px_rgba(18,59,93,0.04)] space-y-5 text-left h-full flex flex-col justify-between">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#2B2D42]/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#D8E5EC] pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-wider mb-0.5">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-wider mb-0.5">
             <Sparkles className="w-3.5 h-3.5" />
             <span>CAPABILITY GAP MATRIX</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-semibold text-[#0B2545] tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#123047] tracking-tight">
             Your Capability Landscape
           </h2>
-          <p className="text-xs sm:text-sm text-[#2B2D42]/75 mt-0.5">
+          <p className="text-xs sm:text-sm text-[#5D7180] mt-0.5">
             {competencies.length} competencies • benchmarked against your {roleName} role
           </p>
         </div>
 
         <Link to="/competencies">
-          <Button variant="ghost" size="sm" className="text-xs sm:text-sm font-semibold text-[#1F7A8C] hover:bg-[#1F7A8C]/10 h-8 px-2.5 flex items-center gap-1 cursor-pointer">
+          <Button variant="ghost" size="sm" className="text-xs sm:text-sm font-semibold text-[#176B87] hover:bg-[#176B87]/10 h-8 px-2.5 flex items-center gap-1 cursor-pointer">
             <span>View Graph Topology</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Button>
@@ -76,18 +76,18 @@ export default function CompetencyScorecard({
               className={cn(
                 "p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer text-left space-y-2.5",
                 isSelected
-                  ? "bg-[#1F7A8C]/5 border-[#1F7A8C] ring-2 ring-[#1F7A8C]/20 shadow-xs"
-                  : "bg-[#FFFFFF] border-[#2B2D42]/10 hover:border-[#1F7A8C]/40 hover:bg-[#F4F6F9]/60"
+                  ? "bg-[#176B87]/5 border-[#176B87] ring-2 ring-[#176B87]/20 shadow-xs"
+                  : "bg-[#FFFFFF] border-[#D8E5EC] hover:border-[#176B87]/40 hover:bg-[#EAF3F7]/60"
               )}
             >
               {/* Row 1: Competency Name & Status Badge */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center space-x-2 min-w-0">
-                  <span className="font-semibold text-sm sm:text-base text-[#0B2545] truncate">
+                  <span className="font-semibold text-sm sm:text-base text-[#123047] truncate">
                     {comp.name}
                   </span>
                   {comp.weakest_subtopic && (
-                    <span className="hidden md:inline-block text-[10px] font-mono text-[#D4AF37] bg-[#D4AF37]/10 px-2 py-0.5 rounded-full border border-[#D4AF37]/20 truncate max-w-[140px]">
+                    <span className="hidden md:inline-block text-[10px] font-mono text-[#D49A2A] bg-[#D49A2A]/10 px-2 py-0.5 rounded-full border border-[#D49A2A]/20 truncate max-w-[140px]">
                       {comp.weakest_subtopic}
                     </span>
                   )}
@@ -99,14 +99,14 @@ export default function CompetencyScorecard({
                     className={cn(
                       "text-xs font-semibold px-2.5 py-0.5 rounded-full border font-mono",
                       comp.status === 'STRONG'
-                        ? "bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]/30"
+                        ? "bg-[#2E8B57]/10 text-[#2E8B57] border-[#2E8B57]/30"
                         : comp.status === 'GOOD'
-                        ? "bg-[#1F7A8C]/10 text-[#1F7A8C] border-[#1F7A8C]/20"
+                        ? "bg-[#176B87]/10 text-[#176B87] border-[#176B87]/20"
                         : comp.status === 'NEEDS_WORK'
-                        ? "bg-[#D4AF37]/15 text-[#0B2545] border-[#D4AF37]/35"
+                        ? "bg-[#D49A2A]/15 text-[#123047] border-[#D49A2A]/35"
                         : comp.status === 'CRITICAL'
-                        ? "bg-red-50 text-red-700 border-red-200"
-                        : "bg-[#2B2D42]/5 text-[#2B2D42]/60 border-[#2B2D42]/20"
+                        ? "bg-[#D9534F]/10 text-[#D9534F] border-[#D9534F]/30"
+                        : "bg-[#EAF3F7] text-[#5D7180] border-[#D8E5EC]"
                     )}
                   >
                     {comp.status === 'STRONG' && 'STRONG'}
@@ -121,11 +121,11 @@ export default function CompetencyScorecard({
               {/* Row 2: Comparison Metrics Line */}
               <div className="flex items-center justify-between text-xs sm:text-sm">
                 <div className="flex items-center space-x-3">
-                  <span className="font-mono font-semibold text-base text-[#0B2545]">
+                  <span className="font-mono font-semibold text-base text-[#123047]">
                     {isAssessed ? `${score}%` : 'Unassessed'}
                   </span>
-                  <span className="text-[#2B2D42]/60 font-medium">
-                    Target: <span className="font-mono text-[#0B2545] font-semibold">{target}%</span>
+                  <span className="text-[#5D7180] font-medium">
+                    Target: <span className="font-mono text-[#123047] font-semibold">{target}%</span>
                   </span>
                 </div>
 
@@ -134,10 +134,10 @@ export default function CompetencyScorecard({
                     className={cn(
                       "text-xs font-mono",
                       isTargetMet
-                        ? "text-[#2E7D32] font-semibold"
+                        ? "text-[#2E8B57] font-semibold"
                         : comp.gap > 20
-                        ? "text-red-600 font-semibold"
-                        : "text-[#D4AF37] font-semibold"
+                        ? "text-[#D9534F] font-semibold"
+                        : "text-[#D49A2A] font-semibold"
                     )}
                   >
                     {comp.gapText}
@@ -147,15 +147,15 @@ export default function CompetencyScorecard({
 
               {/* Row 3: Visual Progress Bar with Target Tick Marker */}
               <div className="relative pt-1">
-                <div className="relative h-2 w-full bg-[#2B2D42]/10 rounded-full overflow-hidden">
+                <div className="relative h-2 w-full bg-[#EAF3F7] border border-[#D8E5EC] rounded-full overflow-hidden">
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-700 ease-out",
                       isTargetMet
-                        ? "bg-[#2E7D32]"
+                        ? "bg-[#2E8B57]"
                         : comp.gap > 20
-                        ? "bg-[#D4AF37]"
-                        : "bg-[#1F7A8C]"
+                        ? "bg-[#D49A2A]"
+                        : "bg-[#176B87]"
                     )}
                     style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
                   />
@@ -163,7 +163,7 @@ export default function CompetencyScorecard({
 
                 {/* Target Marker Pin */}
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 w-1 h-3.5 bg-[#0B2545] rounded-full ring-2 ring-[#FFFFFF] z-10 pointer-events-none"
+                  className="absolute top-1/2 -translate-y-1/2 w-1 h-3.5 bg-[#123B5D] rounded-full ring-2 ring-[#FFFFFF] z-10 pointer-events-none"
                   style={{ left: `${Math.min(99, Math.max(1, target))}%` }}
                   title={`Target Benchmark: ${target}%`}
                 />
@@ -174,15 +174,15 @@ export default function CompetencyScorecard({
       </div>
 
       {/* Footer Navigation Link to Full Capability Topology Map */}
-      <div className="pt-3 border-t border-[#2B2D42]/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <span className="text-xs text-[#2B2D42]/60 font-mono">
+      <div className="pt-3 border-t border-[#D8E5EC] flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span className="text-xs text-[#5D7180] font-mono">
           Click any row to inspect gap root cause and recommendations
         </span>
         <Link to="/competencies">
           <Button
             variant="outline"
             size="sm"
-            className="w-full sm:w-auto text-xs sm:text-sm font-semibold border-[#2B2D42]/20 hover:bg-[#1F7A8C] hover:text-[#FFFFFF] text-[#0B2545] transition-all cursor-pointer h-9 px-4 rounded-xl"
+            className="w-full sm:w-auto text-xs sm:text-sm font-semibold border-[#D8E5EC] hover:bg-[#176B87] hover:text-[#FFFFFF] text-[#123047] transition-all cursor-pointer h-9 px-4 rounded-xl"
           >
             <span>View Detailed Capability Map</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1.5" />

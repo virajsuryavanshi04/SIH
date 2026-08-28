@@ -1,24 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #0B2545;
-  --color-gold: #D4AF37;
-  --color-teal: #1F7A8C;
-  --color-slate: #62748A;
-  --color-background: #F4F7FA;
-  --color-surface-subtle: #EEF5F7;
+  --color-navy: #123B5D;
+  --color-primary-deep: #123B5D;
+  --color-teal: #176B87;
+  --color-accent-teal: #35A7A0;
+  --color-gold: #D49A2A;
+  --color-slate: #5D7180;
+  --color-muted: #7A8C98;
+  --color-background: #F4F8FB;
+  --color-surface-subtle: #EAF3F7;
+  --color-surface: #EAF3F7;
   --color-white: #FFFFFF;
-  --color-success: #2E7D32;
+  --color-success: #2E8B57;
+  --color-warning: #D49A2A;
+  --color-critical: #D9534F;
+  --color-info: #176B87;
 
   /* Semantic mappings */
-  --color-primary: #1F7A8C;
-  --color-primary-dark: #0B2545;
-  --color-accent: #D4AF37;
-  --color-text-primary: #102A43;
-  --color-text-secondary: #62748A;
-  --color-text: #102A43;
-  --color-dark: #0B2545;
-  --color-border: #DCE5EA;
+  --color-primary: #176B87;
+  --color-primary-dark: #123B5D;
+  --color-accent: #35A7A0;
+  --color-text-primary: #123047;
+  --color-text-secondary: #5D7180;
+  --color-text-muted: #7A8C98;
+  --color-text: #123047;
+  --color-dark: #123B5D;
+  --color-border: #D8E5EC;
+  --color-border-subtle: #E5EDF2;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -48,13 +57,14 @@
 @layer base {
   body {
     font-family: var(--font-sans);
-    color: #102A43;
-    background-color: #F4F7FA;
+    color: #123047;
+    background-color: #F4F8FB;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    color: #102A43;
+    color: #123047;
     letter-spacing: -0.02em;
   }
 }
+

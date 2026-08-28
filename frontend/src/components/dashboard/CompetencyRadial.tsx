@@ -28,7 +28,7 @@ export default function CompetencyRadial({ score, delta }: Props) {
         {/* Background circle */}
         <svg className="w-full h-full transform -rotate-90">
           <circle
-            className="text-[#2B2D42]/10"
+            className="text-[#D8E5EC]"
             strokeWidth={strokeWidth}
             stroke="currentColor"
             fill="transparent"
@@ -40,7 +40,7 @@ export default function CompetencyRadial({ score, delta }: Props) {
           <circle
             className={cn(
               "transition-all duration-1000 ease-out",
-              score >= 80 ? "text-[#2E7D32]" : score >= 60 ? "text-[#1F7A8C]" : "text-[#D4AF37]"
+              score >= 80 ? "text-[#2E8B57]" : score >= 60 ? "text-[#176B87]" : "text-[#D49A2A]"
             )}
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
@@ -54,17 +54,18 @@ export default function CompetencyRadial({ score, delta }: Props) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-4xl font-black text-[#0B2545] font-mono">{Math.round(animatedScore)}%</span>
-          <span className="text-xs text-[#2B2D42]/60 font-bold uppercase tracking-wider mt-0.5">Proficiency</span>
+          <span className="text-4xl font-black text-[#123047] font-mono">{Math.round(animatedScore)}%</span>
+          <span className="text-xs text-[#5D7180] font-bold uppercase tracking-wider mt-0.5">Proficiency</span>
         </div>
       </div>
       
       {delta > 0 && (
-        <div className="mt-3 flex items-center bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/20 px-3 py-1 rounded-full text-xs font-bold shadow-2xs">
-          <ArrowUp className="w-3.5 h-3.5 mr-1 text-[#2E7D32]" />
+        <div className="mt-3 flex items-center bg-[#2E8B57]/10 text-[#2E8B57] border border-[#2E8B57]/20 px-3 py-1 rounded-full text-xs font-bold shadow-2xs">
+          <ArrowUp className="w-3.5 h-3.5 mr-1 text-[#2E8B57]" />
           +{delta}% improvement this month
         </div>
       )}
     </div>
   );
 }
+

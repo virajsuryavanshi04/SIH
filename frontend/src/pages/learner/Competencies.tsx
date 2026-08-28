@@ -138,8 +138,8 @@ export default function Competencies() {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-3 border-[#1F7A8C] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#0B2545]">Loading workforce competency diagnostic matrix...</p>
+          <div className="w-10 h-10 border-3 border-[#176B87] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#123B5D]">Loading workforce competency diagnostic matrix...</p>
         </div>
       </div>
     );
@@ -149,16 +149,16 @@ export default function Competencies() {
     <div className="space-y-6 max-w-7xl mx-auto pb-16 text-left">
       
       {/* Page Title & Context Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#2B2D42]/10 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#123047]/10 pb-5">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#1F7A8C] uppercase tracking-wider mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-wider mb-1">
             <Compass className="w-3.5 h-3.5" />
             <span>WORKFORCE CAPABILITY INTELLIGENCE</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#0B2545] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#123B5D] tracking-tight">
             Workforce Capability Map & Diagnostic Matrix
           </h1>
-          <p className="text-xs sm:text-sm text-[#2B2D42]/80 mt-1">
+          <p className="text-xs sm:text-sm text-[#123047]/80 mt-1">
             Multi-dimensional workforce competency structure, verified proficiency levels, topic mastery coverage, and prerequisite relationships.
           </p>
         </div>

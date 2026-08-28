@@ -33,11 +33,11 @@ export default function ProcessingStatus({ onComplete }: Props) {
     <div className="py-6">
       <div className="flex justify-between relative">
         {/* Background line */}
-        <div className="absolute top-5 left-0 w-full h-1 bg-[#2B2D42]/10 -z-10" />
+        <div className="absolute top-5 left-0 w-full h-1 bg-[#D8E5EC] -z-10" />
         
         {/* Active line */}
         <div 
-          className="absolute top-5 left-0 h-1 bg-[#1F7A8C] -z-10 transition-all duration-500" 
+          className="absolute top-5 left-0 h-1 bg-[#176B87] -z-10 transition-all duration-500" 
           style={{ width: `${(Math.min(currentStep, steps.length - 1) / (steps.length - 1)) * 100}%` }}
         />
         
@@ -49,20 +49,20 @@ export default function ProcessingStatus({ onComplete }: Props) {
             <div key={step.label} className="flex flex-col items-center">
               <div className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center border-2 bg-[#FFFFFF] transition-colors duration-300",
-                isCompleted ? "border-[#2E7D32] text-[#2E7D32]" : 
-                isCurrent ? "border-[#1F7A8C] text-[#1F7A8C]" : "border-[#2B2D42]/20 text-[#2B2D42]/40"
+                isCompleted ? "border-[#2E8B57] text-[#2E8B57]" : 
+                isCurrent ? "border-[#176B87] text-[#176B87]" : "border-[#D8E5EC] text-[#7A8C98]"
               )}>
                 {isCompleted ? (
-                  <Check className="w-5 h-5 text-[#2E7D32]" />
+                  <Check className="w-5 h-5 text-[#2E8B57]" />
                 ) : isCurrent ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-[#1F7A8C]" />
+                  <Loader2 className="w-5 h-5 animate-spin text-[#176B87]" />
                 ) : (
                   <span className="text-sm font-medium">{index + 1}</span>
                 )}
               </div>
               <span className={cn(
                 "mt-3 text-xs font-medium text-center w-24",
-                isCompleted || isCurrent ? "text-[#0B2545] font-bold" : "text-[#2B2D42]/60"
+                isCompleted || isCurrent ? "text-[#123047] font-bold" : "text-[#5D7180]"
               )}>
                 {step.label}
               </span>
@@ -73,3 +73,4 @@ export default function ProcessingStatus({ onComplete }: Props) {
     </div>
   );
 }
+

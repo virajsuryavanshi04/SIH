@@ -14,35 +14,35 @@ interface Props {
 
 export default function AIInsightCard({ insight }: Props) {
   return (
-    <Card className="bg-[#FFFFFF] border border-[#2B2D42]/10 shadow-sm relative overflow-hidden">
+    <Card className="bg-[#FFFFFF] border border-[#D8E5EC] shadow-sm relative overflow-hidden rounded-2xl">
       <CardContent className="p-6 relative z-10 space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-[#0B2545] font-bold text-sm uppercase tracking-wider">
-            <div className="w-7 h-7 rounded-lg bg-[#1F7A8C] text-[#FFFFFF] flex items-center justify-center shadow-xs">
+          <div className="flex items-center space-x-2 text-[#123047] font-bold text-sm uppercase tracking-wider">
+            <div className="w-7 h-7 rounded-lg bg-[#176B87] text-[#FFFFFF] flex items-center justify-center shadow-xs">
               <Sparkles className="w-4 h-4" />
             </div>
             <span>AI Intelligence Layer</span>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#1F7A8C]/10 text-[#1F7A8C] border border-[#1F7A8C]/20 font-mono">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20 font-mono">
             {insight.potential_improvement} BOOST
           </span>
         </div>
         
-        <div className="space-y-3 text-sm text-[#2B2D42]">
+        <div className="space-y-3 text-sm text-[#123047]">
           <p className="leading-relaxed">
-            Your strongest domain is <strong className="text-[#1F7A8C]">{insight.strongest}</strong>. Your primary bottleneck is <strong className="text-[#D4AF37]">{insight.weakest}</strong>.
+            Your strongest domain is <strong className="text-[#176B87]">{insight.strongest}</strong>. Your primary bottleneck is <strong className="text-[#D49A2A]">{insight.weakest}</strong>.
           </p>
-          <div className="bg-[#F4F6F9] p-3.5 rounded-xl border border-[#2B2D42]/10 text-xs text-[#2B2D42] space-y-1.5 shadow-2xs">
-            <div className="font-bold text-[#1F7A8C] flex items-center gap-1.5">
-              <Lightbulb className="w-3.5 h-3.5 text-[#1F7A8C]" /> Recommended Action
+          <div className="bg-[#EAF3F7] p-3.5 rounded-xl border border-[#D8E5EC] text-xs text-[#123047] space-y-1.5 shadow-2xs">
+            <div className="font-bold text-[#176B87] flex items-center gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5 text-[#176B87]" /> Recommended Action
             </div>
-            <p className="leading-relaxed">{insight.recommendation}</p>
+            <p className="leading-relaxed text-[#5D7180]">{insight.recommendation}</p>
           </div>
         </div>
         
         <div className="pt-2">
           <Link to="/learning-path">
-            <Button className="w-full bg-[#1F7A8C] hover:bg-[#1F7A8C]/90 text-[#FFFFFF] font-bold shadow-xs">
+            <Button className="w-full bg-[#176B87] hover:bg-[#123B5D] text-[#FFFFFF] font-bold shadow-xs">
               View Recommended Path <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
@@ -51,3 +51,4 @@ export default function AIInsightCard({ insight }: Props) {
     </Card>
   );
 }
+

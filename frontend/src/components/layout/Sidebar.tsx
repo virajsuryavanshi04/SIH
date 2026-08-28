@@ -76,7 +76,7 @@ export default function Sidebar() {
         }
       }}
       className={cn(
-        "flex flex-col h-screen bg-[#0B2545] text-[#FFFFFF] border-r border-[#0B2545] z-30 shadow-md shrink-0 select-none",
+        "flex flex-col h-screen bg-[#123B5D] text-[#FFFFFF] border-r border-[#123B5D] z-30 shadow-md shrink-0 select-none",
         "transition-all duration-300 ease-in-out overflow-x-hidden overflow-y-hidden",
         isExpanded ? "w-[272px]" : "w-[76px]"
       )}
@@ -90,7 +90,7 @@ export default function Sidebar() {
             isExpanded ? "px-1.5 space-x-3" : "justify-center px-0"
           )}
         >
-          <div className="w-8.5 h-8.5 rounded-lg bg-[#1F7A8C] flex items-center justify-center text-[#FFFFFF] shadow-xs shrink-0">
+          <div className="w-8.5 h-8.5 rounded-lg bg-[#176B87] flex items-center justify-center text-[#FFFFFF] shadow-xs shrink-0">
             <Brain className="w-4.5 h-4.5" />
           </div>
           <div
@@ -135,7 +135,7 @@ export default function Sidebar() {
                     "flex items-center rounded-xl text-[14px] sm:text-[15px] transition-all duration-150 text-left h-9",
                     isExpanded ? "px-3 space-x-3 w-full" : "px-0 justify-center w-10 mx-auto",
                     isActive 
-                      ? "bg-[#1F7A8C] text-[#FFFFFF] shadow-xs font-semibold" 
+                      ? "bg-[#176B87] text-[#FFFFFF] shadow-xs font-semibold" 
                       : "text-[#FFFFFF]/80 hover:bg-[#FFFFFF]/10 hover:text-[#FFFFFF] font-medium"
                   )
                 }
@@ -160,14 +160,14 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile & Sign Out Footer */}
-      <div className="p-2.5 sm:p-3 border-t border-[#FFFFFF]/10 bg-[#0B2545] shrink-0 overflow-hidden">
+      <div className="p-2.5 sm:p-3 border-t border-[#FFFFFF]/10 bg-[#123B5D] shrink-0 overflow-hidden">
         <div
           className={cn(
             "flex items-center rounded-xl bg-[#FFFFFF]/5 border border-[#FFFFFF]/10 mb-1.5 transition-all duration-200",
             isExpanded ? "p-2 space-x-2.5 text-left w-full" : "p-1 justify-center w-10 mx-auto"
           )}
         >
-          <div className="w-8 h-8 rounded-lg bg-[#1F7A8C] text-[#FFFFFF] flex items-center justify-center font-semibold text-xs shadow-xs shrink-0 font-mono">
+          <div className="w-8 h-8 rounded-lg bg-[#176B87] text-[#FFFFFF] flex items-center justify-center font-semibold text-xs shadow-xs shrink-0 font-mono">
             {user?.full_name?.charAt(0) || 'A'}
           </div>
           <div
@@ -186,7 +186,7 @@ export default function Sidebar() {
           onClick={logout}
           title={!isExpanded ? 'Sign Out' : undefined}
           className={cn(
-            "flex items-center rounded-xl text-xs sm:text-sm font-medium text-[#FFFFFF]/75 hover:text-[#D4AF37] hover:bg-[#FFFFFF]/10 transition-colors cursor-pointer text-left h-8",
+            "flex items-center rounded-xl text-xs sm:text-sm font-medium text-[#FFFFFF]/75 hover:text-[#D49A2A] hover:bg-[#FFFFFF]/10 transition-colors cursor-pointer text-left h-8",
             isExpanded ? "px-2.5 space-x-2 w-full" : "px-0 justify-center w-10 mx-auto"
           )}
         >
