@@ -1,0 +1,2889 @@
+{
+  "question_bank": {
+    "version": "1.0",
+    "total_questions": 80,
+    "source_policy": "Official Government of India / MoSPI / NSO / NSSTA / iGOT sources were prioritized where available and verifiable. No specific official document title, publication, or dataset could be reliably verified and cited for these general competency questions without risking fabricated attribution, so all 80 questions in this initial batch are marked source_type=STANDARD_STATISTICAL_KNOWLEDGE, drawing on established, widely-taught statistical and official-survey-methodology principles (sampling theory, survey methodology best practices, data quality frameworks, and statistical analysis fundamentals) consistent with the general approach used in Indian official statistics training (e.g., NSSTA-style curricula). None of these questions cite a specific MoSPI/NSO/NSSTA document, and none should be treated as verbatim official content. All questions require administrator review before promotion to the approved question bank.",
+    "questions": [
+      {
+        "question_id": "SM-001",
+        "competency": "Statistical Methods",
+        "topic": "Measures of Central Tendency",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which measure of central tendency is most affected by extreme values (outliers) in a dataset?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Mean"
+          },
+          {
+            "id": "B",
+            "text": "Median"
+          },
+          {
+            "id": "C",
+            "text": "Mode"
+          },
+          {
+            "id": "D",
+            "text": "Geometric Mean"
+          }
+        ],
+        "correct_answer": "A",
+        "explanation": "The mean uses the numeric value of every observation, so an extreme value pulls it strongly in its direction. The median and mode depend on position or frequency and are far more resistant to outliers.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-002",
+        "competency": "Statistical Methods",
+        "topic": "Measures of Dispersion",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which of the following measures of dispersion is expressed in the same unit as the original data (not squared)?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Variance"
+          },
+          {
+            "id": "B",
+            "text": "Standard Deviation"
+          },
+          {
+            "id": "C",
+            "text": "Coefficient of Variation"
+          },
+          {
+            "id": "D",
+            "text": "Mean Squared Deviation"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Standard deviation is the square root of variance, so it returns to the original unit of measurement. Variance is in squared units, and the coefficient of variation is a unitless ratio (often expressed as a percentage).",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-003",
+        "competency": "Statistical Methods",
+        "topic": "Probability Distributions",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "A discrete random variable represents the number of defective items found in a fixed sample size when the probability of a defect is constant and independent across items. Which probability distribution best models this variable?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Normal distribution"
+          },
+          {
+            "id": "B",
+            "text": "Binomial distribution"
+          },
+          {
+            "id": "C",
+            "text": "Poisson distribution"
+          },
+          {
+            "id": "D",
+            "text": "Uniform distribution"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A fixed number of independent trials, each with the same probability of a binary outcome (defective/not defective), is the defining setup of the binomial distribution. The Poisson distribution is more suited to counting rare events over a continuous interval without a fixed number of trials.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-004",
+        "competency": "Statistical Methods",
+        "topic": "Central Tendency Calculation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "The monthly household expenditures (in Rs. hundreds) of 5 households are: 20, 25, 22, 28, 100. Calculate the median expenditure.",
+        "options": [
+          {
+            "id": "A",
+            "text": "22"
+          },
+          {
+            "id": "B",
+            "text": "25"
+          },
+          {
+            "id": "C",
+            "text": "28"
+          },
+          {
+            "id": "D",
+            "text": "39"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Sorting the values gives 20, 22, 25, 28, 100. The median, being the middle value, is 25. Note that the mean (39) is distorted upward by the outlier of 100, which is why the median is preferred here.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-005",
+        "competency": "Statistical Methods",
+        "topic": "Correlation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "A researcher computes the correlation coefficient between two variables and obtains r = -0.85. Which statement best interprets this result?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A weak positive linear relationship"
+          },
+          {
+            "id": "B",
+            "text": "A strong negative linear relationship"
+          },
+          {
+            "id": "C",
+            "text": "No linear relationship"
+          },
+          {
+            "id": "D",
+            "text": "A strong positive linear relationship with a sign error"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A correlation coefficient near -1 indicates a strong negative linear association: as one variable increases, the other tends to decrease. The magnitude (0.85) close to 1 indicates strength, and the negative sign indicates direction.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-006",
+        "competency": "Statistical Methods",
+        "topic": "Regression Interpretation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "In a simple linear regression of household expenditure (Y, in Rs.) on household income (X, in Rs.), the estimated slope coefficient is 0.42 with R-squared = 0.36. Which interpretation is correct?",
+        "options": [
+          {
+            "id": "A",
+            "text": "For every unit increase in income, expenditure increases by exactly 0.42 units in every household"
+          },
+          {
+            "id": "B",
+            "text": "Income explains about 36% of the variation in expenditure across households, and expenditure is predicted to rise by about 0.42 units per unit rise in income, on average"
+          },
+          {
+            "id": "C",
+            "text": "42% of households have income exactly equal to expenditure"
+          },
+          {
+            "id": "D",
+            "text": "The correlation between income and expenditure is 0.42"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "The slope coefficient represents the average marginal effect of income on expenditure, not a deterministic relationship for every household. R-squared represents the proportion of variance in the dependent variable explained by the model. The correlation coefficient would be the square root of R-squared (about 0.6 here), not the slope value.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-007",
+        "competency": "Statistical Methods",
+        "topic": "Time Series Analysis",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A statistical office is analyzing monthly retail price data for a commodity over three years and observes recurring spikes every December. Before comparing year-over-year growth in the underlying trend, which pre-processing step is most appropriate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Deflate the series using the Consumer Price Index"
+          },
+          {
+            "id": "B",
+            "text": "Apply seasonal adjustment to the time series"
+          },
+          {
+            "id": "C",
+            "text": "Convert the series to a logarithmic scale"
+          },
+          {
+            "id": "D",
+            "text": "Take first differences of the series only"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Seasonal adjustment removes predictable, recurring seasonal patterns (such as a fixed December spike) so that underlying trend and cyclical movements can be compared fairly across periods. Deflation addresses price-level effects, not seasonality.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-008",
+        "competency": "Statistical Methods",
+        "topic": "Index Numbers",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A national statistical agency compiles a consumer price index by holding the basket of quantities consumed in a fixed base year constant, applying it to prices in all subsequent periods. This index formula is known as the:",
+        "options": [
+          {
+            "id": "A",
+            "text": "Paasche Index"
+          },
+          {
+            "id": "B",
+            "text": "Laspeyres Index"
+          },
+          {
+            "id": "C",
+            "text": "Fisher Index"
+          },
+          {
+            "id": "D",
+            "text": "Marshall-Edgeworth Index"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "The Laspeyres index uses fixed base-period quantities as weights. The Paasche index instead uses current-period quantities as weights, and the Fisher index is the geometric mean of the Laspeyres and Paasche indices.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-009",
+        "competency": "Statistical Methods",
+        "topic": "Statistical Inference",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A survey estimates the mean monthly income in a district to be Rs. 18,500, with a 95% confidence interval of (Rs. 17,800, Rs. 19,200). A policymaker states: \"there is a 95% probability that the true mean income lies between Rs. 17,800 and Rs. 19,200.\" Evaluate this claim.",
+        "options": [
+          {
+            "id": "A",
+            "text": "The claim is correct as stated"
+          },
+          {
+            "id": "B",
+            "text": "The claim misstates the confidence interval; the true (fixed) mean either lies in this particular interval or it does not, and the 95% instead describes the long-run reliability of the estimation procedure across repeated samples"
+          },
+          {
+            "id": "C",
+            "text": "The claim is correct only if the sample size exceeds 1,000"
+          },
+          {
+            "id": "D",
+            "text": "The claim is incorrect because confidence intervals apply only to proportions, not means"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "In frequentist statistics, the population mean is a fixed (though unknown) quantity, not a random variable. The correct interpretation of a 95% confidence interval is that if the sampling and estimation procedure were repeated many times, approximately 95% of the resulting intervals would contain the true mean — not that there is a 95% probability the true mean falls in this specific interval.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SM-010",
+        "competency": "Statistical Methods",
+        "topic": "Statistical Inference / Significance vs Effect Size",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "An analyst comparing average expenditure between two districts using a t-test obtains a p-value of 0.04 with a very large sample size (n = 50,000 per group), but the estimated mean difference is only Rs. 2, which is practically negligible. Which conclusion best reflects sound statistical reasoning?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Because p < 0.05, the difference is highly important for policy"
+          },
+          {
+            "id": "B",
+            "text": "Statistical significance obtained with a very large sample can reflect a trivial effect size; both statistical significance and practical significance (effect size) should be assessed before drawing policy conclusions"
+          },
+          {
+            "id": "C",
+            "text": "The result is invalid because p-values are only meaningful for small samples"
+          },
+          {
+            "id": "D",
+            "text": "The test should be repeated with a smaller sample to obtain a more meaningful p-value"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "With very large samples, even tiny, practically unimportant differences can become statistically significant. Sound interpretation requires considering the effect size and its practical relevance alongside the p-value, rather than treating statistical significance alone as evidence of importance.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-001",
+        "competency": "Survey Methodology",
+        "topic": "Survey Planning",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which of the following is the FIRST step in designing an official household survey?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Selecting the sample"
+          },
+          {
+            "id": "B",
+            "text": "Defining the survey objectives and target population"
+          },
+          {
+            "id": "C",
+            "text": "Pretesting the questionnaire"
+          },
+          {
+            "id": "D",
+            "text": "Processing the collected data"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Survey objectives and the target population must be clearly defined first, since they determine the sampling frame, sample design, questionnaire content, and every subsequent step of the survey.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-002",
+        "competency": "Survey Methodology",
+        "topic": "Questionnaire Design",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "A question that is worded in a way that leads the respondent toward a particular answer is called:",
+        "options": [
+          {
+            "id": "A",
+            "text": "A closed-ended question"
+          },
+          {
+            "id": "B",
+            "text": "A leading question"
+          },
+          {
+            "id": "C",
+            "text": "A filter question"
+          },
+          {
+            "id": "D",
+            "text": "A dichotomous question"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A leading question is phrased in a way that suggests or influences a particular answer, introducing bias into responses. Good questionnaire design avoids such wording in favor of neutral phrasing.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-003",
+        "competency": "Survey Methodology",
+        "topic": "Data Collection Modes",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "Which data collection mode allows real-time validation checks and skip-pattern logic to be built directly into the interview process?",
+        "options": [
+          {
+            "id": "A",
+            "text": "PAPI (Paper-Assisted Personal Interviewing)"
+          },
+          {
+            "id": "B",
+            "text": "CAPI (Computer-Assisted Personal Interviewing)"
+          },
+          {
+            "id": "C",
+            "text": "Postal/mail survey"
+          },
+          {
+            "id": "D",
+            "text": "Self-administered paper diary"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "CAPI allows programmed validation rules and automatic skip logic to be applied at the point of data collection, catching errors immediately, unlike paper-based modes where such checks can only be applied later during processing.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-004",
+        "competency": "Survey Methodology",
+        "topic": "Coverage Error",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "A survey uses a sampling frame of registered ration-card holders to represent the entire district population. If 8% of households in the district do not hold a ration card, which type of error is most likely introduced?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Sampling error"
+          },
+          {
+            "id": "B",
+            "text": "Measurement error"
+          },
+          {
+            "id": "C",
+            "text": "Coverage error"
+          },
+          {
+            "id": "D",
+            "text": "Processing error"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "When the sampling frame does not fully match the target population (here, ration-card holders versus all district households), the resulting mismatch is a coverage (frame) error, distinct from sampling error, which arises from surveying only a subset of the frame.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-005",
+        "competency": "Survey Methodology",
+        "topic": "Non-Response",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "In a household income survey, the initial sample consisted of 2,000 households; 1,600 responded and 400 either refused or could not be contacted. Calculate the survey's response rate.",
+        "options": [
+          {
+            "id": "A",
+            "text": "20%"
+          },
+          {
+            "id": "B",
+            "text": "40%"
+          },
+          {
+            "id": "C",
+            "text": "80%"
+          },
+          {
+            "id": "D",
+            "text": "100%"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "Response rate = responding households / total sampled households = 1,600 / 2,000 = 80%.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-006",
+        "competency": "Survey Methodology",
+        "topic": "Non-Response Bias",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "In a survey of 2,000 households achieving an 80% response rate, analysts find that non-respondents were disproportionately high-income households who declined to participate due to privacy concerns. Which consequence is most likely?",
+        "options": [
+          {
+            "id": "A",
+            "text": "The sample estimate of mean income will be unbiased, since 80% is considered a high response rate"
+          },
+          {
+            "id": "B",
+            "text": "The sample estimate of mean income is likely to be biased downward, since higher-income households are systematically underrepresented"
+          },
+          {
+            "id": "C",
+            "text": "The sample estimate of mean income is likely to be biased upward"
+          },
+          {
+            "id": "D",
+            "text": "Non-response only affects the variance of the estimate, never its bias"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A high overall response rate does not guarantee an unbiased estimate if non-response is systematically related to the variable of interest. Here, the selective exclusion of higher-income households will tend to understate the estimated mean income.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-007",
+        "competency": "Survey Methodology",
+        "topic": "Survey Design Trade-offs",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A statistical agency plans a nationwide survey on household consumption expenditure, to be conducted across both urban and rural areas with limited field staff and budget, including remote rural areas with poor internet connectivity. Which data collection strategy best balances data quality with cost and feasibility?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A fully web-based (CAWI) survey conducted nationwide"
+          },
+          {
+            "id": "B",
+            "text": "CAPI in urban areas with reliable connectivity, and PAPI (with later digitization) in remote rural areas lacking connectivity"
+          },
+          {
+            "id": "C",
+            "text": "A telephone survey (CATI) conducted nationwide"
+          },
+          {
+            "id": "D",
+            "text": "Mail-based paper questionnaires sent to the entire country"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A mixed-mode design that adapts the data collection method to local infrastructure realities — CAPI where connectivity supports it, PAPI with later digitization where it does not — retains the quality benefits of computer-assisted collection while remaining feasible in areas with limited connectivity.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-008",
+        "competency": "Survey Methodology",
+        "topic": "Measurement Error",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "During pretesting of a household expenditure questionnaire, respondents consistently underreport expenditure on tobacco and alcohol compared to administrative sales data for the same area. What is this discrepancy best characterized as?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Sampling error"
+          },
+          {
+            "id": "B",
+            "text": "Coverage error"
+          },
+          {
+            "id": "C",
+            "text": "Measurement (response) error due to social desirability bias"
+          },
+          {
+            "id": "D",
+            "text": "Non-response error"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "Respondents distorting their answers because a topic is sensitive or socially undesirable is a classic form of measurement (response) error, distinct from errors caused by sample selection, frame mismatch, or non-participation.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-009",
+        "competency": "Survey Methodology",
+        "topic": "Census vs Sample Survey Trade-offs",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A National Statistical Office must choose between conducting a full census (complete enumeration) versus a sample survey to estimate literacy rates in the years between census cycles, under significant field capacity, timeliness, and cost constraints, with a need for periodic updates. Which approach and justification is most appropriate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Conduct a full census every year, since only census data is considered official"
+          },
+          {
+            "id": "B",
+            "text": "Conduct a well-designed sample survey, since it provides timely, cost-effective estimates with quantifiable sampling error, well suited to periodic monitoring between census years"
+          },
+          {
+            "id": "C",
+            "text": "Rely on administrative records only, since any sampling introduces error"
+          },
+          {
+            "id": "D",
+            "text": "Conduct a census every two years to balance cost and accuracy"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A well-designed sample survey trades a controlled, quantifiable sampling error for major gains in cost, speed, and the ability to repeat estimation frequently — making it the standard, appropriate approach for periodic estimation between full census rounds.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SV-010",
+        "competency": "Survey Methodology",
+        "topic": "Multi-Error Diagnosis",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A survey on employment status shows an unusually high unemployment estimate compared to previous rounds. Investigation reveals that: (1) the questionnaire's employment definition was changed from the previous round, (2) enumerators in one region were undertrained on probing rules, and (3) response rates dropped in that same region. Which set of error sources most plausibly explains the anomaly?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Only sampling error, since the sample size differed slightly between rounds"
+          },
+          {
+            "id": "B",
+            "text": "A combination of definitional (measurement) change, enumerator-related measurement error, and non-response bias"
+          },
+          {
+            "id": "C",
+            "text": "Only frame/coverage error, since the sampling frame may have been outdated"
+          },
+          {
+            "id": "D",
+            "text": "Processing error alone, arising from data entry mistakes"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Multiple concurrent issues — a changed employment definition, poorly trained enumerators affecting response quality, and a regional drop in response rates — together point to a combination of definitional/measurement error and non-response bias, rather than a single isolated cause.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-001",
+        "competency": "Sampling Techniques",
+        "topic": "Census vs Sample Survey",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which of the following best distinguishes a census from a sample survey?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A census always costs less to conduct"
+          },
+          {
+            "id": "B",
+            "text": "A census enumerates every unit in the population, while a sample survey enumerates only a subset"
+          },
+          {
+            "id": "C",
+            "text": "A sample survey always collects data over multiple years"
+          },
+          {
+            "id": "D",
+            "text": "A census cannot be used to estimate averages"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "The defining distinction is coverage: a census covers every unit of the target population, while a sample survey covers only a selected subset, from which population characteristics are estimated.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-002",
+        "competency": "Sampling Techniques",
+        "topic": "Probability Sampling",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which sampling method gives every unit in the population an equal, known, non-zero probability of selection, with units chosen entirely by chance?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Simple Random Sampling"
+          },
+          {
+            "id": "B",
+            "text": "Purposive Sampling"
+          },
+          {
+            "id": "C",
+            "text": "Convenience Sampling"
+          },
+          {
+            "id": "D",
+            "text": "Quota Sampling"
+          }
+        ],
+        "correct_answer": "A",
+        "explanation": "Simple random sampling is defined by every population unit having an equal and known chance of selection through a purely random selection process. Purposive, convenience, and quota sampling are non-probability methods that do not guarantee known, equal selection probabilities.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-003",
+        "competency": "Sampling Techniques",
+        "topic": "Systematic Sampling",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "In systematic sampling from a population of 1,000 units, if a sample of 50 units is required, what is the sampling interval (k)?",
+        "options": [
+          {
+            "id": "A",
+            "text": "5"
+          },
+          {
+            "id": "B",
+            "text": "10"
+          },
+          {
+            "id": "C",
+            "text": "20"
+          },
+          {
+            "id": "D",
+            "text": "50"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "The sampling interval k = population size / sample size = 1,000 / 50 = 20. A random starting point is chosen within the first interval, and every k-th unit thereafter is selected.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-004",
+        "competency": "Sampling Techniques",
+        "topic": "Stratified Sampling Allocation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "A population of 5,000 households is stratified into an Urban stratum (2,000 households) and a Rural stratum (3,000 households). Using proportional allocation for a total sample of 500 households, how many households should be sampled from the Rural stratum?",
+        "options": [
+          {
+            "id": "A",
+            "text": "200"
+          },
+          {
+            "id": "B",
+            "text": "250"
+          },
+          {
+            "id": "C",
+            "text": "300"
+          },
+          {
+            "id": "D",
+            "text": "500"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "Under proportional allocation, the sample from each stratum is proportional to its share of the population: (3,000 / 5,000) x 500 = 300 households from the Rural stratum.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-005",
+        "competency": "Sampling Techniques",
+        "topic": "Cluster Sampling Efficiency",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "A survey selects 40 villages (clusters) and interviews all households within each selected village, rather than sampling households individually across the entire district. Compared to a simple random sample of the same total number of households, cluster sampling typically results in:",
+        "options": [
+          {
+            "id": "A",
+            "text": "A lower standard error, due to homogeneity within clusters"
+          },
+          {
+            "id": "B",
+            "text": "A higher standard error, because households within a cluster tend to be more similar to one another than the population as a whole"
+          },
+          {
+            "id": "C",
+            "text": "An identical standard error, since the total sample size is the same"
+          },
+          {
+            "id": "D",
+            "text": "No sampling error at all, since all households in each selected village are surveyed"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Households within the same village tend to be more similar to each other (intra-cluster homogeneity) than a random cross-section of the whole population, which typically inflates the standard error relative to a simple random sample of equal size — a phenomenon captured by the 'design effect'.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-006",
+        "competency": "Sampling Techniques",
+        "topic": "Sample Size Determination",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "A pilot survey estimates the standard deviation of household expenditure at Rs. 4,000. For a simple random sample, the desired standard error of the mean is Rs. 200. Approximately what sample size is required (ignoring the finite population correction)?",
+        "options": [
+          {
+            "id": "A",
+            "text": "20"
+          },
+          {
+            "id": "B",
+            "text": "200"
+          },
+          {
+            "id": "C",
+            "text": "400"
+          },
+          {
+            "id": "D",
+            "text": "4,000"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "Using n = (sigma / SE)^2 = (4,000 / 200)^2 = 20^2 = 400. A sample of approximately 400 units is required to achieve the desired standard error under simple random sampling.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-007",
+        "competency": "Sampling Techniques",
+        "topic": "Choosing a Sampling Design",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A government department is conducting a household survey across multiple districts where population characteristics differ substantially between urban and rural areas. The department wants reasonably precise estimates for both groups separately while also controlling overall sampling variability. Which sampling approach is most appropriate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Simple random sampling of the entire population"
+          },
+          {
+            "id": "B",
+            "text": "Stratified sampling with urban and rural areas as strata"
+          },
+          {
+            "id": "C",
+            "text": "Convenience sampling in easily accessible areas"
+          },
+          {
+            "id": "D",
+            "text": "Single-stage cluster sampling of districts only"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Stratifying by urban/rural ensures adequate representation of each subgroup and improves the precision of estimates both overall and for each domain, since variation within each stratum is typically smaller than variation across the whole population.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-008",
+        "competency": "Sampling Techniques",
+        "topic": "Multi-Stage Sampling",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A survey team lacks an updated household listing for rural areas but has a reliable list of villages. Field resources are insufficient to conduct a full household listing operation in every village. What sampling design addresses this constraint while remaining a valid probability sample?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Simple random sampling of households using the outdated household list"
+          },
+          {
+            "id": "B",
+            "text": "Two-stage sampling: select villages at the first stage using the village list, then list and sample households only within the selected villages at the second stage"
+          },
+          {
+            "id": "C",
+            "text": "Convenience sampling of easily accessible households"
+          },
+          {
+            "id": "D",
+            "text": "A census of all villages combined with quota sampling of households"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Two-stage (multi-stage) sampling limits the costly household-listing operation to only the villages selected at the first stage, making it a practical and valid probability-sampling solution when a complete household frame is unavailable for the entire population.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-009",
+        "competency": "Sampling Techniques",
+        "topic": "Design Trade-offs: Stratification vs Clustering",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "For a fixed budget, a survey team is choosing between (i) a simple random sample of 1,000 households spread across the entire state, and (ii) a stratified two-stage cluster sample of 1,000 households drawn from 50 selected villages (20 households per village), given that intra-village correlation on the outcome of interest is moderately high. Which statement is most accurate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Option (ii) will always have a smaller standard error, because stratification improves precision regardless of clustering"
+          },
+          {
+            "id": "B",
+            "text": "Option (i) will generally yield a smaller sampling error for the same total sample size, because clustering with meaningful intra-cluster correlation inflates variance (design effect), even though stratification helps offset some of this loss"
+          },
+          {
+            "id": "C",
+            "text": "Both options will have identical precision, since the total sample size is the same"
+          },
+          {
+            "id": "D",
+            "text": "Option (ii) is not a valid probability sampling design"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "This weighs stratification's precision benefit against clustering's variance-inflating design effect. With moderately high intra-cluster correlation, the design effect from clustering typically outweighs the gain from stratification, so the unclustered simple random sample tends to have lower sampling error for the same total sample size — even though clustered designs are often chosen for their cost efficiency in fieldwork.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SA-010",
+        "competency": "Sampling Techniques",
+        "topic": "Coefficient of Variation & Design Efficiency",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "Two competing sample designs for estimating a district-level unemployment rate produce: Design A — estimate = 6.5%, standard error = 0.9%; Design B — estimate = 6.5%, standard error = 0.5%, but Design B costs twice as much per district. The statistical office requires a coefficient of variation (CV) below 10% for the estimate to be considered reliable. Which conclusion is most defensible?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Design A meets the precision requirement and should be preferred for cost efficiency"
+          },
+          {
+            "id": "B",
+            "text": "Design A fails to meet the CV threshold, while Design B meets it; despite the higher cost, Design B (or a redesigned Design A with a larger sample) is needed to meet the required precision"
+          },
+          {
+            "id": "C",
+            "text": "Both designs are equally acceptable, since the point estimates match"
+          },
+          {
+            "id": "D",
+            "text": "CV is not a relevant consideration when estimating proportions"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "CV_A = 0.9 / 6.5 is approximately 13.8%, which exceeds the 10% threshold and disqualifies Design A. CV_B = 0.5 / 6.5 is approximately 7.7%, which meets the requirement. The statistical office would therefore need to use Design B, or increase Design A's sample size, despite the added cost, to achieve the required reliability.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-001",
+        "competency": "Data Quality & Validation",
+        "topic": "Data Quality Dimensions",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which data quality dimension refers to whether all required data fields have been filled in for each record?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Accuracy"
+          },
+          {
+            "id": "B",
+            "text": "Completeness"
+          },
+          {
+            "id": "C",
+            "text": "Consistency"
+          },
+          {
+            "id": "D",
+            "text": "Timeliness"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Completeness refers to the extent to which all required fields and records are present, as opposed to accuracy (correctness of values), consistency (agreement across fields/sources), or timeliness (currency of the data).",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-002",
+        "competency": "Data Quality & Validation",
+        "topic": "Validation Rules",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "A validation rule flags any record where 'age' is recorded as a negative number or greater than 120. This is an example of:",
+        "options": [
+          {
+            "id": "A",
+            "text": "A range/plausibility check"
+          },
+          {
+            "id": "B",
+            "text": "A duplicate check"
+          },
+          {
+            "id": "C",
+            "text": "A cross-field consistency check"
+          },
+          {
+            "id": "D",
+            "text": "A completeness check"
+          }
+        ],
+        "correct_answer": "A",
+        "explanation": "This rule checks whether a value falls within a plausible numeric range, making it a range (or plausibility) check, distinct from checks comparing multiple fields, detecting duplicate records, or verifying that fields are filled in.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-003",
+        "competency": "Data Quality & Validation",
+        "topic": "Logical Consistency",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "A dataset contains a record where 'marital status = never married' but 'number of children = 4', with no other explanatory information. This flags a:",
+        "options": [
+          {
+            "id": "A",
+            "text": "Range error"
+          },
+          {
+            "id": "B",
+            "text": "Logical consistency error"
+          },
+          {
+            "id": "C",
+            "text": "Duplicate record"
+          },
+          {
+            "id": "D",
+            "text": "Missing value"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "This is a logical (cross-field) consistency error, since the combination of two fields' values is implausible together, even though each individual value might be valid on its own.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-004",
+        "competency": "Data Quality & Validation",
+        "topic": "Missing Values",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "In a dataset of 500 survey records, the 'household income' field is missing for 45 records. What is the percentage of missing values for this field?",
+        "options": [
+          {
+            "id": "A",
+            "text": "4.5%"
+          },
+          {
+            "id": "B",
+            "text": "9%"
+          },
+          {
+            "id": "C",
+            "text": "45%"
+          },
+          {
+            "id": "D",
+            "text": "90%"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Percentage missing = (45 / 500) x 100 = 9%.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-005",
+        "competency": "Data Quality & Validation",
+        "topic": "Outlier Detection",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "A field team's data shows household monthly expenditure (in Rs.) with a mean of 15,000 and a standard deviation of 3,000 for a district. One record shows an expenditure of Rs. 95,000. Approximately how many standard deviations above the mean is this value, and would it typically be flagged under a common 3-SD outlier rule?",
+        "options": [
+          {
+            "id": "A",
+            "text": "About 3 SD; not flagged"
+          },
+          {
+            "id": "B",
+            "text": "About 9 SD; not flagged"
+          },
+          {
+            "id": "C",
+            "text": "About 27 SD; flagged as an extreme outlier requiring verification"
+          },
+          {
+            "id": "D",
+            "text": "About 1 SD; a normal value"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "(95,000 - 15,000) / 3,000 is approximately 26.7, meaning the value is roughly 27 standard deviations above the mean — far beyond the common 3-SD threshold, so it should be flagged for verification rather than accepted or silently deleted.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-006",
+        "competency": "Data Quality & Validation",
+        "topic": "Duplicate Detection",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "A household survey dataset of 10,000 records is checked for duplicates using household ID, respondent name, and address. 120 record pairs match exactly on all three fields, and an additional 300 pairs match on name and address but have different household IDs, apparently entered by different enumerators. What is the most defensible next step?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Ignore all 420 pairs, since only exact ID matches count as duplicates"
+          },
+          {
+            "id": "B",
+            "text": "Treat the 120 exact matches as confirmed duplicates for removal, and investigate the 300 partial matches (possible duplicates with ID entry inconsistencies) before deciding whether to merge, remove, or retain them"
+          },
+          {
+            "id": "C",
+            "text": "Delete all 420 pairs immediately without further investigation"
+          },
+          {
+            "id": "D",
+            "text": "Duplicate checking should be performed only on numeric fields"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Exact matches across multiple identifying fields provide strong duplicate evidence and can reasonably be treated as confirmed. Partial matches with a discrepant ID require investigation, since the discrepancy could reflect a genuine duplicate with a data entry error, rather than being immediately deleted or dismissed.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-007",
+        "competency": "Data Quality & Validation",
+        "topic": "Validation Workflow Design",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A data processing team receives daily batches of digitized survey questionnaires and wants to catch data entry errors as early as possible, before full analysis begins. Which approach is most effective?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Wait until all data collection is complete, then run validation checks once"
+          },
+          {
+            "id": "B",
+            "text": "Apply automated range, consistency, and completeness checks at or immediately after data entry for each batch, flagging errors for review before aggregation"
+          },
+          {
+            "id": "C",
+            "text": "Rely solely on manual review of printed questionnaires after final tabulation"
+          },
+          {
+            "id": "D",
+            "text": "Skip validation entirely, since sampling error matters more than data entry error"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Applying automated validation checks close to the point of data entry, batch by batch, catches errors near their source and allows timely correction, reducing the cost and difficulty of fixing errors discovered late in the process.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-008",
+        "competency": "Data Quality & Validation",
+        "topic": "Root-Cause Diagnosis and Correction",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "In a district's health survey, a validation check reveals that several 'height in cm' values for children under 5 exceed 150 cm, which is implausible for that age group. Investigation shows that enumerators sometimes recorded height in inches instead of centimeters. What is the most appropriate corrective action?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Delete all flagged records permanently"
+          },
+          {
+            "id": "B",
+            "text": "Identify the records likely affected by the unit-conversion error, correct them where verifiable (e.g., by cross-checking with other plausibility indicators or field notes), and flag unverifiable ones for follow-up rather than deleting them outright"
+          },
+          {
+            "id": "C",
+            "text": "Leave the values as originally recorded, since raw data should never be modified"
+          },
+          {
+            "id": "D",
+            "text": "Replace all implausible values with the sample mean"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Diagnosing the root cause (a unit-of-measurement error) allows targeted, documented correction of affected records. Blanket deletion or substitution with the mean would discard recoverable information and could introduce its own bias.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-009",
+        "competency": "Data Quality & Validation",
+        "topic": "QA Resource Allocation Trade-offs",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A national survey processing unit must allocate limited quality-assurance resources between (i) intensive field-level supervision and real-time validation during data collection, and (ii) extensive post-hoc statistical cleaning after data collection is complete. Past rounds show that serious errors (misunderstood questions, enumerator bias, coverage gaps) are difficult to correct after the fact, while data entry errors are relatively easy to detect and fix later. Which strategy is most defensible?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Focus resources entirely on post-hoc cleaning, since it is cheaper"
+          },
+          {
+            "id": "B",
+            "text": "Prioritize field-level supervision and real-time validation for error types that cannot be corrected after collection, while relying on lighter, cost-effective automated checks for correctable errors such as data entry, allocating limited QA resources where they have the greatest impact"
+          },
+          {
+            "id": "C",
+            "text": "Split resources exactly 50/50 between the two approaches regardless of error type"
+          },
+          {
+            "id": "D",
+            "text": "Eliminate field supervision entirely and rely only on statistical outlier detection"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Resource allocation should be guided by which error types are irreversible once data collection ends versus which can still be corrected afterward. Prioritizing prevention for uncorrectable errors, while handling correctable errors more cost-effectively later, makes the most efficient use of limited QA resources.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DQ-010",
+        "competency": "Data Quality & Validation",
+        "topic": "Data Linkage Quality",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A statistical office plans to link survey data with administrative records (such as tax or benefit records) to improve estimates. During a trial linkage, 15% of records fail to match due to differences in name spelling, address formatting, and identifier gaps, and among matched records, income reported in the survey is systematically lower than the corresponding administrative income. What is the most appropriate diagnostic and next step?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Assume the survey data is entirely incorrect and replace it with the administrative data"
+          },
+          {
+            "id": "B",
+            "text": "Investigate match-quality issues (e.g., using probabilistic or fuzzy matching to reduce non-matches), and separately investigate whether the income discrepancy reflects genuine underreporting, differing income definitions between the sources, or differing reference periods, before deciding how to reconcile or use the linked data"
+          },
+          {
+            "id": "C",
+            "text": "Discard the linkage exercise entirely, since a 15% non-match rate is unacceptable in any context"
+          },
+          {
+            "id": "D",
+            "text": "Use whichever source produces the higher income estimate"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Two distinct problems are present — record linkage quality and a systematic value discrepancy — and each requires its own diagnosis. Matching technique improvements address the non-match rate, while a separate investigation into definitional or reference-period differences is needed before deciding how to interpret or reconcile the income discrepancy.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-001",
+        "competency": "Data Analysis",
+        "topic": "Exploratory Data Analysis",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which of the following is a primary purpose of exploratory data analysis (EDA) before formal modeling?",
+        "options": [
+          {
+            "id": "A",
+            "text": "To finalize policy conclusions"
+          },
+          {
+            "id": "B",
+            "text": "To understand data patterns, detect anomalies, and inform the choice of appropriate analytical methods"
+          },
+          {
+            "id": "C",
+            "text": "To replace the need for data validation"
+          },
+          {
+            "id": "D",
+            "text": "To calculate final population estimates"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "EDA is used to understand the structure, patterns, and potential anomalies in the data, informing subsequent choices about which analytical or modeling methods are appropriate — it precedes, rather than replaces, formal analysis, validation, or final estimation.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-002",
+        "competency": "Data Analysis",
+        "topic": "Descriptive vs Inferential Statistics",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Summarizing a sample's characteristics using the mean, median, and standard deviation, without drawing conclusions about the broader population, is an example of:",
+        "options": [
+          {
+            "id": "A",
+            "text": "Inferential statistics"
+          },
+          {
+            "id": "B",
+            "text": "Descriptive statistics"
+          },
+          {
+            "id": "C",
+            "text": "Predictive modeling"
+          },
+          {
+            "id": "D",
+            "text": "Hypothesis testing"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Descriptive statistics summarize and describe the data at hand, without making inferences or generalizations about a larger population, which is the domain of inferential statistics.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-003",
+        "competency": "Data Analysis",
+        "topic": "Correlation vs Causation",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "A district shows a strong positive correlation between the number of ice cream vendors and the number of reported heatstroke cases during summer months. What is the most appropriate interpretation?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Ice cream vendors cause heatstroke"
+          },
+          {
+            "id": "B",
+            "text": "The correlation likely reflects a common underlying factor (high temperature), rather than a direct causal link between the two variables"
+          },
+          {
+            "id": "C",
+            "text": "Heatstroke cases cause more vendors to open"
+          },
+          {
+            "id": "D",
+            "text": "The correlation proves a direct causal relationship between the two variables"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Both variables are plausibly driven by a third factor — hot weather — rather than one causing the other. This is a classic illustration of why correlation alone does not establish causation.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-004",
+        "competency": "Data Analysis",
+        "topic": "Trend and Percentage Change Calculation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "A district's literacy rate rose from 68% in 2011 to 76% in 2021. Calculate the percentage point increase and the approximate relative (percentage) increase.",
+        "options": [
+          {
+            "id": "A",
+            "text": "8 percentage points; about 11.8% relative increase"
+          },
+          {
+            "id": "B",
+            "text": "8 percentage points; 8% relative increase"
+          },
+          {
+            "id": "C",
+            "text": "11.8 percentage points; 8% relative increase"
+          },
+          {
+            "id": "D",
+            "text": "76 percentage points; 68% relative increase"
+          }
+        ],
+        "correct_answer": "A",
+        "explanation": "The percentage point increase is 76 - 68 = 8. The relative percentage increase is (8 / 68) x 100, which is approximately 11.8% — these two measures answer different questions and should not be confused.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-005",
+        "competency": "Data Analysis",
+        "topic": "Robust Comparison of Groups",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "Household incomes (in Rs. thousands) for two groups of 10 households each are as follows: Group A is mostly clustered around 20-25, except for one household at 200; Group B is consistently around 22-28. Which measure of central tendency would give the most reliable comparison between the two groups, given Group A's outlier?",
+        "options": [
+          {
+            "id": "A",
+            "text": "The mean for both groups"
+          },
+          {
+            "id": "B",
+            "text": "The median for both groups"
+          },
+          {
+            "id": "C",
+            "text": "The mode for both groups"
+          },
+          {
+            "id": "D",
+            "text": "The range for both groups"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "The median is resistant to Group A's extreme outlier and will better reflect the 'typical' household in that group, allowing a more representative comparison than the mean, which would be substantially inflated by the single extreme value.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-006",
+        "competency": "Data Analysis",
+        "topic": "Regression Diagnostics",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "An analyst regresses household savings on income and finds a statistically significant positive coefficient, but a residual plot shows a clear funnel shape, with the spread of residuals increasing as income increases. What analytical issue does this indicate, and what is an appropriate response?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Multicollinearity; the income variable should be dropped from the model"
+          },
+          {
+            "id": "B",
+            "text": "Heteroscedasticity (non-constant variance of residuals); consider using robust standard errors or a transformation, such as taking logs of the variables"
+          },
+          {
+            "id": "C",
+            "text": "Autocorrelation; lagged variables should be added to the model"
+          },
+          {
+            "id": "D",
+            "text": "No issue; a funnel-shaped residual plot is expected in all regressions"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A funnel-shaped spread in residual plots is a classic indicator of heteroscedasticity, meaning the variance of the errors is not constant across values of the predictor. This does not bias the coefficient estimate itself but does affect the validity of standard errors and significance tests; robust standard errors or a variable transformation are standard remedies.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-007",
+        "competency": "Data Analysis",
+        "topic": "Trend Analysis Accounting for Sampling Variability",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "An analyst is asked to determine whether unemployment has genuinely increased over the past four quarterly survey rounds, given that each round has a different sample size and standard error. What is the most appropriate analytical approach?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Compare only the point estimates and declare a trend based on the direction of change"
+          },
+          {
+            "id": "B",
+            "text": "Compare the estimates alongside their confidence intervals or standard errors, to assess whether the observed changes exceed what could plausibly be attributed to sampling variability"
+          },
+          {
+            "id": "C",
+            "text": "Ignore standard errors entirely, since a larger point estimate always indicates a real increase"
+          },
+          {
+            "id": "D",
+            "text": "Use only the round with the largest sample size, discarding the results of the other three"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Assessing whether an apparent quarter-to-quarter change reflects a genuine trend, rather than sampling noise, requires comparing estimates in light of their respective standard errors or confidence intervals, not simply comparing point values.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-008",
+        "competency": "Data Analysis",
+        "topic": "Confounding in Aggregate Analysis",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "An analysis finds that districts with higher average years of schooling also tend to have higher average household income. A policymaker wants to know whether increasing schooling would directly raise income. What analytical caution is most important here?",
+        "options": [
+          {
+            "id": "A",
+            "text": "None; the observed correlation alone confirms a causal relationship"
+          },
+          {
+            "id": "B",
+            "text": "The relationship may be confounded by other factors, such as urbanization, infrastructure, or employment opportunities; establishing a causal claim requires controlling for such confounders or using a more rigorous causal research design"
+          },
+          {
+            "id": "C",
+            "text": "The analysis should be discarded entirely, since district-level data can never be analyzed"
+          },
+          {
+            "id": "D",
+            "text": "Only individual-level data can reveal any relationship, so district-level data is meaningless"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Cross-sectional correlations between aggregate district-level variables are highly prone to confounding by other regional factors. A defensible causal claim requires appropriately controlling for such confounders or employing a suitable causal identification strategy, rather than inferring causation directly from the correlation.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-009",
+        "competency": "Data Analysis",
+        "topic": "Handling Outliers Transparently",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "Two analysts examine the same dataset on agricultural yield versus rainfall. Analyst 1 finds a strong positive correlation using the full dataset. Analyst 2, after excluding three districts with extremely high rainfall and unusually low yield due to unrelated flood damage, finds an even stronger positive correlation. Which conclusion is most defensible?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Analyst 1's result should be discarded entirely, simply because outliers were present"
+          },
+          {
+            "id": "B",
+            "text": "Excluding districts affected by an unrelated confounding event (flood damage) can be a reasonable and transparent way to isolate the underlying rainfall-yield relationship, provided the exclusion is clearly documented and justified rather than used to manufacture a desired result"
+          },
+          {
+            "id": "C",
+            "text": "Analyst 2's approach is invalid, because data points should never be excluded from an analysis"
+          },
+          {
+            "id": "D",
+            "text": "Both analyses are equally invalid, since they were conducted on different sample sizes"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Excluding cases affected by a distinct, identifiable, and unrelated confounding factor can be methodologically sound when transparently documented and justified on substantive grounds — but such exclusions must always be reported openly, rather than used selectively to engineer a particular conclusion.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DA-010",
+        "competency": "Data Analysis",
+        "topic": "Selecting the Appropriate Analytical Method",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "An analyst wants to test whether average expenditure differs across three income groups (low, middle, high) using survey data. Which analytical method is most appropriate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A simple correlation coefficient between two variables"
+          },
+          {
+            "id": "B",
+            "text": "One-way ANOVA (or a survey-weighted equivalent) to compare means across the three groups"
+          },
+          {
+            "id": "C",
+            "text": "A single t-test comparing all three groups simultaneously"
+          },
+          {
+            "id": "D",
+            "text": "A chi-square test of independence"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Comparing means across three or more groups calls for ANOVA (adapted for the survey design where relevant). A standard t-test is designed to compare exactly two groups, and a chi-square test assesses association between categorical variables rather than comparing group means.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-001",
+        "competency": "Data Visualization",
+        "topic": "Chart Selection for Trends",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which chart type is most appropriate for showing the trend of a continuous variable, such as the monthly inflation rate, over time?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Pie chart"
+          },
+          {
+            "id": "B",
+            "text": "Line chart"
+          },
+          {
+            "id": "C",
+            "text": "Bar chart of unordered categories"
+          },
+          {
+            "id": "D",
+            "text": "Scatter plot with no time axis"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Line charts are well suited to displaying how a continuous variable changes over an ordered sequence, such as time, making patterns and trends easy to follow.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-002",
+        "competency": "Data Visualization",
+        "topic": "Chart Selection for Comparison",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "Which chart type is best suited for comparing a single numeric value across several distinct categories, such as literacy rate by state?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Line chart"
+          },
+          {
+            "id": "B",
+            "text": "Bar chart"
+          },
+          {
+            "id": "C",
+            "text": "Scatter plot"
+          },
+          {
+            "id": "D",
+            "text": "Histogram"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Bar charts allow direct, easy comparison of magnitudes across discrete categories, which is well suited to comparing a single value (such as literacy rate) across states.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-003",
+        "competency": "Data Visualization",
+        "topic": "Misleading Visualizations",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "A bar chart comparing two values starts its Y-axis at 90 instead of 0, making a small difference between the bars appear dramatically large. This is an example of:",
+        "options": [
+          {
+            "id": "A",
+            "text": "An acceptable practice that always improves clarity"
+          },
+          {
+            "id": "B",
+            "text": "A misleading visualization due to a truncated (non-zero) baseline"
+          },
+          {
+            "id": "C",
+            "text": "A correct way to display percentage change"
+          },
+          {
+            "id": "D",
+            "text": "A technique that is necessary for all bar charts"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Bar charts rely on bar length/area to convey magnitude, and a truncated Y-axis distorts the visual proportion between bars, exaggerating differences and misleading viewers about the actual scale of the difference.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-004",
+        "competency": "Data Visualization",
+        "topic": "Scale Interpretation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "A bar chart shows District A's population as a bar of height 4 cm and District B's population as a bar of height 2 cm, with the axis correctly starting at zero and scaled linearly. If District B's actual population is 500,000, what is District A's population?",
+        "options": [
+          {
+            "id": "A",
+            "text": "250,000"
+          },
+          {
+            "id": "B",
+            "text": "500,000"
+          },
+          {
+            "id": "C",
+            "text": "1,000,000"
+          },
+          {
+            "id": "D",
+            "text": "2,000,000"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "Since the axis is linear and starts at zero, bar height is directly proportional to value. A bar twice as tall (4 cm vs. 2 cm) represents twice the value: 2 x 500,000 = 1,000,000.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-005",
+        "competency": "Data Visualization",
+        "topic": "Visualizing Distributions",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "An analyst wants to visualize the distribution (shape, spread, and presence of outliers) of household expenditure values across a sample of 5,000 households. Which visualization is most appropriate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A pie chart"
+          },
+          {
+            "id": "B",
+            "text": "A histogram or box plot"
+          },
+          {
+            "id": "C",
+            "text": "A simple line chart connecting sorted values"
+          },
+          {
+            "id": "D",
+            "text": "A single bar showing the overall total"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Histograms and box plots are specifically designed to reveal the shape, spread, and outliers of a distribution of numeric values, which pie charts and single summary bars cannot show.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-006",
+        "competency": "Data Visualization",
+        "topic": "Communicating Statistical Uncertainty",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "A dashboard reports quarterly unemployment rate estimates as single point values (for example, 6.4%, 6.7%, 6.5%) without any indication of sampling error, leading a viewer to conclude the rate 'rose then fell.' Each estimate actually has a margin of error of plus or minus 0.5 percentage points. What is the most appropriate visualization improvement?",
+        "options": [
+          {
+            "id": "A",
+            "text": "No change is needed; point estimates are sufficient on their own"
+          },
+          {
+            "id": "B",
+            "text": "Add error bars or confidence bands to each estimate, so viewers can judge whether the apparent quarter-to-quarter changes exceed the margin of sampling error"
+          },
+          {
+            "id": "C",
+            "text": "Remove the numbers entirely and show only a smooth trend line"
+          },
+          {
+            "id": "D",
+            "text": "Round all values to the nearest whole percentage to simplify the chart"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Since the observed quarter-to-quarter differences (0.3 and 0.2 percentage points) are within the plus-or-minus 0.5 percentage-point margin of error, displaying uncertainty visually through error bars or confidence bands helps prevent viewers from over-interpreting fluctuations that may simply reflect sampling variability.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-007",
+        "competency": "Data Visualization",
+        "topic": "Chart Selection for Categorical Composition",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A statistical office is preparing a public dissemination report showing the composition of household expenditure across 8 categories (food, housing, education, and so on) as percentages summing to 100% for a single reference year. Which chart is most appropriate, given visualization best practices for categorical composition with a moderate number of categories?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A pie chart with 8 slices, since it directly shows parts of a whole"
+          },
+          {
+            "id": "B",
+            "text": "A stacked or simple horizontal bar chart ranking categories by share, which is generally easier to read accurately than a pie chart with many slices"
+          },
+          {
+            "id": "C",
+            "text": "A line chart with 8 separate lines"
+          },
+          {
+            "id": "D",
+            "text": "A scatter plot of category against percentage"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "With a moderate-to-large number of categories, bar charts (particularly when ordered by magnitude) allow readers to compare category shares more accurately than a pie chart, where similarly sized slices are difficult to distinguish visually.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-008",
+        "competency": "Data Visualization",
+        "topic": "Diagnosing Dual-Axis Distortion",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A published chart shows two line series (Scheme A enrollment and Scheme B enrollment) on the same graph using two different Y-axes with different scales, without clearly labeling which line corresponds to which axis. A reader concludes that Scheme A is 'catching up' to Scheme B. What is the primary concern with this visualization?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Dual-axis charts are always invalid, in any context"
+          },
+          {
+            "id": "B",
+            "text": "The dual-axis, ambiguously labeled design can create a misleading visual impression of convergence or relationship that may not reflect the actual underlying magnitudes"
+          },
+          {
+            "id": "C",
+            "text": "Line charts should never be used to display enrollment data"
+          },
+          {
+            "id": "D",
+            "text": "The chart is acceptable as long as both lines are drawn in the same color"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Dual-axis charts are a well-documented source of visual distortion, particularly when the correspondence between each line and its axis is not clearly labeled; readers can easily misjudge relative magnitude or the true relationship between the two series.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-009",
+        "competency": "Data Visualization",
+        "topic": "Audience-Appropriate Dissemination Design",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A statistical office must present district-level poverty estimates, each with a margin of error, to two audiences: (1) technical researchers who need precise figures and uncertainty bounds, and (2) the general public via a summary press release. Which visualization strategy best serves both audiences appropriately?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Use one identical, highly technical chart with full confidence intervals and statistical annotations for both audiences"
+          },
+          {
+            "id": "B",
+            "text": "Provide a detailed chart with confidence intervals and full documentation for the technical report, and a simplified, clearly labeled chart (such as a ranked bar chart with rounded values and a plain-language note on estimate uncertainty) for the public release"
+          },
+          {
+            "id": "C",
+            "text": "Omit uncertainty information entirely from both versions, to keep things simple"
+          },
+          {
+            "id": "D",
+            "text": "Provide only raw data tables to both audiences, without any visualization"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Tailoring the level of visual and statistical detail to each audience's needs, while still communicating uncertainty in an accessible way, reflects recognized dissemination best practice; it avoids overwhelming a general audience while not withholding necessary detail from technical users.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DV-010",
+        "competency": "Data Visualization",
+        "topic": "Diagnosing Area-Based Distortion",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A chart compares 'scheme enrollment growth' across five years using circles instead of bars, where each circle's radius (not its area) is drawn proportional to the value. What visual distortion does this create, and what is the correct fix?",
+        "options": [
+          {
+            "id": "A",
+            "text": "No distortion occurs; scaling radius linearly with the value is standard practice"
+          },
+          {
+            "id": "B",
+            "text": "Because a circle's area scales with the square of its radius, scaling radius linearly with the value exaggerates the perceived difference between values; the area (not the radius) should be made proportional to the value, or a bar chart should be used instead"
+          },
+          {
+            "id": "C",
+            "text": "This kind of distortion only affects pie charts, not standalone circles"
+          },
+          {
+            "id": "D",
+            "text": "The correct fix is simply to remove the axis labels"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "This is a well-documented distortion in visualizations that use circle size to encode data. Since a circle's visual area grows with the square of its radius, scaling the radius linearly with the underlying value causes differences in perceived area to be exaggerated quadratically relative to the actual differences in value.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-001",
+        "competency": "Statistical Programming",
+        "topic": "Data Manipulation - Filtering",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "In a statistical programming workflow, which operation is used to select only the subset of records meeting a specific condition, such as income greater than 50,000?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Aggregation"
+          },
+          {
+            "id": "B",
+            "text": "Filtering"
+          },
+          {
+            "id": "C",
+            "text": "Sorting"
+          },
+          {
+            "id": "D",
+            "text": "Merging"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Filtering selects a subset of records that satisfy a specified logical condition, as opposed to aggregation (summarizing groups), sorting (reordering), or merging (combining datasets).",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-002",
+        "competency": "Statistical Programming",
+        "topic": "Missing Value Handling",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "In statistical programming, which type of operation is typically used to identify records with missing (null) values in a dataset?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A summation function"
+          },
+          {
+            "id": "B",
+            "text": "A missing-value/null-check function (such as is-na or is-null)"
+          },
+          {
+            "id": "C",
+            "text": "A sorting function"
+          },
+          {
+            "id": "D",
+            "text": "A string concatenation function"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Dedicated missing-value or null-check functions are used to detect which records or fields contain missing data, a necessary step before deciding how to handle those records in subsequent analysis.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-003",
+        "competency": "Statistical Programming",
+        "topic": "Grouped Aggregation",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "A programmer wants to compute the average expenditure separately for each district in a dataset. Which type of operation is required?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A simple global mean computed over the entire dataset"
+          },
+          {
+            "id": "B",
+            "text": "A 'group by district, then compute mean' (grouped aggregation) operation"
+          },
+          {
+            "id": "C",
+            "text": "A sorting operation only"
+          },
+          {
+            "id": "D",
+            "text": "A filtering operation that removes all districts"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Computing a separate average for each district requires grouping the data by the district field and then applying an aggregation function (mean) within each group, rather than computing a single overall average.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-004",
+        "competency": "Statistical Programming",
+        "topic": "Interpreting Aggregation Output",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "A program groups survey records by 'state' and computes the count of records per state. For State X, the output shows a count of 0, even though State X exists in the population. What is the most likely cause?",
+        "options": [
+          {
+            "id": "A",
+            "text": "The programming language does not support counting"
+          },
+          {
+            "id": "B",
+            "text": "There are simply no records for State X in the current dataset, possibly due to an earlier filtering step or a data collection gap, rather than a genuine distribution issue"
+          },
+          {
+            "id": "C",
+            "text": "Count operations always return zero for the first group processed"
+          },
+          {
+            "id": "D",
+            "text": "The state name is too long for the program to count correctly"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A zero count most plausibly indicates that no records for State X are present in the working dataset at that point in the pipeline — for example, because of an earlier filtering step or an actual gap in data collection — rather than being an artifact of the counting operation itself.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-005",
+        "competency": "Statistical Programming",
+        "topic": "Data Transformation Pipeline Reasoning",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "Consider the following pseudocode: load the survey data (1,000 records); filter to keep only records with age 18 or above; drop records with missing income; then compute the mean of income. If 200 of the original 1,000 records are under 18, and of the remaining 800, 50 have missing income, how many records are used to compute the final mean?",
+        "options": [
+          {
+            "id": "A",
+            "text": "1,000"
+          },
+          {
+            "id": "B",
+            "text": "950"
+          },
+          {
+            "id": "C",
+            "text": "800"
+          },
+          {
+            "id": "D",
+            "text": "750"
+          }
+        ],
+        "correct_answer": "D",
+        "explanation": "Filtering for age 18+ leaves 1,000 - 200 = 800 records. Dropping the 50 records with missing income from these 800 leaves 800 - 50 = 750 records used in the final mean calculation.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-006",
+        "competency": "Statistical Programming",
+        "topic": "Reproducibility and Data Versioning",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "A colleague reruns your analysis script on what is supposed to be the same raw dataset a month later and obtains a different mean income estimate than you originally reported, even though no code was changed and the script contains no random sampling steps. What is the most likely cause?",
+        "options": [
+          {
+            "id": "A",
+            "text": "The programming language has changed its underlying arithmetic rules"
+          },
+          {
+            "id": "B",
+            "text": "The underlying raw dataset file was modified, appended to, or corrected between the two runs, indicating a data versioning issue"
+          },
+          {
+            "id": "C",
+            "text": "Computers calculate means differently on different days"
+          },
+          {
+            "id": "D",
+            "text": "Mean calculations are inherently non-reproducible by nature"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "With unchanged code and no randomness involved, a differing result strongly implicates a change in the input data itself — such as an update, correction, or appended records — highlighting the importance of proper data versioning for reproducibility in statistical workflows.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-007",
+        "competency": "Statistical Programming",
+        "topic": "Automated Validation in Pipelines",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A statistical programmer is building an automated pipeline to process incoming survey batches and wants the pipeline to reject or flag any batch where more than 5% of 'age' values fall outside a plausible range (0-110), before the batch proceeds to analysis. Which type of step should be added to the pipeline?",
+        "options": [
+          {
+            "id": "A",
+            "text": "A visualization step only"
+          },
+          {
+            "id": "B",
+            "text": "An automated validation/quality-check step with a clearly defined threshold rule, run before the data proceeds to downstream analysis"
+          },
+          {
+            "id": "C",
+            "text": "A step that automatically deletes the entire batch without logging the issue"
+          },
+          {
+            "id": "D",
+            "text": "A manual-only review process with no automation involved"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Embedding an automated, threshold-based validation check directly in the pipeline enforces data quality systematically and consistently before analysis begins, in line with sound, reproducible workflow design; silent deletion without logging would obscure the issue rather than address it.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-008",
+        "competency": "Statistical Programming",
+        "topic": "Debugging Analytical Logic",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A program calculating district-wise unemployment rate produces values above 100% for two districts, using the formula: rate = (unemployed_count / labor_force_count) times 100. What is the most likely source of this error, and how should it be diagnosed?",
+        "options": [
+          {
+            "id": "A",
+            "text": "The programming language is fundamentally unable to handle percentages above 100"
+          },
+          {
+            "id": "B",
+            "text": "This most likely reflects a data or logic error — for example, labor_force_count may be miscalculated (such as excluding some employed people) or unemployed_count may include ineligible records; the fix is to inspect the underlying counts and the definitions or filters used to construct them"
+          },
+          {
+            "id": "C",
+            "text": "This is a normal and acceptable result that requires no further investigation"
+          },
+          {
+            "id": "D",
+            "text": "The issue is always a simple rounding error and can safely be ignored"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A rate exceeding 100% signals a logical inconsistency in how the numerator and denominator were constructed (for example, an incomplete or incorrect labor force count), and should be diagnosed by examining the underlying definitions and filtering logic rather than dismissed.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-009",
+        "competency": "Statistical Programming",
+        "topic": "Reproducible Workflow Design",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A team's analysis pipeline currently consists of manually run, ad hoc scripts with no version control, where analysts individually edit intermediate files by hand whenever they spot an error. Leadership wants the pipeline to be reproducible and auditable for official statistics. Which set of practices would most improve this situation?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Continue manual editing, but require analysts to try to remember what they changed"
+          },
+          {
+            "id": "B",
+            "text": "Adopt version-controlled scripts, avoid manual editing of intermediate data by encoding corrections as documented pipeline steps instead, and maintain a clear, automated, re-runnable sequence from raw data to final output"
+          },
+          {
+            "id": "C",
+            "text": "Store only the final published output, discarding all raw data and code once results are released"
+          },
+          {
+            "id": "D",
+            "text": "Have a single senior analyst memorize the entire pipeline instead of documenting it"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Reproducibility and auditability for official statistics require version-controlled, documented, and automated workflows; undocumented manual edits to intermediate data undermine both the traceability and the re-runnability of the analysis.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "SP-010",
+        "competency": "Statistical Programming",
+        "topic": "Diagnosing Cross-Tool Discrepancies",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "Two team members compute the 'median household income' for the same district dataset using different statistical software packages. One reports Rs. 24,500 and the other reports Rs. 24,600, and both claim to have used the same raw data with no filtering differences. What is the most likely explanation, and how should it be resolved?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Medians are inherently somewhat random and will always differ slightly between tools"
+          },
+          {
+            "id": "B",
+            "text": "Different software or settings may use different interpolation conventions for computing the median when the sample size is even or ties are present, or a subtle preprocessing difference may exist; the resolution is to check each tool's median algorithm/settings and confirm the input data is genuinely identical"
+          },
+          {
+            "id": "C",
+            "text": "One analyst must have made an arithmetic mistake that cannot be identified"
+          },
+          {
+            "id": "D",
+            "text": "The discrepancy is negligible and does not warrant investigation for official statistics"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Small discrepancies in reported medians despite claimed identical inputs often trace back to differing interpolation methods used for even-sized samples or tied values, or to an overlooked preprocessing difference; both possibilities should be checked and resolved before finalizing figures intended for official statistics, where even small discrepancies matter.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-001",
+        "competency": "Data Interpretation",
+        "topic": "Reading Tables",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "A table shows 'Literacy Rate (%)' by state and by gender (Male, Female). To find the gender gap in literacy for a given state, what should be computed?",
+        "options": [
+          {
+            "id": "A",
+            "text": "The sum of male and female literacy rates"
+          },
+          {
+            "id": "B",
+            "text": "The difference between male and female literacy rates for that state"
+          },
+          {
+            "id": "C",
+            "text": "The average of all states' literacy rates"
+          },
+          {
+            "id": "D",
+            "text": "The ratio of the state's population to the national population"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "The gender gap in literacy is measured as the difference between the male and female literacy rates within the same state, not their sum, an overall average, or an unrelated population ratio.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-002",
+        "competency": "Data Interpretation",
+        "topic": "Percentage Change Calculation",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "EASY",
+        "question_text": "If a value increases from 50 to 60, what is the percentage increase?",
+        "options": [
+          {
+            "id": "A",
+            "text": "10%"
+          },
+          {
+            "id": "B",
+            "text": "16.7%"
+          },
+          {
+            "id": "C",
+            "text": "20%"
+          },
+          {
+            "id": "D",
+            "text": "120%"
+          }
+        ],
+        "correct_answer": "C",
+        "explanation": "Percentage increase = (60 - 50) / 50 x 100 = 20%.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-003",
+        "competency": "Data Interpretation",
+        "topic": "Percentage Points vs Percentage Change",
+        "question_type": "SHORT_MCQ",
+        "difficulty": "MEDIUM",
+        "question_text": "An indicator moves from 20% to 25%. Which statement correctly distinguishes the two ways of describing this change?",
+        "options": [
+          {
+            "id": "A",
+            "text": "It increased by 5% and also by 5 percentage points; these mean exactly the same thing"
+          },
+          {
+            "id": "B",
+            "text": "It increased by 5 percentage points, which corresponds to a 25% relative (percentage) increase; these are two different measures"
+          },
+          {
+            "id": "C",
+            "text": "It increased by 25 percentage points"
+          },
+          {
+            "id": "D",
+            "text": "It decreased by 5%"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "The absolute change is 5 percentage points (25 - 20), while the relative change is (5 / 20) x 100 = 25%. These are conceptually different measures and are commonly confused in reporting.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-004",
+        "competency": "Data Interpretation",
+        "topic": "Table Interpretation with Calculation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "EASY",
+        "question_text": "A table shows that out of 2,000 surveyed workers, 1,200 are employed in the formal sector, with the rest in the informal sector. What percentage of workers are in the informal sector?",
+        "options": [
+          {
+            "id": "A",
+            "text": "20%"
+          },
+          {
+            "id": "B",
+            "text": "40%"
+          },
+          {
+            "id": "C",
+            "text": "60%"
+          },
+          {
+            "id": "D",
+            "text": "80%"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Workers in the informal sector = 2,000 - 1,200 = 800. Percentage = (800 / 2,000) x 100 = 40%.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-005",
+        "competency": "Data Interpretation",
+        "topic": "Interpreting Trends with Statistical Caution",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "MEDIUM",
+        "question_text": "A published table shows the poverty rate as 21.9% in Survey Round 1 and 21.3% in Survey Round 2, with each estimate having a standard error of 0.6 percentage points. Based on this, which conclusion is most appropriate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Poverty definitively declined by 0.6 percentage points"
+          },
+          {
+            "id": "B",
+            "text": "The observed 0.6 percentage-point difference is within the range attributable to sampling variability, so it cannot be confidently concluded that poverty declined"
+          },
+          {
+            "id": "C",
+            "text": "Poverty definitely increased between the two rounds"
+          },
+          {
+            "id": "D",
+            "text": "The two rounds cannot be compared under any circumstances"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "With a standard error of 0.6 percentage points attached to each estimate, an observed difference of 0.6 percentage points is well within the range that could arise purely from sampling variability, so the apparent decline cannot be confidently distinguished from no real change.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-006",
+        "competency": "Data Interpretation",
+        "topic": "Weighted Average Calculation",
+        "question_type": "WORD_PROBLEM",
+        "difficulty": "HARD",
+        "question_text": "A district has two sub-regions: Region X has a population of 60,000 with an unemployment rate of 8%, and Region Y has a population of 40,000 with an unemployment rate of 5%. What is the district's overall (population-weighted) unemployment rate?",
+        "options": [
+          {
+            "id": "A",
+            "text": "6.5%"
+          },
+          {
+            "id": "B",
+            "text": "6.8%"
+          },
+          {
+            "id": "C",
+            "text": "7.0%"
+          },
+          {
+            "id": "D",
+            "text": "13%"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Weighted rate = (60,000 x 0.08 + 40,000 x 0.05) / 100,000 = (4,800 + 2,000) / 100,000 = 6,800 / 100,000 = 6.8%. A simple unweighted average of 8% and 5% (6.5%) would incorrectly ignore the difference in each region's population.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-007",
+        "competency": "Data Interpretation",
+        "topic": "Interpreting Enrolment Indicators for Policy",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A report shows that a state's Gross Enrolment Ratio (GER) in secondary education rose from 65% to 78% over five years, while the dropout rate remained roughly constant. A policymaker wants to conclude that 'secondary education outcomes have improved substantially.' What additional consideration is important before accepting this conclusion?",
+        "options": [
+          {
+            "id": "A",
+            "text": "None; the Gross Enrolment Ratio alone fully captures education quality"
+          },
+          {
+            "id": "B",
+            "text": "GER measures enrolment relative to the eligible age population and does not, by itself, capture learning outcomes or the quality of education; a constant dropout rate alongside rising GER should be interpreted together with quality/learning indicators for a fuller picture"
+          },
+          {
+            "id": "C",
+            "text": "GER and dropout rate are the same indicator, so no further analysis is needed"
+          },
+          {
+            "id": "D",
+            "text": "A declining dropout rate would have proven the same point equally well, so nothing further is needed"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "GER is primarily a measure of access (enrolment relative to the eligible population), not of learning quality or outcomes. A comprehensive assessment of whether education outcomes have genuinely improved requires complementary indicators on learning quality, not enrolment figures alone.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-008",
+        "competency": "Data Interpretation",
+        "topic": "Interpreting Cross-Tabulated Data Cautiously",
+        "question_type": "CASE_STUDY",
+        "difficulty": "MEDIUM",
+        "question_text": "A cross-tabulation of employment status by education level shows that individuals with a graduate degree have a HIGHER unemployment rate than those with only secondary education in a given state. Which interpretation is most defensible without additional information?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Higher education always causes unemployment"
+          },
+          {
+            "id": "B",
+            "text": "This is a descriptive pattern in this specific cross-tabulation that could reflect several factors, such as graduates being more likely to hold out for suitable formal-sector jobs, regional labor market mismatches, or differences in labor force participation definitions; it should not be treated as a general causal claim about education without further analysis"
+          },
+          {
+            "id": "C",
+            "text": "The data must be incorrect, since higher education should always reduce unemployment"
+          },
+          {
+            "id": "D",
+            "text": "This pattern definitively proves that vocational training is superior to formal graduate education"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "A descriptive pattern observed in a single cross-tabulation should be interpreted cautiously, with plausible alternative explanations considered, rather than treated as proof of a general causal or universal relationship between education and unemployment.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-009",
+        "competency": "Data Interpretation",
+        "topic": "Reconciling Conflicting Welfare Indicators",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "In a district, per capita income has risen by 15% over five years, but a household consumption survey shows that the proportion of households reporting food insecurity has also increased over the same period. A policymaker asks whether the district's welfare has genuinely improved. What is the most defensible interpretation?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Since income rose, welfare must have improved regardless of the food insecurity data"
+          },
+          {
+            "id": "B",
+            "text": "The two indicators may be capturing different, and potentially diverging, aspects of welfare, such as average income growth versus distributional or consumption-based hardship; a fuller assessment would examine income distribution (inequality), changes in the cost of living, and the reliability of both indicators before concluding whether overall welfare has improved"
+          },
+          {
+            "id": "C",
+            "text": "The food insecurity data must be wrong, since income data is always more reliable"
+          },
+          {
+            "id": "D",
+            "text": "Income and food insecurity are unrelated and cannot be jointly interpreted"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "Apparently conflicting indicators — rising average income alongside rising food insecurity — point to a need for distributional and cost-of-living analysis, since an average income increase can mask worsening conditions for some households, rather than allowing a simple welfare conclusion from either indicator alone.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      },
+      {
+        "question_id": "DI-010",
+        "competency": "Data Interpretation",
+        "topic": "Clarifying Divergent Indicator Definitions",
+        "question_type": "CASE_STUDY",
+        "difficulty": "HARD",
+        "question_text": "A news report claims that the 'unemployment rate in the state fell dramatically,' based on a change in the Worker Population Ratio (WPR) between two survey rounds, while the traditional unemployment rate (based on the labor force) shows only a marginal decline. A statistical officer is asked to clarify. What is the most accurate clarification?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Both statistics measure exactly the same thing, so the report is correct as stated"
+          },
+          {
+            "id": "B",
+            "text": "WPR and the unemployment rate are conceptually different measures with different definitions and denominators; a change in one does not necessarily mirror a proportional change in the other, and the choice of indicator materially affects the reported narrative, so the officer should clarify the distinct definitions and caution against conflating them"
+          },
+          {
+            "id": "C",
+            "text": "Only the unemployment rate is a valid official indicator, and WPR should be disregarded entirely"
+          },
+          {
+            "id": "D",
+            "text": "The discrepancy proves that one of the two survey rounds must contain errors"
+          }
+        ],
+        "correct_answer": "B",
+        "explanation": "WPR and the unemployment rate are distinct labor-market indicators, defined using different denominators and concepts. Conflating them, or selectively citing one to support a particular narrative, can mislead the public; a proper clarification distinguishes the two indicators and explains why they may diverge.",
+        "source": {
+          "source_type": "STANDARD_STATISTICAL_KNOWLEDGE",
+          "source_title": "Established statistical/survey methodology principles",
+          "source_organization": "N/A (general statistical knowledge, not a specific official document)",
+          "source_reference": "N/A"
+        },
+        "source_type": "AI_GENERATED",
+        "lifecycle_status": "PENDING_REVIEW"
+      }
+    ]
+  }
+}

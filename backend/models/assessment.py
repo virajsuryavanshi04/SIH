@@ -33,6 +33,13 @@ class Question(Base):
     correct_answer = Column(String(255), nullable=True)
     explanation = Column(Text, nullable=True)
     cognitive_level = Column(String(50), nullable=False, default="understand")  # remember, understand, apply, analyze
+    question_type = Column(String(50), nullable=True, default="SHORT_MCQ")  # SHORT_MCQ, WORD_PROBLEM, CASE_STUDY
+    bank_question_id = Column(String(50), nullable=True, unique=True, index=True)  # SM-001, SA-002, etc.
+    bank_version = Column(String(50), nullable=True, default="1.0")
+    source_type = Column(String(100), nullable=True)  # STANDARD_STATISTICAL_KNOWLEDGE, OFFICIAL_DOCUMENT, AI_GENERATED
+    source_title = Column(String(255), nullable=True)
+    source_organization = Column(String(255), nullable=True)
+    source_reference = Column(Text, nullable=True)
     source_material_id = Column(Integer, ForeignKey("learning_materials.id"), nullable=True)
     is_ai_generated = Column(Boolean, default=False)
     source = Column(String(50), nullable=False, default="seeded")

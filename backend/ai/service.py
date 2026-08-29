@@ -286,7 +286,10 @@ Required JSON Output Schema:
         competency_id: int, 
         topic_id: Optional[int] = None,
         source_material_id: Optional[int] = None,
-        created_by_user_id: Optional[int] = None
+        created_by_user_id: Optional[int] = None,
+        status: str = "pending_review",
+        question_type: Optional[str] = None,
+        source_reference: Optional[str] = None
     ) -> Optional[Question]:
         """
         Validates question schema, checks for duplicates, and saves to database.
@@ -314,6 +317,8 @@ Required JSON Output Schema:
         cog_level = q_data.get("cognitive_level", "understand")
         explanation = q_data.get("explanation", "Verified statistical solution.")
         correct_ans = q_data.get("correct_answer") or next((o["text"] for o in q_data["options"] if o.get("is_correct")), "")
+        q_type = question_type or q_data.get("question_type", "SHORT_MCQ")
+        s_ref = source_reference or q_data.get("source_reference")
 
         question = Question(
             competency_id=competency_id,
@@ -324,10 +329,12 @@ Required JSON Output Schema:
             correct_answer=correct_ans,
             explanation=explanation,
             cognitive_level=cog_level,
+            question_type=q_type,
+            source_reference=s_ref,
             source_material_id=source_material_id,
             is_ai_generated=True,
             source="ai_generated",
-            status="approved",
+            status=status,
             created_by=created_by_user_id
         )
         db.add(question)
