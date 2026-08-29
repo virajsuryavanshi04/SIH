@@ -28,7 +28,7 @@ export default function CompetencyRadial({ score, delta }: Props) {
         {/* Background circle */}
         <svg className="w-full h-full transform -rotate-90">
           <circle
-            className="text-[#D8E5EC]"
+            className="text-[#E2DDD5]"
             strokeWidth={strokeWidth}
             stroke="currentColor"
             fill="transparent"
@@ -40,7 +40,7 @@ export default function CompetencyRadial({ score, delta }: Props) {
           <circle
             className={cn(
               "transition-all duration-1000 ease-out",
-              score >= 80 ? "text-[#2E8B57]" : score >= 60 ? "text-[#176B87]" : "text-[#D49A2A]"
+              score >= 80 ? "text-[#2E8B57]" : score >= 60 ? "text-[#A85D4C]" : "text-[#B38A3D]"
             )}
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
@@ -54,8 +54,8 @@ export default function CompetencyRadial({ score, delta }: Props) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-4xl font-black text-[#123047] font-mono">{Math.round(animatedScore)}%</span>
-          <span className="text-xs text-[#5D7180] font-bold uppercase tracking-wider mt-0.5">Proficiency</span>
+          <span className="text-4xl font-black text-[#292B2B] font-mono">{Math.round(animatedScore)}%</span>
+          <span className="text-xs text-[#7A756E] font-bold uppercase tracking-wider mt-0.5">Proficiency</span>
         </div>
       </div>
       

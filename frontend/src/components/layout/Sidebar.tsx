@@ -76,13 +76,13 @@ export default function Sidebar() {
         }
       }}
       className={cn(
-        "flex flex-col h-screen bg-[#123B5D] text-[#FFFFFF] border-r border-[#123B5D] z-30 shadow-md shrink-0 select-none",
+        "flex flex-col h-screen bg-[#2D3030] text-[#FFFDF9] border-r border-[#2D3030] z-30 shadow-md shrink-0 select-none",
         "transition-all duration-300 ease-in-out overflow-x-hidden overflow-y-hidden",
         isExpanded ? "w-[272px]" : "w-[76px]"
       )}
     >
       {/* Brand Header */}
-      <div className="px-3 h-14 border-b border-[#FFFFFF]/10 shrink-0 flex items-center overflow-hidden">
+      <div className="px-3 h-14 border-b border-[#FFFDF9]/10 shrink-0 flex items-center overflow-hidden">
         <Link
           to="/"
           className={cn(
@@ -90,7 +90,7 @@ export default function Sidebar() {
             isExpanded ? "px-1.5 space-x-3" : "justify-center px-0"
           )}
         >
-          <div className="w-8.5 h-8.5 rounded-lg bg-[#176B87] flex items-center justify-center text-[#FFFFFF] shadow-xs shrink-0">
+          <div className="w-8.5 h-8.5 rounded-lg bg-[#A85D4C] flex items-center justify-center text-[#FFFDF9] shadow-xs shrink-0">
             <Brain className="w-4.5 h-4.5" />
           </div>
           <div
@@ -99,10 +99,10 @@ export default function Sidebar() {
               isExpanded ? "opacity-100 flex" : "opacity-0 hidden"
             )}
           >
-            <span className="text-[16px] font-bold tracking-tight text-[#FFFFFF] leading-tight block">
+            <span className="text-[16px] font-bold tracking-tight text-[#FFFDF9] leading-tight block">
               SmartLearn
             </span>
-            <span className="text-[10px] font-medium text-[#FFFFFF]/75 tracking-wider leading-tight mt-0.5 block">
+            <span className="text-[10px] font-medium text-[#FFFDF9]/75 tracking-wider leading-tight mt-0.5 block">
               Competency Intelligence
             </span>
           </div>
@@ -116,7 +116,7 @@ export default function Sidebar() {
             {/* Section Heading */}
             <div
               className={cn(
-                "px-3 pt-1 pb-0.5 text-[11px] font-semibold tracking-wider text-[#FFFFFF]/50 uppercase text-left whitespace-nowrap transition-opacity duration-200 overflow-hidden",
+                "px-3 pt-1 pb-0.5 text-[11px] font-semibold tracking-wider text-[#FFFDF9]/50 uppercase text-left whitespace-nowrap transition-opacity duration-200 overflow-hidden",
                 isExpanded ? "opacity-100 block" : "opacity-0 hidden"
               )}
             >
@@ -135,14 +135,14 @@ export default function Sidebar() {
                     "flex items-center rounded-xl text-[14px] sm:text-[15px] transition-all duration-150 text-left h-9",
                     isExpanded ? "px-3 space-x-3 w-full" : "px-0 justify-center w-10 mx-auto",
                     isActive 
-                      ? "bg-[#176B87] text-[#FFFFFF] shadow-xs font-semibold" 
-                      : "text-[#FFFFFF]/80 hover:bg-[#FFFFFF]/10 hover:text-[#FFFFFF] font-medium"
+                      ? "bg-[#A85D4C] text-[#FFFDF9] shadow-xs font-semibold" 
+                      : "text-[#FFFDF9]/80 hover:bg-[#FFFDF9]/10 hover:text-[#FFFDF9] font-medium"
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <link.icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-[#FFFFFF]" : "text-[#FFFFFF]/70")} />
+                    <link.icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-[#FFFDF9]" : "text-[#FFFDF9]/70")} />
                     <span
                       className={cn(
                         "truncate whitespace-nowrap transition-opacity duration-200",
@@ -160,14 +160,14 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile & Sign Out Footer */}
-      <div className="p-2.5 sm:p-3 border-t border-[#FFFFFF]/10 bg-[#123B5D] shrink-0 overflow-hidden">
+      <div className="p-2.5 sm:p-3 border-t border-[#FFFDF9]/10 bg-[#2D3030] shrink-0 overflow-hidden">
         <div
           className={cn(
-            "flex items-center rounded-xl bg-[#FFFFFF]/5 border border-[#FFFFFF]/10 mb-1.5 transition-all duration-200",
+            "flex items-center rounded-xl bg-[#FFFDF9]/5 border border-[#FFFDF9]/10 mb-1.5 transition-all duration-200",
             isExpanded ? "p-2 space-x-2.5 text-left w-full" : "p-1 justify-center w-10 mx-auto"
           )}
         >
-          <div className="w-8 h-8 rounded-lg bg-[#176B87] text-[#FFFFFF] flex items-center justify-center font-semibold text-xs shadow-xs shrink-0 font-mono">
+          <div className="w-8 h-8 rounded-lg bg-[#A85D4C] text-[#FFFDF9] flex items-center justify-center font-semibold text-xs shadow-xs shrink-0 font-mono">
             {user?.full_name?.charAt(0) || 'A'}
           </div>
           <div
@@ -176,8 +176,8 @@ export default function Sidebar() {
               isExpanded ? "opacity-100 block" : "opacity-0 hidden"
             )}
           >
-            <p className="text-sm font-semibold text-[#FFFFFF] truncate leading-tight">{user?.full_name || 'Arjun Patel'}</p>
-            <p className="text-xs text-[#FFFFFF]/75 truncate font-medium mt-0.5">
+            <p className="text-sm font-semibold text-[#FFFDF9] truncate leading-tight">{user?.full_name || 'Arjun Patel'}</p>
+            <p className="text-xs text-[#FFFDF9]/75 truncate font-medium mt-0.5">
               {user?.designation || (isAdmin ? 'System Administrator' : 'Statistical Officer')}
             </p>
           </div>
@@ -186,7 +186,7 @@ export default function Sidebar() {
           onClick={logout}
           title={!isExpanded ? 'Sign Out' : undefined}
           className={cn(
-            "flex items-center rounded-xl text-xs sm:text-sm font-medium text-[#FFFFFF]/75 hover:text-[#D49A2A] hover:bg-[#FFFFFF]/10 transition-colors cursor-pointer text-left h-8",
+            "flex items-center rounded-xl text-xs sm:text-sm font-medium text-[#FFFDF9]/75 hover:text-[#B38A3D] hover:bg-[#FFFDF9]/10 transition-colors cursor-pointer text-left h-8",
             isExpanded ? "px-2.5 space-x-2 w-full" : "px-0 justify-center w-10 mx-auto"
           )}
         >

@@ -151,7 +151,7 @@ export default function QuestionGenerator({
               size="sm" 
               variant="outline" 
               onClick={handleApproveAll}
-              className="text-xs font-bold border-[#2E8B57]/40 text-[#2E8B57] hover:bg-[#2E8B57] hover:text-[#FFFFFF] cursor-pointer rounded-xl"
+              className="text-xs font-bold border-[#2E8B57]/40 text-[#2E8B57] hover:bg-[#2E8B57] hover:text-[#FFFDF9] cursor-pointer rounded-xl"
             >
               <CheckCheck className="w-3.5 h-3.5 mr-1" /> Approve All {questions.length}
             </Button>
@@ -159,7 +159,7 @@ export default function QuestionGenerator({
               variant="ghost" 
               size="sm" 
               onClick={() => { setQuestions([]); setCurrentIndex(0); }}
-              className="text-xs text-[#123047] hover:bg-[#EAF3F7] cursor-pointer rounded-xl"
+              className="text-xs text-[#292B2B] hover:bg-[#EFEBE4] cursor-pointer rounded-xl"
             >
               Configure Again
             </Button>
@@ -167,13 +167,13 @@ export default function QuestionGenerator({
         </div>
 
         {/* Question Counter Toolbar & Jump Pills */}
-        <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#D8E5EC] shadow-xs space-y-3">
+        <div className="p-4 rounded-xl bg-[#FFFDF9] border border-[#E2DDD5] shadow-xs space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-[#123047] uppercase font-mono tracking-wider">
+              <span className="text-xs font-bold text-[#292B2B] uppercase font-mono tracking-wider">
                 Question {currentIndex + 1} of {questions.length}
               </span>
-              <span className="text-xs font-mono text-[#5D7180] font-semibold">
+              <span className="text-xs font-mono text-[#7A756E] font-semibold">
                 ({approvedCount} approved, {pendingCount} pending, {rejectedCount} rejected)
               </span>
             </div>
@@ -185,7 +185,7 @@ export default function QuestionGenerator({
                 size="sm"
                 disabled={currentIndex === 0}
                 onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-                className="h-8 px-3 text-xs border-[#D8E5EC] text-[#123047] cursor-pointer disabled:opacity-40 rounded-xl"
+                className="h-8 px-3 text-xs border-[#E2DDD5] text-[#292B2B] cursor-pointer disabled:opacity-40 rounded-xl"
               >
                 <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Previous
               </Button>
@@ -194,7 +194,7 @@ export default function QuestionGenerator({
                 size="sm"
                 disabled={currentIndex === questions.length - 1}
                 onClick={() => setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="h-8 px-3 text-xs border-[#D8E5EC] text-[#123047] cursor-pointer disabled:opacity-40 rounded-xl"
+                className="h-8 px-3 text-xs border-[#E2DDD5] text-[#292B2B] cursor-pointer disabled:opacity-40 rounded-xl"
               >
                 Next <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
@@ -202,7 +202,7 @@ export default function QuestionGenerator({
           </div>
 
           {/* Quick Jump Question Number Pills */}
-          <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[#D8E5EC]">
+          <div className="flex flex-wrap gap-1.5 pt-1 border-t border-[#E2DDD5]">
             {questions.map((q, idx) => {
               const isSelected = idx === currentIndex;
               const isApproved = q.status === 'approved';
@@ -215,12 +215,12 @@ export default function QuestionGenerator({
                   className={cn(
                     "px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer border flex items-center gap-1",
                     isSelected 
-                      ? "bg-[#123B5D] text-[#FFFFFF] border-[#123B5D] shadow-xs ring-2 ring-[#176B87]/40"
+                      ? "bg-[#2D3030] text-[#FFFDF9] border-[#2D3030] shadow-xs ring-2 ring-[#A85D4C]/40"
                       : isApproved
                       ? "bg-[#2E8B57]/10 text-[#2E8B57] border-[#2E8B57]/30 hover:bg-[#2E8B57]/20"
                       : isRejected
-                      ? "bg-[#D8E5EC]/50 text-[#7A8C98] border-[#D8E5EC] line-through"
-                      : "bg-[#EAF3F7] text-[#123047] border-[#D8E5EC] hover:border-[#176B87]"
+                      ? "bg-[#E2DDD5]/50 text-[#8C857B] border-[#E2DDD5] line-through"
+                      : "bg-[#EFEBE4] text-[#292B2B] border-[#E2DDD5] hover:border-[#A85D4C]"
                   )}
                 >
                   <span>Q{idx + 1}</span>
@@ -250,7 +250,7 @@ export default function QuestionGenerator({
             size="sm"
             disabled={currentIndex === 0}
             onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-            className="text-xs font-semibold cursor-pointer border-[#D8E5EC] rounded-xl text-[#123047]"
+            className="text-xs font-semibold cursor-pointer border-[#E2DDD5] rounded-xl text-[#292B2B]"
           >
             <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Previous Question
           </Button>
@@ -264,7 +264,7 @@ export default function QuestionGenerator({
               }
               setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1));
             }}
-            className="bg-[#176B87] hover:bg-[#123B5D] text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer rounded-xl"
+            className="bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer rounded-xl"
           >
             <span>Approve & Next</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -278,8 +278,8 @@ export default function QuestionGenerator({
   return (
     <div className="space-y-6 text-left">
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-[#D49A2A]/15 border border-[#D49A2A]/35 text-xs font-bold text-[#123047] flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-[#D49A2A] shrink-0" />
+        <div className="p-4 rounded-xl bg-[#B38A3D]/15 border border-[#B38A3D]/35 text-xs font-bold text-[#292B2B] flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-[#B38A3D] shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
@@ -288,9 +288,9 @@ export default function QuestionGenerator({
         
         {/* Competency Area */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">Competency Area</label>
+          <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">Competency Area</label>
           <Select value={competencyId} onValueChange={setCompetencyId}>
-            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs text-[#123047]">
+            <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs text-[#292B2B]">
               <SelectValue placeholder="Select competency" />
             </SelectTrigger>
             <SelectContent>
@@ -303,9 +303,9 @@ export default function QuestionGenerator({
 
         {/* Number of Questions */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">Question Count</label>
+          <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">Question Count</label>
           <Select value={count} onValueChange={setCount}>
-            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs text-[#123047]">
+            <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs text-[#292B2B]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -319,9 +319,9 @@ export default function QuestionGenerator({
         
         {/* Target Difficulty */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">Target Difficulty</label>
+          <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">Target Difficulty</label>
           <Select value={difficulty} onValueChange={setDifficulty}>
-            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs text-[#123047]">
+            <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs text-[#292B2B]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -335,13 +335,13 @@ export default function QuestionGenerator({
 
       <Button 
         size="lg" 
-        className="w-full bg-[#176B87] hover:bg-[#123B5D] text-[#FFFFFF] font-bold shadow-xs cursor-pointer flex items-center justify-center gap-2 rounded-xl" 
+        className="w-full bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-bold shadow-xs cursor-pointer flex items-center justify-center gap-2 rounded-xl" 
         onClick={handleGenerate} 
         disabled={generating}
       >
         {generating ? (
           <>
-            <div className="w-4 h-4 border-2 border-[#FFFFFF] border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-[#FFFDF9] border-t-transparent rounded-full animate-spin" />
             <span>AI Synthesizing & Validating {count} MCQs...</span>
           </>
         ) : (

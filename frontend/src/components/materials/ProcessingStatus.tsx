@@ -33,11 +33,11 @@ export default function ProcessingStatus({ onComplete }: Props) {
     <div className="py-6">
       <div className="flex justify-between relative">
         {/* Background line */}
-        <div className="absolute top-5 left-0 w-full h-1 bg-[#D8E5EC] -z-10" />
+        <div className="absolute top-5 left-0 w-full h-1 bg-[#E2DDD5] -z-10" />
         
         {/* Active line */}
         <div 
-          className="absolute top-5 left-0 h-1 bg-[#176B87] -z-10 transition-all duration-500" 
+          className="absolute top-5 left-0 h-1 bg-[#A85D4C] -z-10 transition-all duration-500" 
           style={{ width: `${(Math.min(currentStep, steps.length - 1) / (steps.length - 1)) * 100}%` }}
         />
         
@@ -48,21 +48,21 @@ export default function ProcessingStatus({ onComplete }: Props) {
           return (
             <div key={step.label} className="flex flex-col items-center">
               <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center border-2 bg-[#FFFFFF] transition-colors duration-300",
+                "w-10 h-10 rounded-full flex items-center justify-center border-2 bg-[#FFFDF9] transition-colors duration-300",
                 isCompleted ? "border-[#2E8B57] text-[#2E8B57]" : 
-                isCurrent ? "border-[#176B87] text-[#176B87]" : "border-[#D8E5EC] text-[#7A8C98]"
+                isCurrent ? "border-[#A85D4C] text-[#A85D4C]" : "border-[#E2DDD5] text-[#8C857B]"
               )}>
                 {isCompleted ? (
                   <Check className="w-5 h-5 text-[#2E8B57]" />
                 ) : isCurrent ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-[#176B87]" />
+                  <Loader2 className="w-5 h-5 animate-spin text-[#A85D4C]" />
                 ) : (
                   <span className="text-sm font-medium">{index + 1}</span>
                 )}
               </div>
               <span className={cn(
                 "mt-3 text-xs font-medium text-center w-24",
-                isCompleted || isCurrent ? "text-[#123047] font-bold" : "text-[#5D7180]"
+                isCompleted || isCurrent ? "text-[#292B2B] font-bold" : "text-[#7A756E]"
               )}>
                 {step.label}
               </span>

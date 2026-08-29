@@ -8,16 +8,16 @@ interface Props {
 
 export default function ConfidenceSelector({ selectedLevel, onSelect }: Props) {
   const levels = [
-    { id: 'low', label: 'Not Sure', icon: HelpCircle, color: 'text-[#D49A2A]', bg: 'bg-[#D49A2A]/15', activeBg: 'bg-[#D49A2A]/25 border-[#D49A2A] ring-2 ring-[#D49A2A]/20' },
-    { id: 'medium', label: 'Somewhat Confident', icon: ThumbsUp, color: 'text-[#176B87]', bg: 'bg-[#176B87]/10', activeBg: 'bg-[#176B87]/20 border-[#176B87] ring-2 ring-[#176B87]/20' },
+    { id: 'low', label: 'Not Sure', icon: HelpCircle, color: 'text-[#B38A3D]', bg: 'bg-[#B38A3D]/15', activeBg: 'bg-[#B38A3D]/25 border-[#B38A3D] ring-2 ring-[#B38A3D]/20' },
+    { id: 'medium', label: 'Somewhat Confident', icon: ThumbsUp, color: 'text-[#A85D4C]', bg: 'bg-[#A85D4C]/10', activeBg: 'bg-[#A85D4C]/20 border-[#A85D4C] ring-2 ring-[#A85D4C]/20' },
     { id: 'high', label: 'Very Confident', icon: CheckCircle, color: 'text-[#2E8B57]', bg: 'bg-[#2E8B57]/10', activeBg: 'bg-[#2E8B57]/20 border-[#2E8B57] ring-2 ring-[#2E8B57]/20' },
   ];
 
   return (
-    <div className="space-y-3 pt-6 border-t border-[#D8E5EC]">
+    <div className="space-y-3 pt-6 border-t border-[#E2DDD5]">
       <div className="text-center space-y-0.5">
-        <span className="text-xs sm:text-sm font-semibold text-[#123047] uppercase tracking-wider">Metacognition: How confident are you?</span>
-        <p className="text-xs text-[#5D7180]">Helps AI distinguish genuine mastery from lucky guessing</p>
+        <span className="text-xs sm:text-sm font-semibold text-[#292B2B] uppercase tracking-wider">Metacognition: How confident are you?</span>
+        <p className="text-xs text-[#7A756E]">Helps AI distinguish genuine mastery from lucky guessing</p>
       </div>
       <div className="flex gap-3 sm:gap-4">
         {levels.map((level) => {
@@ -31,7 +31,7 @@ export default function ConfidenceSelector({ selectedLevel, onSelect }: Props) {
                 "flex-1 py-3 px-2 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer",
                 isSelected 
                   ? `${level.activeBg} ${level.color} shadow-xs font-semibold` 
-                  : `border-[#D8E5EC] ${level.bg} text-[#123047] hover:border-[#176B87] font-medium`
+                  : `border-[#E2DDD5] ${level.bg} text-[#292B2B] hover:border-[#A85D4C] font-medium`
               )}
             >
               <level.icon className="w-5 h-5" />

@@ -130,24 +130,24 @@ export default function Header() {
       case 'assessment_completed':
         return <CheckCircle2 className="w-4 h-4 text-[#2E8B57]" />;
       case 'recommendation_available':
-        return <Target className="w-4 h-4 text-[#176B87]" />;
+        return <Target className="w-4 h-4 text-[#A85D4C]" />;
       case 'competency_update':
-        return <ShieldCheck className="w-4 h-4 text-[#D49A2A]" />;
+        return <ShieldCheck className="w-4 h-4 text-[#B38A3D]" />;
       case 'learning_progress':
-        return <BookOpen className="w-4 h-4 text-[#123B5D]" />;
+        return <BookOpen className="w-4 h-4 text-[#2D3030]" />;
       default:
-        return <Sparkles className="w-4 h-4 text-[#176B87]" />;
+        return <Sparkles className="w-4 h-4 text-[#A85D4C]" />;
     }
   };
 
   return (
-    <header className="h-16 bg-[#FFFFFF] border-b border-[#D8E5EC] flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
+    <header className="h-16 bg-[#FFFDF9] border-b border-[#E2DDD5] flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
       {/* Left: Greeting & Active Intelligence Status */}
       <div className="flex flex-col text-left">
-        <h2 className="text-base sm:text-lg font-bold text-[#123047] tracking-tight">
-          {getGreeting()}, <span className="text-[#176B87]">{firstName}</span>
+        <h2 className="text-base sm:text-lg font-bold text-[#292B2B] tracking-tight">
+          {getGreeting()}, <span className="text-[#A85D4C]">{firstName}</span>
         </h2>
-        <div className="flex items-center space-x-1.5 text-[11px] font-medium text-[#5D7180]">
+        <div className="flex items-center space-x-1.5 text-[11px] font-medium text-[#7A756E]">
           <span className="w-2 h-2 rounded-full bg-[#2E8B57] animate-pulse" />
           <span>Capacity Intelligence Active</span>
         </div>
@@ -166,22 +166,22 @@ export default function Header() {
               setProfileOpen(false);
             }}
             aria-label="Notifications"
-            className="text-[#5D7180] hover:text-[#176B87] hover:bg-[#EAF3F7] rounded-lg h-9 w-9 relative cursor-pointer"
+            className="text-[#7A756E] hover:text-[#7D4036] hover:bg-[#EFEBE4] rounded-lg h-9 w-9 relative cursor-pointer"
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#D49A2A] rounded-full ring-2 ring-[#FFFFFF]" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#B38A3D] rounded-full ring-2 ring-[#FFFDF9]" />
             )}
           </Button>
 
           {/* Notifications Dropdown Panel */}
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#D8E5EC] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="px-4 py-2.5 border-b border-[#D8E5EC] flex items-center justify-between">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFDF9] rounded-xl shadow-lg border border-[#E2DDD5] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="px-4 py-2.5 border-b border-[#E2DDD5] flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold text-[#123047] uppercase tracking-wider">Notifications</span>
+                  <span className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">Notifications</span>
                   {unreadCount > 0 && (
-                    <span className="px-1.5 py-0.2 bg-[#176B87]/15 text-[#176B87] font-mono text-[10px] font-bold rounded-full">
+                    <span className="px-1.5 py-0.2 bg-[#A85D4C]/15 text-[#A85D4C] font-mono text-[10px] font-bold rounded-full">
                       {unreadCount} new
                     </span>
                   )}
@@ -189,16 +189,16 @@ export default function Header() {
                 {unreadCount > 0 && (
                   <button 
                     onClick={markAllAsRead}
-                    className="text-[11px] font-semibold text-[#176B87] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-semibold text-[#A85D4C] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <CheckCheck className="w-3 h-3" /> Mark all read
                   </button>
                 )}
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-[#D8E5EC]">
+              <div className="max-h-80 overflow-y-auto divide-y divide-[#E2DDD5]">
                 {notifications.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-[#5D7180]">
+                  <div className="p-6 text-center text-xs text-[#7A756E]">
                     No new notifications
                   </div>
                 ) : (
@@ -207,28 +207,28 @@ export default function Header() {
                       key={n.id}
                       onClick={() => markAsRead(n.id)}
                       className={cn(
-                        "p-3.5 hover:bg-[#EAF3F7] transition-colors cursor-pointer flex items-start space-x-3 text-left",
-                        !n.read ? "bg-[#176B87]/5" : "bg-[#FFFFFF]"
+                        "p-3.5 hover:bg-[#EFEBE4] transition-colors cursor-pointer flex items-start space-x-3 text-left",
+                        !n.read ? "bg-[#A85D4C]/5" : "bg-[#FFFDF9]"
                       )}
                     >
-                      <div className="p-1.5 rounded-lg bg-[#FFFFFF] border border-[#D8E5EC] shrink-0 mt-0.5 shadow-2xs">
+                      <div className="p-1.5 rounded-lg bg-[#FFFDF9] border border-[#E2DDD5] shrink-0 mt-0.5 shadow-2xs">
                         {getNotificationIcon(n.type)}
                       </div>
                       <div className="flex-1 min-w-0 space-y-0.5">
                         <div className="flex items-center justify-between gap-1">
-                          <p className={cn("text-xs font-bold text-[#123047] truncate", !n.read && "font-black")}>
+                          <p className={cn("text-xs font-bold text-[#292B2B] truncate", !n.read && "font-black")}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] font-mono text-[#5D7180] shrink-0">
+                          <span className="text-[10px] font-mono text-[#7A756E] shrink-0">
                             {n.timestamp}
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#5D7180] leading-snug line-clamp-2">
+                        <p className="text-[11px] text-[#7A756E] leading-snug line-clamp-2">
                           {n.message}
                         </p>
                       </div>
                       {!n.read && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#176B87] shrink-0 mt-1.5" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#A85D4C] shrink-0 mt-1.5" />
                       )}
                     </div>
                   ))
@@ -239,36 +239,36 @@ export default function Header() {
         </div>
 
         {/* Profile Avatar with Popover */}
-        <div className="relative border-l border-[#D8E5EC] pl-3" ref={profileRef}>
+        <div className="relative border-l border-[#E2DDD5] pl-3" ref={profileRef}>
           <button 
             onClick={() => {
               setProfileOpen(!profileOpen);
               setNotificationsOpen(false);
             }}
             aria-label="User Profile Menu"
-            className="flex items-center space-x-2 rounded-full p-0.5 hover:ring-2 hover:ring-[#176B87]/30 transition-all cursor-pointer"
+            className="flex items-center space-x-2 rounded-full p-0.5 hover:ring-2 hover:ring-[#A85D4C]/30 transition-all cursor-pointer"
           >
-            <Avatar className="h-8 w-8 ring-1 ring-[#D8E5EC]">
-              <AvatarFallback className="bg-[#123B5D] text-[#FFFFFF] font-bold text-xs font-mono">
+            <Avatar className="h-8 w-8 ring-1 ring-[#E2DDD5]">
+              <AvatarFallback className="bg-[#2D3030] text-[#FFFDF9] font-bold text-xs font-mono">
                 {user?.full_name?.charAt(0) || 'A'}
               </AvatarFallback>
             </Avatar>
-            <ChevronDown className="w-3 h-3 text-[#5D7180] hidden sm:block" />
+            <ChevronDown className="w-3 h-3 text-[#7A756E] hidden sm:block" />
           </button>
 
           {/* Profile Dropdown Menu */}
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#D8E5EC] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+            <div className="absolute right-0 mt-2 w-64 bg-[#FFFDF9] rounded-xl shadow-lg border border-[#E2DDD5] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               {/* User Details Header */}
-              <div className="px-4 py-3 border-b border-[#D8E5EC] space-y-1">
-                <p className="text-xs font-bold text-[#123047] leading-tight">
+              <div className="px-4 py-3 border-b border-[#E2DDD5] space-y-1">
+                <p className="text-xs font-bold text-[#292B2B] leading-tight">
                   {user?.full_name || 'Arjun Patel'}
                 </p>
-                <p className="text-[11px] text-[#5D7180] font-mono truncate">
+                <p className="text-[11px] text-[#7A756E] font-mono truncate">
                   {user?.email || 'arjun.patel@gov.in'}
                 </p>
                 <div className="pt-1">
-                  <span className="inline-block px-2 py-0.5 bg-[#176B87]/10 text-[#176B87] font-mono text-[10px] font-bold rounded">
+                  <span className="inline-block px-2 py-0.5 bg-[#A85D4C]/10 text-[#A85D4C] font-mono text-[10px] font-bold rounded">
                     {roleName}
                   </span>
                 </div>
@@ -279,18 +279,18 @@ export default function Header() {
                 <Link
                   to="/profile"
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#123047] hover:bg-[#EAF3F7] hover:text-[#176B87] transition-colors"
+                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] hover:text-[#7D4036] transition-colors"
                 >
-                  <UserIcon className="w-3.5 h-3.5 text-[#176B87]" />
+                  <UserIcon className="w-3.5 h-3.5 text-[#A85D4C]" />
                   <span>View Profile & Credentials</span>
                 </Link>
               </div>
 
               {/* Sign Out Button */}
-              <div className="pt-1 border-t border-[#D8E5EC]">
+              <div className="pt-1 border-t border-[#E2DDD5]">
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center space-x-2.5 px-4 py-2 w-full text-xs font-medium text-[#123047] hover:bg-[#EAF3F7] hover:text-[#D49A2A] transition-colors cursor-pointer text-left"
+                  className="flex items-center space-x-2.5 px-4 py-2 w-full text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] hover:text-[#B38A3D] transition-colors cursor-pointer text-left"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

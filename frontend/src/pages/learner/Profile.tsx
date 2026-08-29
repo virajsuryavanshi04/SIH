@@ -85,41 +85,41 @@ export default function Profile() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12 text-left">
       <div>
-        <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest mb-1">
+        <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#A85D4C] uppercase tracking-widest mb-1">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>OFFICER CREDENTIALS & CAPABILITY EVIDENCE</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#123047] tracking-tight leading-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#292B2B] tracking-tight leading-tight">
           Evidence & Profile Portfolio
         </h1>
-        <p className="text-sm text-[#5D7180] mt-1.5 leading-relaxed">
+        <p className="text-sm text-[#7A756E] mt-1.5 leading-relaxed">
           Official competency credentials, verified assessments, and continuous capability telemetry for {user?.full_name || 'Arjun Patel'}.
         </p>
       </div>
 
       {/* Officer Summary Card */}
-      <div className="bg-[#FFFFFF] rounded-2xl border border-[#D8E5EC] p-6 sm:p-8 shadow-xs">
+      <div className="bg-[#FFFDF9] rounded-2xl border border-[#E2DDD5] p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <Avatar className="w-20 h-20 border-2 border-[#176B87]/30 shadow-xs shrink-0 ring-4 ring-[#176B87]/15">
-            <AvatarFallback className="text-2xl bg-[#123B5D] text-[#FFFFFF] font-bold font-mono">
+          <Avatar className="w-20 h-20 border-2 border-[#A85D4C]/30 shadow-xs shrink-0 ring-4 ring-[#A85D4C]/15">
+            <AvatarFallback className="text-2xl bg-[#2D3030] text-[#FFFDF9] font-bold font-mono">
               {user?.full_name?.charAt(0) || 'A'}
             </AvatarFallback>
           </Avatar>
           
           <div className="space-y-3 flex-1 text-center sm:text-left">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#123047]">{user?.full_name || 'Arjun Patel'}</h2>
-              <p className="text-sm font-mono text-[#5D7180] mt-0.5">{user?.email || 'arjun.patel@gov.in'}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-[#292B2B]">{user?.full_name || 'Arjun Patel'}</h2>
+              <p className="text-sm font-mono text-[#7A756E] mt-0.5">{user?.email || 'arjun.patel@gov.in'}</p>
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start text-xs font-mono">
-              <span className="px-3 py-1 rounded-full bg-[#176B87]/10 text-[#176B87] font-semibold border border-[#176B87]/20">
+              <span className="px-3 py-1 rounded-full bg-[#A85D4C]/10 text-[#A85D4C] font-semibold border border-[#A85D4C]/20">
                 {activeRoleName}
               </span>
-              <span className="px-3 py-1 rounded-full bg-[#EAF3F7] text-[#123047] border border-[#D8E5EC]">
+              <span className="px-3 py-1 rounded-full bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5]">
                 Division: {user?.department_name || 'Statistical Services'}
               </span>
-              <span className="px-3 py-1 rounded-full bg-[#EAF3F7] text-[#123047] border border-[#D8E5EC]">
+              <span className="px-3 py-1 rounded-full bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5]">
                 Experience: {user?.experience_years || 5} Years
               </span>
             </div>
@@ -128,13 +128,13 @@ export default function Profile() {
       </div>
 
       {/* Role Management & Dynamic Competency Targets */}
-      <Card className="bg-[#FFFFFF] border border-[#D8E5EC] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
-        <CardHeader className="border-b border-[#D8E5EC] p-5 pb-3">
+      <Card className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)]">
+        <CardHeader className="border-b border-[#E2DDD5] p-5 pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-bold text-[#123047] flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-[#176B87]" /> Official Designation & Benchmark Framework
+            <CardTitle className="text-base font-bold text-[#292B2B] flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-[#A85D4C]" /> Official Designation & Benchmark Framework
             </CardTitle>
-            <span className="text-xs font-mono text-[#176B87] font-semibold bg-[#176B87]/10 px-2.5 py-0.5 rounded-full border border-[#176B87]/20">
+            <span className="text-xs font-mono text-[#A85D4C] font-semibold bg-[#A85D4C]/10 px-2.5 py-0.5 rounded-full border border-[#A85D4C]/20">
               Active: {activeRoleName}
             </span>
           </div>
@@ -142,7 +142,7 @@ export default function Profile() {
         <CardContent className="p-5 sm:p-6 space-y-4">
           
           <div className="space-y-2">
-            <label className="text-xs font-bold text-[#123047] uppercase tracking-wider block">
+            <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider block">
               Change Official Role (Recalculates Benchmark Targets)
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -155,12 +155,12 @@ export default function Profile() {
                     onClick={() => handleRoleChange(r.id)}
                     className={`p-3 rounded-xl border text-left transition-all text-xs font-bold cursor-pointer ${
                       isSelected
-                        ? 'bg-[#123B5D] text-[#FFFFFF] border-[#123B5D] shadow-xs'
-                        : 'bg-[#EAF3F7] text-[#123047] border-[#D8E5EC] hover:border-[#176B87]/40 hover:bg-[#FFFFFF]'
+                        ? 'bg-[#2D3030] text-[#FFFDF9] border-[#2D3030] shadow-xs'
+                        : 'bg-[#EFEBE4] text-[#292B2B] border-[#E2DDD5] hover:border-[#A85D4C]/40 hover:bg-[#FFFDF9]'
                     }`}
                   >
                     <div>{r.name}</div>
-                    <div className={`text-[10px] font-normal mt-0.5 line-clamp-1 ${isSelected ? 'text-[#FFFFFF]/70' : 'text-[#5D7180]'}`}>
+                    <div className={`text-[10px] font-normal mt-0.5 line-clamp-1 ${isSelected ? 'text-[#FFFDF9]/70' : 'text-[#7A756E]'}`}>
                       {r.description}
                     </div>
                   </button>
@@ -177,16 +177,16 @@ export default function Profile() {
           )}
 
           {/* Current Benchmark Requirements */}
-          <div className="pt-3 border-t border-[#D8E5EC] space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-[#5D7180] uppercase tracking-wider">
+          <div className="pt-3 border-t border-[#E2DDD5] space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-[#7A756E] uppercase tracking-wider">
               <span>Required Competencies for {activeRoleName}</span>
               <span>Target Benchmark</span>
             </div>
             <div className="grid sm:grid-cols-2 gap-2">
               {roleCompetencies.map(rc => (
-                <div key={rc.competency_id} className="p-2.5 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC] flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#123047]">{rc.competency_name}</span>
-                  <span className="font-mono font-bold text-[#176B87] bg-[#FFFFFF] px-2 py-0.5 rounded-md border border-[#D8E5EC]">
+                <div key={rc.competency_id} className="p-2.5 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] flex items-center justify-between text-xs">
+                  <span className="font-bold text-[#292B2B]">{rc.competency_name}</span>
+                  <span className="font-mono font-bold text-[#A85D4C] bg-[#FFFDF9] px-2 py-0.5 rounded-md border border-[#E2DDD5]">
                     Target: {rc.target_score}%
                   </span>
                 </div>
@@ -199,26 +199,26 @@ export default function Profile() {
 
       {/* Verified iGOT & Institutional Certifications */}
       <div className="space-y-4">
-        <h3 className="text-sm font-mono font-bold text-[#123047] uppercase tracking-wider flex items-center gap-2">
-          <Award className="w-4 h-4 text-[#176B87]" />
+        <h3 className="text-sm font-mono font-bold text-[#292B2B] uppercase tracking-wider flex items-center gap-2">
+          <Award className="w-4 h-4 text-[#A85D4C]" />
           Verified Competency Certifications
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {certifications.map((cert) => (
-            <div key={cert.title} className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#D8E5EC] shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-3 flex flex-col justify-between">
+            <div key={cert.title} className="p-5 rounded-2xl bg-[#FFFDF9] border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] space-y-3 flex flex-col justify-between">
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold text-[#176B87] uppercase">{cert.date}</span>
+                  <span className="text-[10px] font-mono font-bold text-[#A85D4C] uppercase">{cert.date}</span>
                   <span className="text-xs font-mono font-bold text-[#2E8B57] bg-[#2E8B57]/10 px-2 py-0.5 rounded border border-[#2E8B57]/30">
                     {cert.score}
                   </span>
                 </div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#123047] leading-snug">{cert.title}</h4>
-                <p className="text-xs text-[#5D7180]">{cert.issuer}</p>
+                <h4 className="text-xs sm:text-sm font-bold text-[#292B2B] leading-snug">{cert.title}</h4>
+                <p className="text-xs text-[#7A756E]">{cert.issuer}</p>
               </div>
 
-              <div className="pt-2 border-t border-[#D8E5EC] flex items-center text-xs text-[#2E8B57] font-semibold">
+              <div className="pt-2 border-t border-[#E2DDD5] flex items-center text-xs text-[#2E8B57] font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                 <span>Verified in iGOT Registry</span>
               </div>
@@ -229,15 +229,15 @@ export default function Profile() {
 
       {/* Assessment Telemetry Audit Log */}
       <div className="space-y-4">
-        <h3 className="text-sm font-mono font-bold text-[#123047] uppercase tracking-wider flex items-center gap-2">
-          <FileText className="w-4 h-4 text-[#176B87]" />
+        <h3 className="text-sm font-mono font-bold text-[#292B2B] uppercase tracking-wider flex items-center gap-2">
+          <FileText className="w-4 h-4 text-[#A85D4C]" />
           Assessment Telemetry Audit Trail
         </h3>
 
-        <div className="bg-[#FFFFFF] rounded-2xl border border-[#D8E5EC] overflow-hidden shadow-[0_1px_3px_rgba(11,37,69,0.04)]">
+        <div className="bg-[#FFFDF9] rounded-2xl border border-[#E2DDD5] overflow-hidden shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)]">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-[#EAF3F7] border-b border-[#D8E5EC] text-[#123047] uppercase font-mono font-semibold text-[10px]">
+              <thead className="bg-[#EFEBE4] border-b border-[#E2DDD5] text-[#292B2B] uppercase font-mono font-semibold text-[10px]">
                 <tr>
                   <th className="p-3.5 px-5">Assessment Focus</th>
                   <th className="p-3.5">Competency Domain</th>
@@ -246,15 +246,15 @@ export default function Profile() {
                   <th className="p-3.5 px-5">Evidence Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#D8E5EC] font-medium text-[#123047]">
+              <tbody className="divide-y divide-[#E2DDD5] font-medium text-[#292B2B]">
                 {assessmentEvidence.map((row, i) => (
-                  <tr key={i} className="hover:bg-[#EAF3F7]/50 transition-colors">
-                    <td className="p-3.5 px-5 font-bold text-[#123047]">{row.assessment}</td>
-                    <td className="p-3.5 text-[#176B87]">{row.domain}</td>
-                    <td className="p-3.5 font-mono font-bold text-[#123047]">{row.score}</td>
-                    <td className="p-3.5 font-mono text-[#5D7180]">{row.date}</td>
+                  <tr key={i} className="hover:bg-[#EFEBE4]/50 transition-colors">
+                    <td className="p-3.5 px-5 font-bold text-[#292B2B]">{row.assessment}</td>
+                    <td className="p-3.5 text-[#A85D4C]">{row.domain}</td>
+                    <td className="p-3.5 font-mono font-bold text-[#292B2B]">{row.score}</td>
+                    <td className="p-3.5 font-mono text-[#7A756E]">{row.date}</td>
                     <td className="p-3.5 px-5">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20">
                         {row.status}
                       </span>
                     </td>

@@ -185,14 +185,14 @@ export default function Materials() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#A85D4C] uppercase tracking-widest mb-1">
             <GraduationCap className="w-3.5 h-3.5" />
             <span>LEARNER PRACTICE & STUDY HUB</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#123047] tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#292B2B] tracking-tight leading-tight">
             Targeted Practice & Personal Notes
           </h1>
-          <p className="text-sm text-[#5D7180] mt-1.5 leading-relaxed">
+          <p className="text-sm text-[#7A756E] mt-1.5 leading-relaxed">
             Launch targeted drills on official standards, upload your personal field notes for AI summaries, or synthesize 3-5 question comprehension quizzes.
           </p>
         </div>
@@ -201,7 +201,7 @@ export default function Materials() {
           <Button
             size="sm"
             onClick={() => setShowNotesUploader(!showNotesUploader)}
-            className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer flex items-center gap-1.5 h-9"
+            className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer flex items-center gap-1.5 h-9"
           >
             <UploadCloud className="w-4 h-4" />
             <span>{showNotesUploader ? 'Close Notes Uploader' : '+ Upload Notes / PDF'}</span>
@@ -222,7 +222,7 @@ export default function Materials() {
       )}
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-[#D49A2A]/15 border border-[#D49A2A]/35 text-xs font-bold text-[#123B5D] flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-[#B38A3D]/15 border border-[#B38A3D]/35 text-xs font-bold text-[#2D3030] flex items-center justify-between">
           <span>{errorMsg}</span>
           <Button size="sm" variant="ghost" onClick={() => setErrorMsg(null)} className="h-6 text-xs">Dismiss</Button>
         </div>
@@ -232,11 +232,11 @@ export default function Materials() {
       {/* SECTION 1: LEARNER PERSONAL NOTES UPLOADER & SUMMARIZER */}
       {/* ============================================================ */}
       {showNotesUploader && (
-        <Card className="bg-[#FFFFFF] border-2 border-[#176B87] shadow-md animate-in fade-in duration-200 rounded-2xl">
-          <CardHeader className="bg-[#EAF3F7] border-b border-[#D8E5EC] p-5 flex flex-row items-center justify-between">
+        <Card className="bg-[#FFFDF9] border-2 border-[#A85D4C] shadow-md animate-in fade-in duration-200 rounded-2xl">
+          <CardHeader className="bg-[#EFEBE4] border-b border-[#E2DDD5] p-5 flex flex-row items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-[#176B87]" />
-              <CardTitle className="text-sm sm:text-base font-bold text-[#123047]">
+              <Sparkles className="w-4 h-4 text-[#A85D4C]" />
+              <CardTitle className="text-sm sm:text-base font-bold text-[#292B2B]">
                 Upload Personal Notes / Handouts for AI Summary & Quiz Generation
               </CardTitle>
             </div>
@@ -244,7 +244,7 @@ export default function Materials() {
               variant="ghost"
               size="sm"
               onClick={() => setShowNotesUploader(false)}
-              className="h-8 w-8 p-0 cursor-pointer text-[#5D7180] hover:text-[#123047] hover:bg-[#FFFFFF]/50 rounded-lg"
+              className="h-8 w-8 p-0 cursor-pointer text-[#7A756E] hover:text-[#292B2B] hover:bg-[#FFFDF9]/50 rounded-lg"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -259,24 +259,24 @@ export default function Materials() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
+                  <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">
                     Notes Title
                   </label>
                   <Input
                     value={notesTitle}
                     onChange={(e) => setNotesTitle(e.target.value)}
                     placeholder="e.g., PLFS Stratification Field Notes"
-                    className="text-xs rounded-xl border-[#D8E5EC] bg-[#FFFFFF] h-10"
+                    className="text-xs rounded-xl border-[#E2DDD5] bg-[#FFFDF9] h-10"
                     disabled={notesUploading}
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
+                  <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">
                     Target Competency
                   </label>
                   <Select value={notesCompId} onValueChange={setNotesCompId} disabled={notesUploading}>
-                    <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                    <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                       <SelectValue placeholder="Select competency" />
                     </SelectTrigger>
                     <SelectContent>
@@ -288,7 +288,7 @@ export default function Materials() {
                 </div>
               </div>
 
-              <div className="border-2 border-dashed rounded-2xl p-6 text-center border-[#D8E5EC] hover:border-[#176B87] transition-colors relative bg-[#EAF3F7]/40">
+              <div className="border-2 border-dashed rounded-2xl p-6 text-center border-[#E2DDD5] hover:border-[#A85D4C] transition-colors relative bg-[#EFEBE4]/40">
                 <input
                   type="file"
                   accept=".pdf,.docx,.txt"
@@ -305,11 +305,11 @@ export default function Materials() {
                   disabled={notesUploading}
                 />
                 <div className="flex flex-col items-center space-y-1.5 pointer-events-none">
-                  <FileText className="w-8 h-8 text-[#176B87]" />
-                  <p className="text-xs font-bold text-[#123047]">
+                  <FileText className="w-8 h-8 text-[#A85D4C]" />
+                  <p className="text-xs font-bold text-[#292B2B]">
                     {notesFile ? notesFile.name : "Select or drop your study notes (PDF, DOCX, TXT)"}
                   </p>
-                  <p className="text-[10px] text-[#5D7180]">
+                  <p className="text-[10px] text-[#7A756E]">
                     {notesFile ? `${(notesFile.size / 1024).toFixed(1)} KB` : "Files are analyzed privately for your study profile"}
                   </p>
                 </div>
@@ -330,11 +330,11 @@ export default function Materials() {
                   type="submit"
                   size="sm"
                   disabled={!notesFile || notesUploading}
-                  className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer px-5"
+                  className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer px-5"
                 >
                   {notesUploading ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-3.5 h-3.5 border-2 border-[#FFFFFF] border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-[#FFFDF9] border-t-transparent rounded-full animate-spin" />
                       <span>Extracting & Summarizing...</span>
                     </div>
                   ) : (
@@ -356,11 +356,11 @@ export default function Materials() {
       {myNotes.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold text-[#123B5D] flex items-center gap-2">
-              <FileCheck className="w-4 h-4 text-[#176B87]" />
+            <h2 className="text-base sm:text-lg font-bold text-[#2D3030] flex items-center gap-2">
+              <FileCheck className="w-4 h-4 text-[#A85D4C]" />
               <span>My Uploaded Study Notes & Summaries ({myNotes.length})</span>
             </h2>
-            <span className="text-xs font-mono text-[#176B87] font-bold">
+            <span className="text-xs font-mono text-[#A85D4C] font-bold">
               Instant AI Quiz Generation Ready
             </span>
           </div>
@@ -369,18 +369,18 @@ export default function Materials() {
             {myNotes.map((note) => {
               const isGenerating = generatingQuizId === note.id;
               return (
-                <Card key={note.id} className="bg-[#FFFFFF] border border-[#D8E5EC] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between hover:border-[#176B87]/40 transition-all">
+                <Card key={note.id} className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] flex flex-col justify-between hover:border-[#A85D4C]/40 transition-all">
                   <CardContent className="p-5 sm:p-6 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center space-x-2.5">
-                        <div className="p-2 rounded-xl bg-[#176B87]/10 text-[#176B87]">
+                        <div className="p-2 rounded-xl bg-[#A85D4C]/10 text-[#A85D4C]">
                           <FileText className="w-4.5 h-4.5" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-sm sm:text-base text-[#123047] leading-snug">
+                          <h4 className="font-bold text-sm sm:text-base text-[#292B2B] leading-snug">
                             {note.title}
                           </h4>
-                          <p className="text-[10px] text-[#5D7180] font-mono mt-0.5">
+                          <p className="text-[10px] text-[#7A756E] font-mono mt-0.5">
                             Uploaded {note.upload_date} • {Math.round((note.file_size || 0) / 1024)} KB
                           </p>
                         </div>
@@ -388,12 +388,12 @@ export default function Materials() {
                     </div>
 
                     {/* AI Executive Summary Block */}
-                    <div className="p-3.5 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC] space-y-1">
-                      <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-[#176B87]">
+                    <div className="p-3.5 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] space-y-1">
+                      <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-[#A85D4C]">
                         <Sparkles className="w-3 h-3" />
                         <span>AI EXECUTIVE SUMMARY & CONCEPTS</span>
                       </div>
-                      <p className="text-xs text-[#123047] leading-relaxed">
+                      <p className="text-xs text-[#292B2B] leading-relaxed">
                         {note.summary || 'Summary generated from uploaded notes.'}
                       </p>
                     </div>
@@ -402,7 +402,7 @@ export default function Materials() {
                     {note.topics && note.topics.length > 0 && (
                       <div className="flex flex-wrap gap-1 pt-1">
                         {note.topics.map((t: string, tIdx: number) => (
-                          <span key={tIdx} className="px-2.5 py-0.5 rounded-md bg-[#176B87]/10 text-[#176B87] text-[10px] font-semibold border border-[#176B87]/20 font-mono">
+                          <span key={tIdx} className="px-2.5 py-0.5 rounded-md bg-[#A85D4C]/10 text-[#A85D4C] text-[10px] font-semibold border border-[#A85D4C]/20 font-mono">
                             {t}
                           </span>
                         ))}
@@ -411,12 +411,12 @@ export default function Materials() {
                   </CardContent>
 
                   {/* Actions to Generate Short MCQ Quiz from Notes */}
-                  <div className="p-5 pt-0 border-t border-[#D8E5EC] mt-2 flex flex-col sm:flex-row items-center gap-2">
+                  <div className="p-5 pt-0 border-t border-[#E2DDD5] mt-2 flex flex-col sm:flex-row items-center gap-2">
                     <Button
                       size="sm"
                       onClick={() => handleGenerateNotesQuiz(note.id, 3)}
                       disabled={isGenerating}
-                      className="w-full sm:flex-1 bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-semibold text-xs h-9 rounded-xl shadow-2xs cursor-pointer"
+                      className="w-full sm:flex-1 bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs h-9 rounded-xl shadow-2xs cursor-pointer"
                     >
                       <Zap className="w-3.5 h-3.5 mr-1" />
                       <span>{isGenerating ? 'Synthesizing Drill...' : '🎯 3-MCQ Quick Drill'}</span>
@@ -427,9 +427,9 @@ export default function Materials() {
                       variant="outline"
                       onClick={() => handleGenerateNotesQuiz(note.id, 5)}
                       disabled={isGenerating}
-                      className="w-full sm:flex-1 border-[#D8E5EC] hover:bg-[#EAF3F7] text-[#123047] font-semibold text-xs h-9 rounded-xl cursor-pointer"
+                      className="w-full sm:flex-1 border-[#E2DDD5] hover:bg-[#EFEBE4] text-[#292B2B] font-semibold text-xs h-9 rounded-xl cursor-pointer"
                     >
-                      <Play className="w-3.5 h-3.5 mr-1 fill-current text-[#176B87]" />
+                      <Play className="w-3.5 h-3.5 mr-1 fill-current text-[#A85D4C]" />
                       <span>5-MCQ Drill</span>
                     </Button>
                   </div>
@@ -443,18 +443,18 @@ export default function Materials() {
       {/* ============================================================ */}
       {/* SECTION 3: TARGETED PRACTICE SESSION LAUNCHER */}
       {/* ============================================================ */}
-      <Card className="bg-[#FFFFFF] shadow-[0_1px_3px_rgba(11,37,69,0.04)] border border-[#D8E5EC] rounded-2xl">
-        <CardHeader className="bg-[#EAF3F7] border-b border-[#D8E5EC] p-5 sm:p-6">
+      <Card className="bg-[#FFFDF9] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] border border-[#E2DDD5] rounded-2xl">
+        <CardHeader className="bg-[#EFEBE4] border-b border-[#E2DDD5] p-5 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-[#176B87] text-[#FFFFFF] shadow-2xs">
+              <div className="p-2.5 rounded-xl bg-[#A85D4C] text-[#FFFDF9] shadow-2xs">
                 <Target className="w-5 h-5" />
               </div>
               <div>
-                <CardTitle className="text-base sm:text-lg font-bold text-[#123047]">
+                <CardTitle className="text-base sm:text-lg font-bold text-[#292B2B]">
                   Configure Targeted Competency Drill
                 </CardTitle>
-                <p className="text-xs text-[#5D7180] mt-0.5">
+                <p className="text-xs text-[#7A756E] mt-0.5">
                   Select your focus competency and challenge tier to generate a customized assessment.
                 </p>
               </div>
@@ -467,11 +467,11 @@ export default function Materials() {
             
             {/* Competency Selection */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">
                 Competency Domain
               </label>
               <Select value={selectedCompId} onValueChange={setSelectedCompId}>
-                <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                   <SelectValue placeholder="Select competency" />
                 </SelectTrigger>
                 <SelectContent>
@@ -484,11 +484,11 @@ export default function Materials() {
 
             {/* Target Difficulty */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">
                 Challenge Tier
               </label>
               <Select value={selectedDiff} onValueChange={setSelectedDiff}>
-                <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -501,11 +501,11 @@ export default function Materials() {
 
             {/* Question Count */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#123047] uppercase tracking-wider">
+              <label className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">
                 Session Length
               </label>
               <Select value={selectedCount} onValueChange={setSelectedCount}>
-                <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -517,8 +517,8 @@ export default function Materials() {
             </div>
           </div>
 
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#D8E5EC]">
-            <div className="text-xs text-[#5D7180] font-medium">
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2DDD5]">
+            <div className="text-xs text-[#7A756E] font-medium">
               💡 Practice sessions draw strictly from calibrated questions and do not alter official benchmark scores until verified in an adaptive audit.
             </div>
 
@@ -526,11 +526,11 @@ export default function Materials() {
               size="lg"
               disabled={startingPractice}
               onClick={() => handleStartPractice()}
-              className="w-full sm:w-auto bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer px-6 h-10 rounded-xl"
+              className="w-full sm:w-auto bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer px-6 h-10 rounded-xl"
             >
               {startingPractice ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 border-2 border-[#FFFFFF] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3.5 h-3.5 border-2 border-[#FFFDF9] border-t-transparent rounded-full animate-spin" />
                   <span>Preparing Session...</span>
                 </div>
               ) : (
@@ -550,11 +550,11 @@ export default function Materials() {
       {/* ============================================================ */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base sm:text-lg font-bold text-[#123047] flex items-center gap-2">
-            <BookOpen className="w-4.5 h-4.5 text-[#176B87]" />
+          <h2 className="text-base sm:text-lg font-bold text-[#292B2B] flex items-center gap-2">
+            <BookOpen className="w-4.5 h-4.5 text-[#A85D4C]" />
             <span>Official MoSPI Handbooks & Curricula</span>
           </h2>
-          <span className="text-xs font-mono text-[#5D7180] font-semibold">
+          <span className="text-xs font-mono text-[#7A756E] font-semibold">
             Government Accredited Sources ({materials.length})
           </span>
         </div>
@@ -566,41 +566,41 @@ export default function Materials() {
             const isSelected = selectedMaterialForMCQ?.id === m.id;
 
             return (
-              <Card key={m.id || idx} className="bg-[#FFFFFF] border border-[#D8E5EC] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)] hover:border-[#176B87]/50 transition-all flex flex-col justify-between">
+              <Card key={m.id || idx} className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] hover:border-[#A85D4C]/50 transition-all flex flex-col justify-between">
                 <CardContent className="p-5 sm:p-6 space-y-3">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="p-2 rounded-xl bg-[#176B87]/10 text-[#176B87]">
+                    <div className="p-2 rounded-xl bg-[#A85D4C]/10 text-[#A85D4C]">
                       <FileText className="w-4.5 h-4.5" />
                     </div>
-                    <span className="text-[10px] font-mono text-[#5D7180] font-semibold">
+                    <span className="text-[10px] font-mono text-[#7A756E] font-semibold">
                       {m.upload_date || 'MoSPI 2026'}
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#123047] leading-snug line-clamp-2">
+                    <h4 className="font-bold text-xs sm:text-sm text-[#292B2B] leading-snug line-clamp-2">
                       {m.title}
                     </h4>
-                    <p className="text-xs text-[#5D7180] mt-1 line-clamp-2">
+                    <p className="text-xs text-[#7A756E] mt-1 line-clamp-2">
                       {m.summary || 'Official procedural standard guidelines for national survey sampling, field data collection, and estimation.'}
                     </p>
                   </div>
 
                   <div className="flex flex-wrap gap-1 pt-1">
                     {topics.slice(0, 2).map((t: string, tIdx: number) => (
-                      <span key={tIdx} className="px-2.5 py-0.5 rounded-md bg-[#EAF3F7] text-[#123047] text-[10px] font-medium border border-[#D8E5EC]">
+                      <span key={tIdx} className="px-2.5 py-0.5 rounded-md bg-[#EFEBE4] text-[#292B2B] text-[10px] font-medium border border-[#E2DDD5]">
                         {t}
                       </span>
                     ))}
                   </div>
                 </CardContent>
 
-                <div className="p-5 pt-0 border-t border-[#D8E5EC] mt-2 flex items-center gap-2">
+                <div className="p-5 pt-0 border-t border-[#E2DDD5] mt-2 flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handleStartPractice(compId)}
-                    className="flex-1 text-xs font-semibold border-[#D8E5EC] hover:bg-[#176B87] hover:text-[#FFFFFF] text-[#176B87] transition-all cursor-pointer h-8.5 rounded-xl"
+                    className="flex-1 text-xs font-semibold border-[#E2DDD5] hover:bg-[#A85D4C] hover:text-[#FFFDF9] text-[#A85D4C] transition-all cursor-pointer h-8.5 rounded-xl"
                   >
                     <Play className="w-3 h-3 mr-1 fill-current" />
                     <span>Practice</span>
@@ -612,8 +612,8 @@ export default function Materials() {
                       onClick={() => setSelectedMaterialForMCQ(isSelected ? null : m)}
                       className={`text-xs font-semibold shadow-2xs cursor-pointer h-8.5 rounded-xl ${
                         isSelected 
-                          ? 'bg-[#123B5D] text-[#FFFFFF]' 
-                          : 'bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF]'
+                          ? 'bg-[#2D3030] text-[#FFFDF9]' 
+                          : 'bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9]'
                       }`}
                     >
                       <Sparkles className="w-3.5 h-3.5 mr-1" />
@@ -631,18 +631,18 @@ export default function Materials() {
       {/* SECTION 5: ADMIN CONTENT MANAGEMENT & AI SYNTHESIS (ADMIN ONLY) */}
       {/* ============================================================ */}
       {isAdmin && (
-        <div className="space-y-6 pt-4 border-t-2 border-[#176B87]/20">
+        <div className="space-y-6 pt-4 border-t-2 border-[#A85D4C]/20">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#D49A2A] uppercase tracking-widest mb-0.5">
+              <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#B38A3D] uppercase tracking-widest mb-0.5">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>CONTENT MANAGEMENT & AI SYNTHESIS (ADMIN)</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#123B5D] tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-[#2D3030] tracking-tight">
                 Official Knowledge Base & Question Bank Curation
               </h2>
-              <p className="text-xs text-[#123047]/80 mt-0.5">
+              <p className="text-xs text-[#292B2B]/80 mt-0.5">
                 Upload official MoSPI manuals to synthesize and approve questions into the national adaptive assessment bank.
               </p>
             </div>
@@ -650,7 +650,7 @@ export default function Materials() {
             <Button
               size="sm"
               onClick={() => setShowAdminUploadModal(!showAdminUploadModal)}
-              className="self-start sm:self-auto bg-[#123B5D] hover:bg-[#123B5D]/90 text-[#FFFFFF] font-bold text-xs shadow-xs cursor-pointer"
+              className="self-start sm:self-auto bg-[#2D3030] hover:bg-[#2D3030]/90 text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 mr-1" />
               <span>{showAdminUploadModal ? 'Close Uploader' : '+ Upload Official Curriculum'}</span>
@@ -658,11 +658,11 @@ export default function Materials() {
           </div>
 
           {showAdminUploadModal && (
-            <Card className="bg-[#FFFFFF] border-2 border-[#176B87] shadow-md animate-in fade-in duration-200">
-              <CardHeader className="bg-[#EAF3F7] border-b border-[#123047]/10 p-4 flex flex-row items-center justify-between">
+            <Card className="bg-[#FFFDF9] border-2 border-[#A85D4C] shadow-md animate-in fade-in duration-200">
+              <CardHeader className="bg-[#EFEBE4] border-b border-[#292B2B]/10 p-4 flex flex-row items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <UploadCloud className="w-4 h-4 text-[#176B87]" />
-                  <CardTitle className="text-sm font-bold text-[#123B5D]">
+                  <UploadCloud className="w-4 h-4 text-[#A85D4C]" />
+                  <CardTitle className="text-sm font-bold text-[#2D3030]">
                     Upload Official MoSPI Document
                   </CardTitle>
                 </div>
@@ -670,7 +670,7 @@ export default function Materials() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAdminUploadModal(false)}
-                  className="h-7 w-7 p-0 cursor-pointer text-[#123047]/60 hover:text-[#123B5D]"
+                  className="h-7 w-7 p-0 cursor-pointer text-[#292B2B]/60 hover:text-[#2D3030]"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -682,11 +682,11 @@ export default function Materials() {
           )}
 
           {selectedMaterialForMCQ && (
-            <Card className="bg-[#FFFFFF] border-2 border-[#176B87] shadow-md animate-in fade-in duration-200">
-              <CardHeader className="bg-[#123B5D] text-[#FFFFFF] p-4 flex flex-row items-center justify-between">
+            <Card className="bg-[#FFFDF9] border-2 border-[#A85D4C] shadow-md animate-in fade-in duration-200">
+              <CardHeader className="bg-[#2D3030] text-[#FFFDF9] p-4 flex flex-row items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-[#D49A2A]" />
-                  <CardTitle className="text-sm sm:text-base font-bold text-[#FFFFFF]">
+                  <Sparkles className="w-4 h-4 text-[#B38A3D]" />
+                  <CardTitle className="text-sm sm:text-base font-bold text-[#FFFDF9]">
                     AI MCQ Synthesis & Curation: {selectedMaterialForMCQ.title}
                   </CardTitle>
                 </div>
@@ -694,7 +694,7 @@ export default function Materials() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedMaterialForMCQ(null)}
-                  className="text-[#FFFFFF]/70 hover:text-[#FFFFFF] hover:bg-[#FFFFFF]/10 h-8 w-8 p-0 cursor-pointer"
+                  className="text-[#FFFDF9]/70 hover:text-[#FFFDF9] hover:bg-[#FFFDF9]/10 h-8 w-8 p-0 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </Button>

@@ -141,23 +141,23 @@ export default function QuestionBank() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#A85D4C] uppercase tracking-widest mb-1">
             <Database className="w-3.5 h-3.5" />
             <span>AI CURATION & REVIEW ENGINE</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#123047] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#292B2B] tracking-tight">
             Official Question Bank
           </h1>
-          <p className="text-xs sm:text-sm text-[#5D7180] mt-1">
+          <p className="text-xs sm:text-sm text-[#7A756E] mt-1">
             Review, calibrate, and approve source-grounded questions. Only approved questions enter the active adaptive assessment pool.
           </p>
         </div>
         
         <Button 
           onClick={() => setShowGenModal(true)}
-          className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer h-10 px-4 rounded-xl"
+          className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs cursor-pointer h-10 px-4 rounded-xl"
         >
-          <Sparkles className="w-4 h-4 mr-1.5 text-[#D49A2A]" />
+          <Sparkles className="w-4 h-4 mr-1.5 text-[#B38A3D]" />
           <span>Generate Question Set</span>
         </Button>
       </div>
@@ -171,13 +171,13 @@ export default function QuestionBank() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-4 bg-[#FFFFFF] rounded-2xl shadow-[0_1px_3px_rgba(11,37,69,0.04)] border border-[#D8E5EC]">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-4 bg-[#FFFDF9] rounded-2xl shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] border border-[#E2DDD5]">
         <div className="sm:col-span-5 relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5D7180]/60 w-4 h-4" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A756E]/60 w-4 h-4" />
           <form onSubmit={handleSearchSubmit}>
             <Input 
               placeholder="Search by question text or keyword..." 
-              className="pl-10 border-[#D8E5EC] focus:border-[#176B87] text-xs h-10 bg-[#FFFFFF] rounded-xl text-[#123047]" 
+              className="pl-10 border-[#E2DDD5] focus:border-[#A85D4C] text-xs h-10 bg-[#FFFDF9] rounded-xl text-[#292B2B]" 
               value={search} 
               onChange={(e) => setSearch(e.target.value)} 
             />
@@ -186,7 +186,7 @@ export default function QuestionBank() {
 
         <div className="sm:col-span-3">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+            <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -200,7 +200,7 @@ export default function QuestionBank() {
 
         <div className="sm:col-span-2">
           <Select value={selectedComp} onValueChange={setSelectedComp}>
-            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+            <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
               <SelectValue placeholder="All Competencies" />
             </SelectTrigger>
             <SelectContent>
@@ -214,7 +214,7 @@ export default function QuestionBank() {
 
         <div className="sm:col-span-2">
           <Select value={selectedDiff} onValueChange={setSelectedDiff}>
-            <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+            <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
               <SelectValue placeholder="All Difficulties" />
             </SelectTrigger>
             <SelectContent>
@@ -228,14 +228,14 @@ export default function QuestionBank() {
       </div>
 
       {/* Main Questions Table */}
-      <Card className="bg-[#FFFFFF] shadow-[0_1px_3px_rgba(11,37,69,0.04)] border border-[#D8E5EC] rounded-2xl overflow-hidden">
-        <CardHeader className="bg-[#EAF3F7] border-b border-[#D8E5EC] p-5 pb-3">
+      <Card className="bg-[#FFFDF9] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] border border-[#E2DDD5] rounded-2xl overflow-hidden">
+        <CardHeader className="bg-[#EFEBE4] border-b border-[#E2DDD5] p-5 pb-3">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-xs font-mono font-bold text-[#123047] uppercase tracking-wider flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#176B87]" />
+            <CardTitle className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#A85D4C]" />
               Repository Questions ({questions.length})
             </CardTitle>
-            <span className="text-[11px] font-mono text-[#5D7180]">
+            <span className="text-[11px] font-mono text-[#7A756E]">
               Approved items are eligible for adaptive test sessions
             </span>
           </div>
@@ -243,15 +243,15 @@ export default function QuestionBank() {
 
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 text-center text-xs text-[#5D7180] font-semibold">Loading questions...</div>
+            <div className="p-8 text-center text-xs text-[#7A756E] font-semibold">Loading questions...</div>
           ) : questions.length === 0 ? (
-            <div className="p-8 text-center text-xs text-[#5D7180]">
+            <div className="p-8 text-center text-xs text-[#7A756E]">
               No questions found matching criteria. Click <strong>Generate Question Set</strong> to create questions using AI.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#EAF3F7] border-b border-[#D8E5EC] text-[#123047] uppercase tracking-wider font-semibold font-mono text-[10px]">
+                <thead className="bg-[#EFEBE4] border-b border-[#E2DDD5] text-[#292B2B] uppercase tracking-wider font-semibold font-mono text-[10px]">
                   <tr>
                     <th className="px-5 py-3.5 w-2/5">Question Text & Citation</th>
                     <th className="px-5 py-3.5">Competency</th>
@@ -260,22 +260,22 @@ export default function QuestionBank() {
                     <th className="px-5 py-3.5 text-right">Review Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#D8E5EC] font-medium text-[#123047]">
+                <tbody className="divide-y divide-[#E2DDD5] font-medium text-[#292B2B]">
                   {questions.map(q => {
                     const isApproved = q.status === 'approved';
                     const isRejected = q.status === 'rejected';
                     const isPending = q.status === 'pending_review';
 
                     return (
-                      <tr key={q.id} className="hover:bg-[#EAF3F7]/50 transition-colors">
+                      <tr key={q.id} className="hover:bg-[#EFEBE4]/50 transition-colors">
                         <td className="px-5 py-3.5">
-                          <p className="font-bold text-[#123047] line-clamp-2">{q.question_text || q.text}</p>
-                          <span className="text-[10px] font-mono text-[#5D7180] block mt-0.5">
+                          <p className="font-bold text-[#292B2B] line-clamp-2">{q.question_text || q.text}</p>
+                          <span className="text-[10px] font-mono text-[#7A756E] block mt-0.5">
                             Source: {q.source_reference || 'MoSPI Official Handbook'}
                           </span>
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20">
                             {q.competency_name}
                           </span>
                         </td>
@@ -291,8 +291,8 @@ export default function QuestionBank() {
                             isApproved 
                               ? "bg-[#2E8B57]/10 text-[#2E8B57] border-[#2E8B57]/30"
                               : isRejected
-                              ? "bg-[#D49A2A]/15 text-[#123B5D] border-[#D49A2A]/35"
-                              : "bg-[#176B87]/10 text-[#176B87] border-[#176B87]/20"
+                              ? "bg-[#B38A3D]/15 text-[#2D3030] border-[#B38A3D]/35"
+                              : "bg-[#A85D4C]/10 text-[#A85D4C] border-[#A85D4C]/20"
                           )}>
                             {isApproved ? 'Approved' : isRejected ? 'Rejected' : 'Pending Review'}
                           </span>
@@ -302,7 +302,7 @@ export default function QuestionBank() {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => setInspectingQ(q)}
-                            className="h-7 px-2 text-[#176B87] hover:bg-[#176B87]/10 text-[11px] font-bold cursor-pointer" 
+                            className="h-7 px-2 text-[#A85D4C] hover:bg-[#A85D4C]/10 text-[11px] font-bold cursor-pointer" 
                             title="Inspect Question"
                           >
                             <Eye className="w-3.5 h-3.5 mr-1" /> Inspect
@@ -325,7 +325,7 @@ export default function QuestionBank() {
                               variant="ghost" 
                               size="sm" 
                               onClick={() => handleStatusChange(q.id, 'rejected')}
-                              className="h-7 px-2 text-[#D49A2A] hover:bg-[#D49A2A]/15 text-[11px] font-bold cursor-pointer" 
+                              className="h-7 px-2 text-[#B38A3D] hover:bg-[#B38A3D]/15 text-[11px] font-bold cursor-pointer" 
                               title="Reject Question"
                             >
                               <X className="w-3.5 h-3.5 mr-1" /> Reject
@@ -336,7 +336,7 @@ export default function QuestionBank() {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => setEditingQ(JSON.parse(JSON.stringify(q)))}
-                            className="h-7 px-2 text-[#123047]/70 hover:text-[#123B5D] text-[11px] font-bold cursor-pointer" 
+                            className="h-7 px-2 text-[#292B2B]/70 hover:text-[#2D3030] text-[11px] font-bold cursor-pointer" 
                             title="Edit Question"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
@@ -346,7 +346,7 @@ export default function QuestionBank() {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => handleRegenerate(q.id)}
-                            className="h-7 px-2 text-[#123047]/60 hover:text-[#176B87] text-[11px] cursor-pointer" 
+                            className="h-7 px-2 text-[#292B2B]/60 hover:text-[#7D4036] text-[11px] cursor-pointer" 
                             title="AI Regenerate"
                           >
                             <RefreshCw className="w-3.5 h-3.5" />
@@ -366,30 +366,30 @@ export default function QuestionBank() {
       {/* MODAL 1: INSPECT QUESTION DETAILS                             */}
       {/* ============================================================ */}
       {inspectingQ && (
-        <div className="fixed inset-0 bg-[#123B5D]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-[#FFFFFF] max-w-2xl w-full rounded-2xl p-6 border border-[#D8E5EC] shadow-xl space-y-5 text-left max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#D8E5EC] pb-3">
+        <div className="fixed inset-0 bg-[#2D3030]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#FFFDF9] max-w-2xl w-full rounded-2xl p-6 border border-[#E2DDD5] shadow-xl space-y-5 text-left max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
               <div className="space-y-0.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#176B87]">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A85D4C]">
                   {inspectingQ.competency_name} // QUESTION #{inspectingQ.id}
                 </span>
-                <h3 className="text-base font-bold text-[#123047]">Source-Grounded MCQ Inspection</h3>
+                <h3 className="text-base font-bold text-[#292B2B]">Source-Grounded MCQ Inspection</h3>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setInspectingQ(null)} className="h-8 w-8 text-[#5D7180] hover:text-[#123047] rounded-lg">
+              <Button variant="ghost" size="icon" onClick={() => setInspectingQ(null)} className="h-8 w-8 text-[#7A756E] hover:text-[#292B2B] rounded-lg">
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <span className="text-[10px] font-mono font-bold text-[#5D7180] uppercase block mb-1">Question Prompt</span>
-                <p className="p-3.5 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC] font-bold text-sm text-[#123047]">
+                <span className="text-[10px] font-mono font-bold text-[#7A756E] uppercase block mb-1">Question Prompt</span>
+                <p className="p-3.5 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] font-bold text-sm text-[#292B2B]">
                   {inspectingQ.question_text || inspectingQ.text}
                 </p>
               </div>
 
               <div>
-                <span className="text-[10px] font-mono font-bold text-[#5D7180] uppercase block mb-1.5">Options</span>
+                <span className="text-[10px] font-mono font-bold text-[#7A756E] uppercase block mb-1.5">Options</span>
                 <div className="space-y-2">
                   {inspectingQ.options?.map((opt: any, idx: number) => {
                     const isCorrect = opt.is_correct || opt.option_text === inspectingQ.correct_answer;
@@ -400,12 +400,12 @@ export default function QuestionBank() {
                           "p-3 rounded-xl border flex items-center justify-between",
                           isCorrect 
                             ? "bg-[#2E8B57]/10 border-[#2E8B57]/40 text-[#2E8B57] font-bold" 
-                            : "bg-[#FFFFFF] border-[#D8E5EC] text-[#123047]"
+                            : "bg-[#FFFDF9] border-[#E2DDD5] text-[#292B2B]"
                         )}
                       >
                         <span>{opt.option_text || opt.text}</span>
                         {isCorrect && (
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#2E8B57] text-[#FFFFFF] rounded-md">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#2E8B57] text-[#FFFDF9] rounded-md">
                             Correct Answer
                           </span>
                         )}
@@ -415,24 +415,24 @@ export default function QuestionBank() {
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC] space-y-1">
-                <span className="text-[10px] font-mono font-bold text-[#176B87] uppercase block">Explanation</span>
-                <p className="text-[#123047] leading-relaxed">{inspectingQ.explanation}</p>
+              <div className="p-3.5 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] space-y-1">
+                <span className="text-[10px] font-mono font-bold text-[#A85D4C] uppercase block">Explanation</span>
+                <p className="text-[#292B2B] leading-relaxed">{inspectingQ.explanation}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
-                <div className="p-2.5 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC]">
-                  <span className="text-[#5D7180] block text-[9px]">Source Citation:</span>
-                  <span className="font-bold text-[#123047]">{inspectingQ.source_reference || 'MoSPI Standard'}</span>
+                <div className="p-2.5 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5]">
+                  <span className="text-[#7A756E] block text-[9px]">Source Citation:</span>
+                  <span className="font-bold text-[#292B2B]">{inspectingQ.source_reference || 'MoSPI Standard'}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC]">
-                  <span className="text-[#5D7180] block text-[9px]">Cognitive Target:</span>
-                  <span className="font-bold text-[#123047] uppercase">{inspectingQ.cognitive_level || 'Apply'}</span>
+                <div className="p-2.5 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5]">
+                  <span className="text-[#7A756E] block text-[9px]">Cognitive Target:</span>
+                  <span className="font-bold text-[#292B2B] uppercase">{inspectingQ.cognitive_level || 'Apply'}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#D8E5EC]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#E2DDD5]">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -440,7 +440,7 @@ export default function QuestionBank() {
                   handleStatusChange(inspectingQ.id, 'rejected');
                   setInspectingQ(null);
                 }} 
-                className="text-[#D49A2A] border-[#D49A2A]/40 text-xs font-semibold rounded-xl h-8.5"
+                className="text-[#B38A3D] border-[#B38A3D]/40 text-xs font-semibold rounded-xl h-8.5"
               >
                 Reject Question
               </Button>
@@ -450,7 +450,7 @@ export default function QuestionBank() {
                   handleStatusChange(inspectingQ.id, 'approved');
                   setInspectingQ(null);
                 }} 
-                className="bg-[#2E8B57] hover:bg-[#2E8B57]/90 text-[#FFFFFF] text-xs font-semibold rounded-xl h-8.5"
+                className="bg-[#2E8B57] hover:bg-[#2E8B57]/90 text-[#FFFDF9] text-xs font-semibold rounded-xl h-8.5"
               >
                 Approve & Add to Pool
               </Button>
@@ -463,25 +463,25 @@ export default function QuestionBank() {
       {/* MODAL 2: GENERATE NEW CANDIDATE QUESTION SET                 */}
       {/* ============================================================ */}
       {showGenModal && (
-        <div className="fixed inset-0 bg-[#123B5D]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-[#FFFFFF] max-w-lg w-full rounded-2xl p-6 border border-[#D8E5EC] shadow-xl space-y-5 text-left">
-            <div className="flex items-center justify-between border-b border-[#D8E5EC] pb-3">
+        <div className="fixed inset-0 bg-[#2D3030]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#FFFDF9] max-w-lg w-full rounded-2xl p-6 border border-[#E2DDD5] shadow-xl space-y-5 text-left">
+            <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
               <div className="space-y-0.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#176B87]">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#A85D4C]">
                   ON-DEMAND AI SYNTHESIS
                 </span>
-                <h3 className="text-base font-bold text-[#123047]">Generate Question Set</h3>
+                <h3 className="text-base font-bold text-[#292B2B]">Generate Question Set</h3>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setShowGenModal(false)} className="h-8 w-8 text-[#5D7180] hover:text-[#123047] rounded-lg">
+              <Button variant="ghost" size="icon" onClick={() => setShowGenModal(false)} className="h-8 w-8 text-[#7A756E] hover:text-[#292B2B] rounded-lg">
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="text-[11px] font-bold text-[#123047] block mb-1">Competency Area</label>
+                <label className="text-[11px] font-bold text-[#292B2B] block mb-1">Competency Area</label>
                 <Select value={genCompId} onValueChange={setGenCompId}>
-                  <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                  <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -493,20 +493,20 @@ export default function QuestionBank() {
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-[#123047] block mb-1">Subtopic Focus</label>
+                <label className="text-[11px] font-bold text-[#292B2B] block mb-1">Subtopic Focus</label>
                 <Input 
                   value={genTopicName}
                   onChange={(e) => setGenTopicName(e.target.value)}
                   placeholder="e.g. Neyman Optimal Allocation, Variance Estimation"
-                  className="border-[#D8E5EC] text-xs h-10 rounded-xl"
+                  className="border-[#E2DDD5] text-xs h-10 rounded-xl"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-[#123047] block mb-1">Difficulty</label>
+                  <label className="text-[11px] font-bold text-[#292B2B] block mb-1">Difficulty</label>
                   <Select value={genDiff} onValueChange={setGenDiff}>
-                    <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                    <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -518,9 +518,9 @@ export default function QuestionBank() {
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-[#123047] block mb-1">Question Count</label>
+                  <label className="text-[11px] font-bold text-[#292B2B] block mb-1">Question Count</label>
                   <Select value={String(genCount)} onValueChange={(val) => setGenCount(parseInt(val))}>
-                    <SelectTrigger className="border-[#D8E5EC] bg-[#FFFFFF] text-xs h-10 rounded-xl">
+                    <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-10 rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -532,12 +532,12 @@ export default function QuestionBank() {
                 </div>
               </div>
 
-              <p className="text-[11px] text-[#5D7180] leading-relaxed font-mono bg-[#EAF3F7] p-3 rounded-xl border border-[#D8E5EC]">
+              <p className="text-[11px] text-[#7A756E] leading-relaxed font-mono bg-[#EFEBE4] p-3 rounded-xl border border-[#E2DDD5]">
                 Generated questions will undergo schema validation (4 options, 1 correct answer) and appear in the <strong>Pending Review</strong> queue before entering the active pool.
               </p>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#D8E5EC]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#E2DDD5]">
               <Button variant="outline" size="sm" onClick={() => setShowGenModal(false)} className="text-xs font-semibold rounded-xl h-8.5">
                 Cancel
               </Button>
@@ -545,7 +545,7 @@ export default function QuestionBank() {
                 size="sm" 
                 onClick={handleGenerateSet}
                 disabled={generating}
-                className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] text-xs font-semibold rounded-xl h-8.5 cursor-pointer"
+                className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] text-xs font-semibold rounded-xl h-8.5 cursor-pointer"
               >
                 <Sparkles className={`w-3.5 h-3.5 mr-1.5 ${generating ? 'animate-spin' : ''}`} />
                 <span>{generating ? 'Synthesizing with AI...' : 'Generate Questions'}</span>
@@ -559,42 +559,42 @@ export default function QuestionBank() {
       {/* MODAL 3: EDIT QUESTION                                       */}
       {/* ============================================================ */}
       {editingQ && (
-        <div className="fixed inset-0 bg-[#123B5D]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-[#FFFFFF] max-w-2xl w-full rounded-2xl p-6 border border-[#D8E5EC] shadow-xl space-y-4 text-left max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#D8E5EC] pb-3">
-              <h3 className="text-base font-bold text-[#123047]">Edit Question #{editingQ.id}</h3>
-              <Button variant="ghost" size="icon" onClick={() => setEditingQ(null)} className="h-8 w-8 text-[#5D7180] hover:text-[#123047] rounded-lg">
+        <div className="fixed inset-0 bg-[#2D3030]/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-[#FFFDF9] max-w-2xl w-full rounded-2xl p-6 border border-[#E2DDD5] shadow-xl space-y-4 text-left max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
+              <h3 className="text-base font-bold text-[#292B2B]">Edit Question #{editingQ.id}</h3>
+              <Button variant="ghost" size="icon" onClick={() => setEditingQ(null)} className="h-8 w-8 text-[#7A756E] hover:text-[#292B2B] rounded-lg">
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-bold text-[#123047] block mb-1">Question Prompt</label>
+                <label className="font-bold text-[#292B2B] block mb-1">Question Prompt</label>
                 <textarea 
                   value={editingQ.question_text || editingQ.text}
                   onChange={(e) => setEditingQ({ ...editingQ, text: e.target.value, question_text: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-[#D8E5EC] text-xs font-medium focus:border-[#176B87] focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-[#E2DDD5] text-xs font-medium focus:border-[#A85D4C] focus:outline-none"
                   rows={3}
                 />
               </div>
 
               <div>
-                <label className="font-bold text-[#123047] block mb-1">Explanation</label>
+                <label className="font-bold text-[#292B2B] block mb-1">Explanation</label>
                 <textarea 
                   value={editingQ.explanation || ''}
                   onChange={(e) => setEditingQ({ ...editingQ, explanation: e.target.value })}
-                  className="w-full p-2.5 rounded-xl border border-[#D8E5EC] text-xs font-medium focus:border-[#176B87] focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-[#E2DDD5] text-xs font-medium focus:border-[#A85D4C] focus:outline-none"
                   rows={2}
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#D8E5EC]">
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#E2DDD5]">
               <Button variant="outline" size="sm" onClick={() => setEditingQ(null)} className="text-xs font-semibold rounded-xl h-8.5">
                 Cancel
               </Button>
-              <Button size="sm" onClick={handleSaveEdit} className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] text-xs font-semibold rounded-xl h-8.5">
+              <Button size="sm" onClick={handleSaveEdit} className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] text-xs font-semibold rounded-xl h-8.5">
                 Save Changes
               </Button>
             </div>

@@ -42,8 +42,8 @@ export default function LearningPath() {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-9 h-9 border-3 border-[#176B87] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#123B5D]">Assembling personalized competency sequence...</p>
+          <div className="w-9 h-9 border-3 border-[#A85D4C] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#2D3030]">Assembling personalized competency sequence...</p>
         </div>
       </div>
     );
@@ -56,14 +56,14 @@ export default function LearningPath() {
     <div className="max-w-4xl mx-auto space-y-8 pb-16 text-left">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#A85D4C] uppercase tracking-widest mb-1">
             <Route className="w-3.5 h-3.5" />
             <span>ADAPTIVE LEARNING SEQUENCING</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#123047] tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#292B2B] tracking-tight leading-tight">
             Your Personalized Learning Pathway
           </h1>
-          <p className="text-sm text-[#5D7180] mt-1.5 leading-relaxed">
+          <p className="text-sm text-[#7A756E] mt-1.5 leading-relaxed">
             Ordered curriculum dynamically structured to systematically close your active role competency gaps.
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function LearningPath() {
           variant="outline" 
           onClick={handleRegenerate} 
           disabled={generating}
-          className="self-start text-xs font-semibold border-[#D8E5EC] hover:border-[#176B87] text-[#123047] hover:bg-[#EAF3F7] shadow-2xs cursor-pointer"
+          className="self-start text-xs font-semibold border-[#E2DDD5] hover:border-[#A85D4C] text-[#292B2B] hover:bg-[#EFEBE4] shadow-2xs cursor-pointer"
         >
           <RotateCcw className={`w-3.5 h-3.5 mr-1.5 ${generating ? 'animate-spin' : ''}`} />
           <span>{generating ? 'Re-optimizing...' : 'Re-Optimize Pathway'}</span>
@@ -80,28 +80,28 @@ export default function LearningPath() {
       </div>
 
       {/* Adaptive AI Reasoning Banner */}
-      <div className="bg-[#FFFFFF] border border-[#176B87]/25 text-[#123047] p-5 sm:p-6 rounded-2xl flex gap-4 items-start shadow-xs">
-        <div className="w-9 h-9 rounded-xl bg-[#123B5D] text-[#FFFFFF] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-          <Sparkles className="w-5 h-5 text-[#D49A2A]" />
+      <div className="bg-[#FFFDF9] border border-[#A85D4C]/25 text-[#292B2B] p-5 sm:p-6 rounded-2xl flex gap-4 items-start shadow-xs">
+        <div className="w-9 h-9 rounded-xl bg-[#2D3030] text-[#FFFDF9] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+          <Sparkles className="w-5 h-5 text-[#B38A3D]" />
         </div>
         <div className="space-y-1">
-          <h4 className="font-semibold text-sm sm:text-base text-[#123047]">
+          <h4 className="font-semibold text-sm sm:text-base text-[#292B2B]">
             Diagnostic Closed-Loop Optimization
           </h4>
-          <p className="text-sm text-[#5D7180] leading-relaxed">
+          <p className="text-sm text-[#7A756E] leading-relaxed">
             {pathData?.ai_reasoning || 'Personalized iGOT curriculum sequenced to systematically close your highest priority competency gaps.'}
           </p>
         </div>
       </div>
 
       {/* Pathway Timeline Container */}
-      <Card className="bg-[#FFFFFF] shadow-xs border border-[#D8E5EC] rounded-2xl">
-        <CardHeader className="border-b border-[#D8E5EC] p-5 sm:p-6 flex flex-row items-center justify-between">
-          <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2 text-[#123047]">
-            <Compass className="w-5 h-5 text-[#176B87]" />
+      <Card className="bg-[#FFFDF9] shadow-xs border border-[#E2DDD5] rounded-2xl">
+        <CardHeader className="border-b border-[#E2DDD5] p-5 sm:p-6 flex flex-row items-center justify-between">
+          <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2 text-[#292B2B]">
+            <Compass className="w-5 h-5 text-[#A85D4C]" />
             <span>Target Competency Roadmap</span>
           </CardTitle>
-          <span className="text-xs font-mono font-semibold text-[#176B87] bg-[#176B87]/10 px-3 py-1 rounded-full border border-[#176B87]/20">
+          <span className="text-xs font-mono font-semibold text-[#A85D4C] bg-[#A85D4C]/10 px-3 py-1 rounded-full border border-[#A85D4C]/20">
             {completedCount} / {items.length} Modules Finished
           </span>
         </CardHeader>
@@ -109,9 +109,9 @@ export default function LearningPath() {
         <CardContent className="p-6">
           {items.length === 0 ? (
             <div className="p-8 text-center space-y-2">
-              <AlertCircle className="w-6 h-6 text-[#5D7180]/40 mx-auto" />
-              <p className="text-sm font-semibold text-[#123047]">No learning path active yet.</p>
-              <Button onClick={handleRegenerate} className="bg-[#176B87] text-[#FFFFFF] text-xs font-semibold cursor-pointer">
+              <AlertCircle className="w-6 h-6 text-[#7A756E]/40 mx-auto" />
+              <p className="text-sm font-semibold text-[#292B2B]">No learning path active yet.</p>
+              <Button onClick={handleRegenerate} className="bg-[#A85D4C] text-[#FFFDF9] text-xs font-semibold cursor-pointer">
                 Generate Pathway
               </Button>
             </div>

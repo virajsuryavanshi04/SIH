@@ -1,33 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #123B5D;
-  --color-primary-deep: #123B5D;
-  --color-teal: #176B87;
-  --color-accent-teal: #35A7A0;
-  --color-gold: #D49A2A;
-  --color-slate: #5D7180;
-  --color-muted: #7A8C98;
-  --color-background: #F4F8FB;
-  --color-surface-subtle: #EAF3F7;
-  --color-surface: #EAF3F7;
-  --color-white: #FFFFFF;
+  --color-navy: #2D3030;
+  --color-primary-deep: #2D3030;
+  --color-teal: #A85D4C;
+  --color-accent-teal: #7D4036;
+  --color-gold: #B38A3D;
+  --color-slate: #7A756E;
+  --color-muted: #8C857B;
+  --color-background: #F7F4EE;
+  --color-surface-subtle: #EFEBE4;
+  --color-surface: #EFEBE4;
+  --color-white: #FFFDF9;
   --color-success: #2E8B57;
-  --color-warning: #D49A2A;
+  --color-warning: #B38A3D;
   --color-critical: #D9534F;
-  --color-info: #176B87;
+  --color-info: #A85D4C;
 
   /* Semantic mappings */
-  --color-primary: #176B87;
-  --color-primary-dark: #123B5D;
-  --color-accent: #35A7A0;
-  --color-text-primary: #123047;
-  --color-text-secondary: #5D7180;
-  --color-text-muted: #7A8C98;
-  --color-text: #123047;
-  --color-dark: #123B5D;
-  --color-border: #D8E5EC;
-  --color-border-subtle: #E5EDF2;
+  --color-primary: #A85D4C;
+  --color-primary-dark: #2D3030;
+  --color-accent: #7D4036;
+  --color-text-primary: #292B2B;
+  --color-text-secondary: #7A756E;
+  --color-text-muted: #8C857B;
+  --color-text: #292B2B;
+  --color-dark: #2D3030;
+  --color-border: #E2DDD5;
+  --color-border-subtle: #EBE6DE;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -57,13 +57,13 @@
 @layer base {
   body {
     font-family: var(--font-sans);
-    color: #123047;
-    background-color: #F4F8FB;
+    color: #292B2B;
+    background-color: #F7F4EE;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    color: #123047;
+    color: #292B2B;
     letter-spacing: -0.02em;
   }
 }

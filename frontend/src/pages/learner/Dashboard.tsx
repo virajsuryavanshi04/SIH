@@ -156,8 +156,8 @@ export default function Dashboard() {
     return (
       <div className="min-h-[450px] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-3 border-[#176B87] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#123B5D]">Loading live capability telemetry & recommendations...</p>
+          <div className="w-10 h-10 border-3 border-[#A85D4C] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#2D3030]">Loading live capability telemetry & recommendations...</p>
         </div>
       </div>
     );
@@ -187,19 +187,19 @@ export default function Dashboard() {
       
       {/* If brand new user with 0 assessments, show prompt */}
       {assessmentsCount === 0 && (
-        <div className="bg-[#123B5D] rounded-2xl p-6 text-[#FFFFFF] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md border border-[#123B5D]">
+        <div className="bg-[#2D3030] rounded-2xl p-6 text-[#FFFDF9] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-md border border-[#2D3030]">
           <div className="space-y-1">
-            <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFFFFF]/10 text-[#D49A2A] border border-[#FFFFFF]/20">
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFFDF9]/10 text-[#B38A3D] border border-[#FFFDF9]/20">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Initial Setup Required</span>
             </div>
-            <h3 className="text-xl font-bold text-[#FFFFFF]">Welcome to SmartLearn</h3>
-            <p className="text-xs text-[#FFFFFF]/80 max-w-xl">
+            <h3 className="text-xl font-bold text-[#FFFDF9]">Welcome to SmartLearn</h3>
+            <p className="text-xs text-[#FFFDF9]/80 max-w-xl">
               Complete your initial baseline diagnostic to establish verified competency scores for your official role.
             </p>
           </div>
           <Link to="/assessment">
-            <Button className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-bold text-xs shadow-xs px-6">
+            <Button className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold text-xs shadow-xs px-6">
               <span>Take Baseline Assessment</span>
               <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Button>
@@ -213,20 +213,20 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* A. YOUR READINESS */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#D8E5EC] shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between space-y-4">
+        <div className="bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] flex flex-col justify-between space-y-4">
           <div className="space-y-1.5">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#5D7180] block">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#7A756E] block">
               YOUR READINESS
             </span>
             <div className="flex items-baseline gap-2.5">
-              <span className="text-4xl font-extrabold text-[#123047] font-mono">{overallReadiness}%</span>
+              <span className="text-4xl font-extrabold text-[#292B2B] font-mono">{overallReadiness}%</span>
               {deltaPoints > 0 && (
                 <span className="text-xs font-bold text-[#2E8B57] font-mono bg-[#2E8B57]/10 px-2 py-0.5 rounded-md border border-[#2E8B57]/20">
                   ↑ +{deltaPoints} pts
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#5D7180] leading-relaxed">
+            <p className="text-xs text-[#7A756E] leading-relaxed">
               {assessmentsCount > 0 
                 ? `${assessmentsCount} verified assessment${assessmentsCount > 1 ? 's' : ''} recorded • Continuous evidence`
                 : 'Pending initial assessment evaluation'}
@@ -235,22 +235,22 @@ export default function Dashboard() {
 
           {/* Sparkline from historical records */}
           <div className="pt-1">
-            <div className="flex items-end gap-1.5 h-9 w-full bg-[#EAF3F7] p-2 rounded-xl border border-[#D8E5EC]">
+            <div className="flex items-end gap-1.5 h-9 w-full bg-[#EFEBE4] p-2 rounded-xl border border-[#E2DDD5]">
               {historyList.length > 0 ? (
                 historyList.slice(-5).map((h: any, i: number) => (
                   <div 
                     key={i} 
                     style={{ height: `${Math.max(20, Math.min(100, h.score))}%` }} 
-                    className="bg-[#176B87] flex-1 rounded-xs transition-all"
+                    className="bg-[#A85D4C] flex-1 rounded-xs transition-all"
                     title={`${h.competency_name}: ${h.score}%`}
                   />
                 ))
               ) : (
                 <>
-                  <div className="bg-[#176B87]/20 w-1/4 h-[30%] rounded-xs" />
-                  <div className="bg-[#176B87]/40 w-1/4 h-[50%] rounded-xs" />
-                  <div className="bg-[#176B87]/60 w-1/4 h-[70%] rounded-xs" />
-                  <div className="bg-[#176B87] w-1/4 h-[90%] rounded-xs" />
+                  <div className="bg-[#A85D4C]/20 w-1/4 h-[30%] rounded-xs" />
+                  <div className="bg-[#A85D4C]/40 w-1/4 h-[50%] rounded-xs" />
+                  <div className="bg-[#A85D4C]/60 w-1/4 h-[70%] rounded-xs" />
+                  <div className="bg-[#A85D4C] w-1/4 h-[90%] rounded-xs" />
                 </>
               )}
             </div>
@@ -258,22 +258,22 @@ export default function Dashboard() {
         </div>
 
         {/* B. BIGGEST GAP */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#D8E5EC] shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between space-y-4">
+        <div className="bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] flex flex-col justify-between space-y-4">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D49A2A]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#B38A3D]">
                 BIGGEST GAP
               </span>
               {bottleneckGap && (
-                <span className="text-xs font-mono font-bold text-[#123047] bg-[#D49A2A]/15 px-2 py-0.5 rounded-md border border-[#D49A2A]/30">
+                <span className="text-xs font-mono font-bold text-[#292B2B] bg-[#B38A3D]/15 px-2 py-0.5 rounded-md border border-[#B38A3D]/30">
                   {bottleneckGap.current_score !== null ? `${bottleneckGap.current_score}%` : 'Unassessed'} → {bottleneckGap.target_score}%
                 </span>
               )}
             </div>
-            <h3 className="text-base sm:text-lg font-bold text-[#123047] leading-snug">
+            <h3 className="text-base sm:text-lg font-bold text-[#292B2B] leading-snug">
               {bottleneckGap ? bottleneckGap.competency_name : (diagnosis?.primary_gap || 'Sampling Techniques')}
             </h3>
-            <p className="text-xs text-[#5D7180] leading-relaxed line-clamp-2">
+            <p className="text-xs text-[#7A756E] leading-relaxed line-clamp-2">
               {diagnosis?.root_cause || (bottleneckGap ? `Active ${bottleneckGap.gap}% gap below official role benchmark` : 'Evaluate gaps across competencies')}
             </p>
           </div>
@@ -289,23 +289,23 @@ export default function Dashboard() {
                 if (targetNode) setSelectedRadialNode(targetNode);
               }
             }}
-            className="w-full border-[#D49A2A]/40 text-[#123047] hover:bg-[#D49A2A]/10 font-semibold text-xs sm:text-sm h-9.5 rounded-xl cursor-pointer"
+            className="w-full border-[#B38A3D]/40 text-[#292B2B] hover:bg-[#B38A3D]/10 font-semibold text-xs sm:text-sm h-9.5 rounded-xl cursor-pointer"
           >
             Inspect Primary Gap
           </Button>
         </div>
 
         {/* C. NEXT STEP */}
-        <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#D8E5EC] shadow-[0_1px_3px_rgba(11,37,69,0.04)] flex flex-col justify-between space-y-4">
+        <div className="bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] flex flex-col justify-between space-y-4">
           <div className="space-y-1.5">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#176B87] block">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#A85D4C] block">
               NEXT STEP
             </span>
-            <h3 className="text-base sm:text-lg font-bold text-[#123047] leading-snug truncate">
+            <h3 className="text-base sm:text-lg font-bold text-[#292B2B] leading-snug truncate">
               {topRecommendation ? topRecommendation.title : 'Take Adaptive Assessment'}
             </h3>
-            <p className="text-xs text-[#5D7180] leading-relaxed flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#176B87] shrink-0" />
+            <p className="text-xs text-[#7A756E] leading-relaxed flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#A85D4C] shrink-0" />
               <span className="truncate">
                 {topRecommendation 
                   ? `${topRecommendation.duration_hours}h • ${topRecommendation.provider}` 
@@ -317,7 +317,7 @@ export default function Dashboard() {
           <Link to="/learning-path" className="block w-full">
             <Button
               size="default"
-              className="w-full bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-semibold text-xs sm:text-sm shadow-xs h-9.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-9.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>{topRecommendation ? 'Launch Recommended Module' : 'View Learning Path'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -356,15 +356,15 @@ export default function Dashboard() {
       {/* ============================================================ */}
       {/* 3. LEARNING JOURNEY (Horizontal Sequence)                     */}
       {/* ============================================================ */}
-      <div className="bg-[#FFFFFF] rounded-2xl p-6 border border-[#D8E5EC] shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#D8E5EC] pb-3">
+      <div className="bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
           <div className="flex items-center space-x-2">
-            <Route className="w-4 h-4 text-[#176B87]" />
-            <h3 className="text-xs font-mono font-bold text-[#123047] uppercase tracking-wider">
+            <Route className="w-4 h-4 text-[#A85D4C]" />
+            <h3 className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider">
               YOUR LEARNING JOURNEY
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-[#5D7180]">
+          <span className="text-[11px] font-mono text-[#7A756E]">
             {pathItems.filter((p: any) => p.status === 'completed').length} of {Math.max(pathItems.length, journeySteps.length)} Milestones Completed
           </span>
         </div>
@@ -383,14 +383,14 @@ export default function Dashboard() {
                   isCompleted 
                     ? "bg-[#2E8B57]/5 border-[#2E8B57]/30 text-[#2E8B57]"
                     : isCurrent
-                    ? "bg-[#176B87]/5 border-[#176B87] ring-2 ring-[#176B87]/20 text-[#123047]"
-                    : "bg-[#EAF3F7] border-[#D8E5EC] text-[#5D7180]"
+                    ? "bg-[#A85D4C]/5 border-[#A85D4C] ring-2 ring-[#A85D4C]/20 text-[#292B2B]"
+                    : "bg-[#EFEBE4] border-[#E2DDD5] text-[#7A756E]"
                 )}
               >
                 <div className="flex items-center justify-between">
                   <span className={cn(
                     "w-5 h-5 rounded-full flex items-center justify-center font-mono font-bold text-[10px]",
-                    isCompleted ? "bg-[#2E8B57] text-[#FFFFFF]" : isCurrent ? "bg-[#176B87] text-[#FFFFFF]" : "bg-[#5D7180]/20 text-[#123047]"
+                    isCompleted ? "bg-[#2E8B57] text-[#FFFDF9]" : isCurrent ? "bg-[#A85D4C] text-[#FFFDF9]" : "bg-[#7A756E]/20 text-[#292B2B]"
                   )}>
                     {step.number}
                   </span>
@@ -412,26 +412,26 @@ export default function Dashboard() {
       {/* ============================================================ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: iGOT Recommendations (Compact Data List) */}
-        <div className="lg:col-span-5 bg-[#FFFFFF] rounded-2xl p-6 border border-[#D8E5EC] shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-[#D8E5EC] pb-3">
-            <h3 className="text-xs font-mono font-bold text-[#123047] uppercase tracking-wider">
+        <div className="lg:col-span-5 bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
+            <h3 className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider">
               ACCREDITED RECOMMENDATIONS
             </h3>
-            <span className="text-[10px] font-mono text-[#176B87] font-semibold">Ranked by Gap Deficit</span>
+            <span className="text-[10px] font-mono text-[#A85D4C] font-semibold">Ranked by Gap Deficit</span>
           </div>
 
           <div className="space-y-3">
             {recommendations.slice(0, 3).map((course: any) => (
-              <div key={course.id} className="p-3 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC] flex items-center justify-between gap-3">
+              <div key={course.id} className="p-3 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] flex items-center justify-between gap-3">
                 <div className="space-y-0.5">
-                  <h4 className="text-xs font-bold text-[#123047] line-clamp-1">{course.title}</h4>
-                  <div className="flex items-center gap-2 text-[10px] font-mono text-[#5D7180]">
+                  <h4 className="text-xs font-bold text-[#292B2B] line-clamp-1">{course.title}</h4>
+                  <div className="flex items-center gap-2 text-[10px] font-mono text-[#7A756E]">
                     <span className="truncate max-w-[120px]">{course.competency_name}</span>
                     <span>•</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#176B87]" /> {course.duration_hours}h</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#A85D4C]" /> {course.duration_hours}h</span>
                   </div>
                 </div>
-                <span className="shrink-0 px-2 py-0.5 rounded-full bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20 text-[10px] font-mono font-bold">
+                <span className="shrink-0 px-2 py-0.5 rounded-full bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20 text-[10px] font-mono font-bold">
                   {Math.round(course.match_percent)}% Match
                 </span>
               </div>
@@ -439,43 +439,43 @@ export default function Dashboard() {
           </div>
 
           <Link to="/courses" className="block pt-1">
-            <Button variant="outline" className="w-full text-xs font-bold border-[#D8E5EC] text-[#123047] hover:bg-[#EAF3F7] h-8.5">
+            <Button variant="outline" className="w-full text-xs font-bold border-[#E2DDD5] text-[#292B2B] hover:bg-[#EFEBE4] h-8.5">
               Explore All Courses <ArrowRight className="w-3 h-3 ml-1.5" />
             </Button>
           </Link>
         </div>
 
         {/* Right: AI Diagnosis & Root Cause Insight */}
-        <div className="lg:col-span-7 bg-[#FFFFFF] rounded-2xl p-6 border border-[#D8E5EC] shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-[#D8E5EC] pb-3">
+        <div className="lg:col-span-7 bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
             <div className="space-y-0.5">
-              <span className="text-[10px] font-mono font-bold uppercase text-[#176B87]">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#A85D4C]">
                 DIAGNOSTIC EVIDENCE INSIGHT
               </span>
-              <h3 className="text-sm font-bold text-[#123047]">
+              <h3 className="text-sm font-bold text-[#292B2B]">
                 {diagnosis?.primary_gap || 'Role Benchmark Calibration'}
               </h3>
             </div>
-            <span className="text-xs font-mono font-bold text-[#176B87] bg-[#176B87]/10 px-2.5 py-1 rounded-full border border-[#176B87]/20">
+            <span className="text-xs font-mono font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2.5 py-1 rounded-full border border-[#A85D4C]/20">
               Confidence: {Math.round(diagnosis?.confidence || 88)}%
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#EAF3F7] border border-[#D8E5EC] text-xs space-y-2">
-            <span className="text-[10px] font-mono font-bold text-[#176B87] uppercase block">
+          <div className="p-4 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] text-xs space-y-2">
+            <span className="text-[10px] font-mono font-bold text-[#A85D4C] uppercase block">
               AI Root-Cause Explanation
             </span>
-            <p className="text-[#123047] leading-relaxed">
+            <p className="text-[#292B2B] leading-relaxed">
               {diagnosis?.explanation || insights?.diagnostic_summary || 'Your competency scores are calculated deterministically from assessment answers. Recommended modules target your diagnosed weak areas.'}
             </p>
           </div>
 
           <div className="flex items-center justify-between pt-1 text-xs">
-            <span className="font-mono text-[#5D7180]">
+            <span className="font-mono text-[#7A756E]">
               Deterministic scoring verified • Zero self-rating bias
             </span>
             <Link to="/assessment">
-              <Button size="sm" variant="ghost" className="text-xs font-bold text-[#176B87] hover:bg-[#176B87]/10 h-8">
+              <Button size="sm" variant="ghost" className="text-xs font-bold text-[#A85D4C] hover:bg-[#A85D4C]/10 h-8">
                 Take Reassessment <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             </Link>

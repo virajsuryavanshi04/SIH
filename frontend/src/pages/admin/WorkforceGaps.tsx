@@ -49,39 +49,39 @@ export default function WorkforceGaps() {
     <div className="space-y-8 max-w-7xl mx-auto pb-16 text-left">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#A85D4C] uppercase tracking-widest mb-1">
             <Layers className="w-3.5 h-3.5" />
             <span>ORGANIZATIONAL GAP TOPOLOGY</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#123047] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#292B2B] tracking-tight">
             Workforce Skill Gap Heatmap
           </h1>
-          <p className="text-xs sm:text-sm text-[#5D7180] mt-1">
+          <p className="text-xs sm:text-sm text-[#7A756E] mt-1">
             Cross-departmental matrix identifying institutional capability bottlenecks across official statistical roles.
           </p>
         </div>
-        <div className="inline-flex items-center space-x-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20 shadow-2xs self-start sm:self-auto">
-          <Sparkles className="w-3.5 h-3.5 text-[#176B87]" />
+        <div className="inline-flex items-center space-x-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20 shadow-2xs self-start sm:self-auto">
+          <Sparkles className="w-3.5 h-3.5 text-[#A85D4C]" />
           <span>Real-Time Telemetry Aggregation</span>
         </div>
       </div>
 
       {/* Heatmap Card */}
-      <Card className="bg-[#FFFFFF] shadow-[0_1px_3px_rgba(11,37,69,0.04)] border border-[#D8E5EC] rounded-2xl">
-        <CardHeader className="border-b border-[#D8E5EC] p-5 pb-3 flex flex-row items-center justify-between">
+      <Card className="bg-[#FFFDF9] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] border border-[#E2DDD5] rounded-2xl">
+        <CardHeader className="border-b border-[#E2DDD5] p-5 pb-3 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-sm font-bold text-[#123047] flex items-center gap-2 uppercase font-mono">
-              <BarChart3 className="w-4 h-4 text-[#176B87]" />
+            <CardTitle className="text-sm font-bold text-[#292B2B] flex items-center gap-2 uppercase font-mono">
+              <BarChart3 className="w-4 h-4 text-[#A85D4C]" />
               Department × Competency Proficiency Matrix
             </CardTitle>
-            <CardDescription className="text-xs text-[#5D7180] mt-0.5">
+            <CardDescription className="text-xs text-[#7A756E] mt-0.5">
               Green = target met (≥80%), Teal = on track (65–79%), Gold = gap identified (&lt;65%).
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto p-5 sm:p-6">
           {loading ? (
-            <div className="p-8 text-center text-xs text-[#5D7180] font-semibold">Computing capability matrix...</div>
+            <div className="p-8 text-center text-xs text-[#7A756E] font-semibold">Computing capability matrix...</div>
           ) : (
             <SkillHeatmap data={heatmapData} />
           )}
@@ -89,15 +89,15 @@ export default function WorkforceGaps() {
       </Card>
 
       {/* Prioritization Table */}
-      <Card className="bg-[#FFFFFF] shadow-[0_1px_3px_rgba(11,37,69,0.04)] border border-[#D8E5EC] rounded-2xl overflow-hidden">
-        <CardHeader className="border-b border-[#D8E5EC] p-5 pb-3">
+      <Card className="bg-[#FFFDF9] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] border border-[#E2DDD5] rounded-2xl overflow-hidden">
+        <CardHeader className="border-b border-[#E2DDD5] p-5 pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="text-sm font-bold text-[#123047] flex items-center gap-2 uppercase font-mono">
-              <AlertTriangle className="w-4 h-4 text-[#D49A2A]" />
+            <CardTitle className="text-sm font-bold text-[#292B2B] flex items-center gap-2 uppercase font-mono">
+              <AlertTriangle className="w-4 h-4 text-[#B38A3D]" />
               Prioritized Workforce Deficits
             </CardTitle>
-            <div className="flex items-center space-x-1.5 text-xs text-[#123047] bg-[#EAF3F7] px-3 py-1 rounded-lg border border-[#D8E5EC] font-mono text-[11px]">
-              <Calculator className="w-3.5 h-3.5 text-[#176B87]" />
+            <div className="flex items-center space-x-1.5 text-xs text-[#292B2B] bg-[#EFEBE4] px-3 py-1 rounded-lg border border-[#E2DDD5] font-mono text-[11px]">
+              <Calculator className="w-3.5 h-3.5 text-[#A85D4C]" />
               <span>Priority Ranking = Severity × Affected Percentage</span>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function WorkforceGaps() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#EAF3F7] border-b border-[#D8E5EC] text-[#123047] uppercase tracking-wider font-semibold font-mono text-[10px]">
+              <thead className="bg-[#EFEBE4] border-b border-[#E2DDD5] text-[#292B2B] uppercase tracking-wider font-semibold font-mono text-[10px]">
                 <tr>
                   <th className="px-5 py-3.5">Rank</th>
                   <th className="px-5 py-3.5">Competency Domain</th>
@@ -115,26 +115,26 @@ export default function WorkforceGaps() {
                   <th className="px-5 py-3.5">Recommended Institutional Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#D8E5EC] font-medium text-[#123047]">
+              <tbody className="divide-y divide-[#E2DDD5] font-medium text-[#292B2B]">
                 {priorities.map((row: any, idx: number) => {
                   const isHigh = row.severity === 'High';
                   return (
-                    <tr key={idx} className="hover:bg-[#EAF3F7]/50 transition-colors">
-                      <td className="px-5 py-3.5 font-mono font-bold text-[#5D7180]/60">#{idx + 1}</td>
-                      <td className="px-5 py-3.5 font-bold text-[#123047]">{row.competency_name}</td>
-                      <td className="px-5 py-3.5 text-[#123047] font-bold font-mono">{row.percent_below_target}%</td>
-                      <td className="px-5 py-3.5 text-[#5D7180]">{row.affected_count} officers</td>
+                    <tr key={idx} className="hover:bg-[#EFEBE4]/50 transition-colors">
+                      <td className="px-5 py-3.5 font-mono font-bold text-[#7A756E]/60">#{idx + 1}</td>
+                      <td className="px-5 py-3.5 font-bold text-[#292B2B]">{row.competency_name}</td>
+                      <td className="px-5 py-3.5 text-[#292B2B] font-bold font-mono">{row.percent_below_target}%</td>
+                      <td className="px-5 py-3.5 text-[#7A756E]">{row.affected_count} officers</td>
                       <td className="px-5 py-3.5">
                         <span className={cn(
                           "px-2.5 py-0.5 rounded-full text-[10px] font-bold border font-mono uppercase",
                           isHigh 
-                            ? "bg-[#D49A2A]/15 text-[#123047] border-[#D49A2A]/35" 
-                            : "bg-[#176B87]/10 text-[#176B87] border-[#176B87]/20"
+                            ? "bg-[#B38A3D]/15 text-[#292B2B] border-[#B38A3D]/35" 
+                            : "bg-[#A85D4C]/10 text-[#A85D4C] border-[#A85D4C]/20"
                         )}>
                           {row.severity} Priority
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-xs text-[#176B87] font-semibold">{row.recommended_intervention}</td>
+                      <td className="px-5 py-3.5 text-xs text-[#A85D4C] font-semibold">{row.recommended_intervention}</td>
                     </tr>
                   );
                 })}

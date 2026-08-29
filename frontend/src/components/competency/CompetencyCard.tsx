@@ -16,21 +16,21 @@ export default function CompetencyCard({ data, onClick }: Props) {
   
   return (
     <Card 
-      className="cursor-pointer hover:border-[#176B87] hover:shadow-md transition-all group bg-[#FFFFFF] border-[#D8E5EC] rounded-2xl" 
+      className="cursor-pointer hover:border-[#A85D4C] hover:shadow-md transition-all group bg-[#FFFDF9] border-[#E2DDD5] rounded-2xl" 
       onClick={onClick}
     >
       <CardContent className="p-5 space-y-4">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-bold text-[#123047] group-hover:text-[#176B87] transition-colors text-sm">
+            <h3 className="font-bold text-[#292B2B] group-hover:text-[#7D4036] transition-colors text-sm">
               {data.name}
             </h3>
-            <span className="text-xs font-semibold text-[#5D7180]">{data.domain}</span>
+            <span className="text-xs font-semibold text-[#7A756E]">{data.domain}</span>
           </div>
           {data.gap > 0 ? (
             <span className={cn(
               "text-[10px] font-bold px-2 py-0.5 rounded-full border font-mono",
-              isCritical ? "bg-[#D9534F]/10 text-[#D9534F] border-[#D9534F]/30" : "bg-[#D49A2A]/15 text-[#123047] border-[#D49A2A]/30"
+              isCritical ? "bg-[#D9534F]/10 text-[#D9534F] border-[#D9534F]/30" : "bg-[#B38A3D]/15 text-[#292B2B] border-[#B38A3D]/30"
             )}>
               {data.priority === 'CRITICAL' ? 'Priority Gap' : 'Needs Attention'}
             </span>
@@ -43,22 +43,22 @@ export default function CompetencyCard({ data, onClick }: Props) {
 
         <div className="space-y-1.5">
           <div className="flex justify-between text-xs font-medium">
-            <span>Current: <strong className="text-[#123047] font-mono">{data.current_score}%</strong></span>
-            <span className="text-[#5D7180] font-mono">Target: {data.required_level}%</span>
+            <span>Current: <strong className="text-[#292B2B] font-mono">{data.current_score}%</strong></span>
+            <span className="text-[#7A756E] font-mono">Target: {data.required_level}%</span>
           </div>
           <Progress 
             value={data.current_score} 
-            indicatorColor={isTargetMet ? 'bg-[#2E8B57]' : 'bg-[#176B87]'} 
+            indicatorColor={isTargetMet ? 'bg-[#2E8B57]' : 'bg-[#A85D4C]'} 
           />
         </div>
 
         {data.prerequisite_gaps?.length > 0 ? (
-          <div className="flex items-start gap-1.5 bg-[#D49A2A]/15 text-[#123047] p-2 rounded-lg text-[11px] border border-[#D49A2A]/30 font-medium">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#D49A2A]" />
+          <div className="flex items-start gap-1.5 bg-[#B38A3D]/15 text-[#292B2B] p-2 rounded-lg text-[11px] border border-[#B38A3D]/30 font-medium">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#B38A3D]" />
             <span>Prerequisite: {data.prerequisite_gaps.join(', ')}</span>
           </div>
         ) : (
-          <div className="flex justify-end text-[11px] font-bold text-[#176B87] group-hover:translate-x-0.5 transition-transform items-center">
+          <div className="flex justify-end text-[11px] font-bold text-[#A85D4C] group-hover:translate-x-0.5 transition-transform items-center">
             Inspect Gap Diagnosis <ChevronRight className="w-3 h-3 ml-0.5" />
           </div>
         )}

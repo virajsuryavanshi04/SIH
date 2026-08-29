@@ -48,16 +48,16 @@ export default function RadialCapabilityOverview({
   // Status color mapping
   const getStatusColor = (node: RadialCompetencyNode) => {
     if (node.score === null || node.status === 'not_assessed') {
-      return { ring: '#7A8C98', text: 'text-[#7A8C98]', bg: 'bg-[#7A8C98]/10', border: 'border-[#7A8C98]/20' };
+      return { ring: '#8C857B', text: 'text-[#8C857B]', bg: 'bg-[#8C857B]/10', border: 'border-[#8C857B]/20' };
     }
     if (node.score >= 80 || (node.score >= node.required)) {
       return { ring: '#2E8B57', text: 'text-[#2E8B57]', bg: 'bg-[#2E8B57]/10', border: 'border-[#2E8B57]/30' };
     }
     if (node.score >= 65 || (node.gap !== undefined && node.gap <= 10)) {
-      return { ring: '#176B87', text: 'text-[#176B87]', bg: 'bg-[#176B87]/10', border: 'border-[#176B87]/30' };
+      return { ring: '#A85D4C', text: 'text-[#A85D4C]', bg: 'bg-[#A85D4C]/10', border: 'border-[#A85D4C]/30' };
     }
     if (node.gap !== undefined && node.gap <= 20) {
-      return { ring: '#D49A2A', text: 'text-[#123047]', bg: 'bg-[#D49A2A]/15', border: 'border-[#D49A2A]/40' };
+      return { ring: '#B38A3D', text: 'text-[#292B2B]', bg: 'bg-[#B38A3D]/15', border: 'border-[#B38A3D]/40' };
     }
     return { ring: '#D9534F', text: 'text-[#D9534F]', bg: 'bg-[#D9534F]/10', border: 'border-[#D9534F]/30' };
   };
@@ -86,26 +86,26 @@ export default function RadialCapabilityOverview({
   };
 
   return (
-    <div className={cn("relative w-full h-[540px] sm:h-[580px] bg-[#FFFFFF] rounded-2xl border border-[#D8E5EC] shadow-[0_1px_4px_rgba(18,59,93,0.04)] overflow-hidden select-none flex flex-col justify-between text-left", className)}>
+    <div className={cn("relative w-full h-[540px] sm:h-[580px] bg-[#FFFDF9] rounded-2xl border border-[#E2DDD5] shadow-[0_1px_4px_rgba(45, 48, 48, 0.04)] overflow-hidden select-none flex flex-col justify-between text-left", className)}>
       
       {/* Header & Status Legend */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#D8E5EC] bg-[#EAF3F7]/70 px-5 py-3 gap-2 z-20">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E2DDD5] bg-[#EFEBE4]/70 px-5 py-3 gap-2 z-20">
         <div>
-          <h3 className="text-xs font-mono font-bold text-[#123047] uppercase tracking-wider">
+          <h3 className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider">
             CAPABILITY OVERVIEW
           </h3>
-          <p className="text-[11px] text-[#5D7180]">
+          <p className="text-[11px] text-[#7A756E]">
             Click any competency to explore your capability insights.
           </p>
         </div>
 
         {/* Compact Legend */}
-        <div className="flex items-center space-x-2.5 text-[11px] font-mono text-[#5D7180] flex-wrap">
+        <div className="flex items-center space-x-2.5 text-[11px] font-mono text-[#7A756E] flex-wrap">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2E8B57]" /> Strong</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#176B87]" /> On Track</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#D49A2A]" /> Attention</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#A85D4C]" /> On Track</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#B38A3D]" /> Attention</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#D9534F]" /> Critical</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#7A8C98]/40" /> Unassessed</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#8C857B]/40" /> Unassessed</span>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function RadialCapabilityOverview({
             rx={`${orbitRadiusX}%`}
             ry={`${orbitRadiusY}%`}
             fill="none"
-            stroke="#123047"
+            stroke="#292B2B"
             strokeOpacity="0.08"
             strokeDasharray="4 4"
             strokeWidth="1.5"
@@ -144,7 +144,7 @@ export default function RadialCapabilityOverview({
                 y1={`${centerY}%`}
                 x2={`${x}%`}
                 y2={`${y}%`}
-                stroke={isSelected || isHovered ? "#176B87" : "#123047"}
+                stroke={isSelected || isHovered ? "#A85D4C" : "#292B2B"}
                 strokeOpacity={isSelected || isHovered ? "0.6" : "0.15"}
                 strokeWidth={isSelected || isHovered ? "2" : "1"}
                 strokeDasharray={isSelected || isHovered ? "none" : "2 2"}
@@ -159,9 +159,9 @@ export default function RadialCapabilityOverview({
           style={{ left: `${centerX}%`, top: `${centerY}%` }}
           className="absolute -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
         >
-          <div className="w-15 h-15 sm:w-16 sm:h-16 rounded-full bg-[#123B5D] border-2 border-[#176B87] text-[#FFFFFF] flex flex-col items-center justify-center shadow-lg ring-4 ring-[#176B87]/20">
-            <User className="w-5 h-5 text-[#35A7A0]" />
-            <span className="text-[10px] font-mono font-bold tracking-wider uppercase mt-0.5 text-[#FFFFFF]">YOU</span>
+          <div className="w-15 h-15 sm:w-16 sm:h-16 rounded-full bg-[#2D3030] border-2 border-[#A85D4C] text-[#FFFDF9] flex flex-col items-center justify-center shadow-lg ring-4 ring-[#A85D4C]/20">
+            <User className="w-5 h-5 text-[#7D4036]" />
+            <span className="text-[10px] font-mono font-bold tracking-wider uppercase mt-0.5 text-[#FFFDF9]">YOU</span>
           </div>
         </div>
 
@@ -202,12 +202,12 @@ export default function RadialCapabilityOverview({
             >
               {/* Circular Score Ring Element */}
               <div className={cn(
-                "relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFFFF] flex items-center justify-center transition-all border shadow-xs",
+                "relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FFFDF9] flex items-center justify-center transition-all border shadow-xs",
                 isSelected
-                  ? "border-[#176B87] ring-4 ring-[#176B87]/25 shadow-md"
+                  ? "border-[#A85D4C] ring-4 ring-[#A85D4C]/25 shadow-md"
                   : isHovered
-                  ? "border-[#176B87] shadow-xs"
-                  : "border-[#D8E5EC]"
+                  ? "border-[#A85D4C] shadow-xs"
+                  : "border-[#E2DDD5]"
               )}>
                 {/* SVG Progress Ring */}
                 <svg className="absolute inset-0 w-full h-full -rotate-90">
@@ -217,7 +217,7 @@ export default function RadialCapabilityOverview({
                     cy="50%"
                     r={radius}
                     fill="none"
-                    stroke="#123047"
+                    stroke="#292B2B"
                     strokeOpacity="0.08"
                     strokeWidth="3"
                   />
@@ -253,17 +253,17 @@ export default function RadialCapabilityOverview({
               >
                 <div className={cn(
                   "px-2 py-0.5 rounded-md transition-all flex flex-col items-center justify-center text-center",
-                  isSelected ? "bg-[#176B87]/10 font-bold" : "bg-[#FFFFFF]/95 shadow-2xs border border-[#D8E5EC]/60"
+                  isSelected ? "bg-[#A85D4C]/10 font-bold" : "bg-[#FFFDF9]/95 shadow-2xs border border-[#E2DDD5]/60"
                 )}>
-                  <span className="text-[11px] sm:text-xs font-semibold text-[#123047] leading-tight block text-center truncate max-w-[130px]">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#292B2B] leading-tight block text-center truncate max-w-[130px]">
                     {line1}
                   </span>
                   {line2 && (
-                    <span className="text-[11px] sm:text-xs font-semibold text-[#123047] leading-tight block text-center truncate max-w-[130px] -mt-0.5">
+                    <span className="text-[11px] sm:text-xs font-semibold text-[#292B2B] leading-tight block text-center truncate max-w-[130px] -mt-0.5">
                       {line2}
                     </span>
                   )}
-                  <span className="text-[9px] font-mono text-[#5D7180] uppercase tracking-tighter block mt-0.5 text-center">
+                  <span className="text-[9px] font-mono text-[#7A756E] uppercase tracking-tighter block mt-0.5 text-center">
                     REQ: {node.required}%
                   </span>
                 </div>
@@ -276,10 +276,10 @@ export default function RadialCapabilityOverview({
       </div>
 
       {/* Footer Context / Capability Matrix CTA */}
-      <div className="border-t border-[#D8E5EC] bg-[#EAF3F7]/50 px-5 py-2.5 text-xs font-mono text-[#5D7180] flex items-center justify-between z-20">
+      <div className="border-t border-[#E2DDD5] bg-[#EFEBE4]/50 px-5 py-2.5 text-xs font-mono text-[#7A756E] flex items-center justify-between z-20">
         <span>8 Competencies • Official MoSPI Benchmark Calibration</span>
         <Link to="/competencies">
-          <Button variant="ghost" size="sm" className="text-xs font-semibold text-[#176B87] hover:bg-[#176B87]/10 h-7 px-2 flex items-center gap-1 cursor-pointer">
+          <Button variant="ghost" size="sm" className="text-xs font-semibold text-[#A85D4C] hover:bg-[#A85D4C]/10 h-7 px-2 flex items-center gap-1 cursor-pointer">
             <span>View Full Diagnostic Matrix</span>
             <ArrowRight className="w-3 h-3" />
           </Button>

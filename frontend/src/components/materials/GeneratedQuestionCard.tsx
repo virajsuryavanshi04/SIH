@@ -63,13 +63,13 @@ export default function GeneratedQuestionCard({
   };
 
   return (
-    <Card className="border border-[#D8E5EC] bg-[#FFFFFF] shadow-sm text-left rounded-2xl">
+    <Card className="border border-[#E2DDD5] bg-[#FFFDF9] shadow-sm text-left rounded-2xl">
       <CardContent className="p-6 space-y-5">
         
         {/* Top Header: Question Index & Metadata Badges */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#D8E5EC]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2DDD5]">
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#123047]">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#292B2B]">
               QUESTION {index + 1} OF {total}
             </span>
             <span className={cn(
@@ -77,21 +77,21 @@ export default function GeneratedQuestionCard({
               status === 'approved' 
                 ? "bg-[#2E8B57]/10 text-[#2E8B57] border-[#2E8B57]/30"
                 : status === 'rejected'
-                ? "bg-[#D8E5EC]/50 text-[#7A8C98] border-[#D8E5EC]"
-                : "bg-[#D49A2A]/15 text-[#123047] border-[#D49A2A]/35"
+                ? "bg-[#E2DDD5]/50 text-[#8C857B] border-[#E2DDD5]"
+                : "bg-[#B38A3D]/15 text-[#292B2B] border-[#B38A3D]/35"
             )}>
               {status.replace('_', ' ')}
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20 font-mono">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20 font-mono">
               {compName}
             </span>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#EAF3F7] text-[#123047] border border-[#D8E5EC]">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5]">
               {topicName}
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#123B5D]/10 text-[#123B5D] border border-[#123B5D]/20 font-mono">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#2D3030]/10 text-[#2D3030] border border-[#2D3030]/20 font-mono">
               {difficultyLabel}
             </span>
           </div>
@@ -99,31 +99,31 @@ export default function GeneratedQuestionCard({
 
         {/* Question Text / Inline Edit Mode */}
         {isEditing ? (
-          <div className="space-y-3 p-3 bg-[#EAF3F7] rounded-xl border border-[#D8E5EC]">
-            <label className="text-xs font-bold text-[#123047] uppercase">Edit Question Scenario</label>
+          <div className="space-y-3 p-3 bg-[#EFEBE4] rounded-xl border border-[#E2DDD5]">
+            <label className="text-xs font-bold text-[#292B2B] uppercase">Edit Question Scenario</label>
             <textarea
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
-              className="w-full text-xs p-2.5 border rounded-lg bg-[#FFFFFF] border-[#D8E5EC] font-medium focus:ring-1 focus:ring-[#176B87] text-[#123047]"
+              className="w-full text-xs p-2.5 border rounded-lg bg-[#FFFDF9] border-[#E2DDD5] font-medium focus:ring-1 focus:ring-[#A85D4C] text-[#292B2B]"
               rows={3}
             />
-            <label className="text-xs font-bold text-[#123047] uppercase">Edit Explanation</label>
+            <label className="text-xs font-bold text-[#292B2B] uppercase">Edit Explanation</label>
             <textarea
               value={editExplanation}
               onChange={(e) => setEditExplanation(e.target.value)}
-              className="w-full text-xs p-2.5 border rounded-lg bg-[#FFFFFF] border-[#D8E5EC] font-medium focus:ring-1 focus:ring-[#176B87] text-[#123047]"
+              className="w-full text-xs p-2.5 border rounded-lg bg-[#FFFDF9] border-[#E2DDD5] font-medium focus:ring-1 focus:ring-[#A85D4C] text-[#292B2B]"
               rows={2}
             />
             <div className="flex justify-end gap-2">
               <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
-              <Button size="sm" className="bg-[#176B87] text-[#FFFFFF]" onClick={handleSaveEdit}>
+              <Button size="sm" className="bg-[#A85D4C] text-[#FFFDF9]" onClick={handleSaveEdit}>
                 <Save className="w-3.5 h-3.5 mr-1" /> Save
               </Button>
             </div>
           </div>
         ) : (
           <div className="space-y-1">
-            <h4 className="font-bold text-sm sm:text-base text-[#123047] leading-snug">
+            <h4 className="font-bold text-sm sm:text-base text-[#292B2B] leading-snug">
               {qText}
             </h4>
           </div>
@@ -131,7 +131,7 @@ export default function GeneratedQuestionCard({
 
         {/* Options List (Neutral Format A, B, C, D) */}
         <div className="space-y-2">
-          <span className="text-[11px] font-mono uppercase font-bold text-[#5D7180] block">
+          <span className="text-[11px] font-mono uppercase font-bold text-[#7A756E] block">
             Generated Candidate Options
           </span>
           <div className="grid grid-cols-1 gap-2">
@@ -141,10 +141,10 @@ export default function GeneratedQuestionCard({
               return (
                 <div 
                   key={i} 
-                  className="p-3 rounded-lg border border-[#D8E5EC] bg-[#EAF3F7]/40 text-xs flex items-center justify-between font-medium text-[#123047]"
+                  className="p-3 rounded-lg border border-[#E2DDD5] bg-[#EFEBE4]/40 text-xs flex items-center justify-between font-medium text-[#292B2B]"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <span className="font-mono font-bold text-[#123047]">{letter}.</span>
+                    <span className="font-mono font-bold text-[#292B2B]">{letter}.</span>
                     <span>{optText}</span>
                   </div>
                 </div>
@@ -159,34 +159,34 @@ export default function GeneratedQuestionCard({
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>CORRECT ANSWER KEY</span>
           </div>
-          <p className="text-xs font-bold text-[#123047] pl-5">
+          <p className="text-xs font-bold text-[#292B2B] pl-5">
             {correctOptLetter}. {correctOptText}
           </p>
         </div>
 
         {/* Source Reference & Explanation Section */}
-        <div className="bg-[#EAF3F7] p-3.5 rounded-xl border border-[#D8E5EC] text-xs space-y-1.5">
-          <div className="flex items-center space-x-1.5 text-[#176B87] font-mono font-bold text-[11px] uppercase">
+        <div className="bg-[#EFEBE4] p-3.5 rounded-xl border border-[#E2DDD5] text-xs space-y-1.5">
+          <div className="flex items-center space-x-1.5 text-[#A85D4C] font-mono font-bold text-[11px] uppercase">
             <BookOpen className="w-3.5 h-3.5 shrink-0" />
             <span>SOURCE & EXPLANATION</span>
           </div>
-          <p className="text-[11px] text-[#5D7180] font-mono">
-            <span className="font-bold text-[#123047]">Source Citation: </span>{sourceRef}
+          <p className="text-[11px] text-[#7A756E] font-mono">
+            <span className="font-bold text-[#292B2B]">Source Citation: </span>{sourceRef}
           </p>
-          <p className="text-xs text-[#5D7180] leading-relaxed">
-            <span className="font-bold text-[#123047]">Rationale: </span>{question.explanation || editExplanation}
+          <p className="text-xs text-[#7A756E] leading-relaxed">
+            <span className="font-bold text-[#292B2B]">Rationale: </span>{question.explanation || editExplanation}
           </p>
         </div>
 
         {/* Admin Action Buttons */}
-        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[#D8E5EC]">
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[#E2DDD5]">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setIsEditing(!isEditing)}
-            className="text-xs font-semibold border-[#D8E5EC] hover:bg-[#EAF3F7] text-[#123047] cursor-pointer rounded-xl"
+            className="text-xs font-semibold border-[#E2DDD5] hover:bg-[#EFEBE4] text-[#292B2B] cursor-pointer rounded-xl"
           >
-            <Edit3 className="w-3.5 h-3.5 mr-1 text-[#176B87]" />
+            <Edit3 className="w-3.5 h-3.5 mr-1 text-[#A85D4C]" />
             <span>Edit Question</span>
           </Button>
 
@@ -196,7 +196,7 @@ export default function GeneratedQuestionCard({
               size="sm" 
               onClick={() => onReject && onReject(question.id)}
               disabled={status === 'rejected'}
-              className="text-xs font-bold text-[#5D7180] border-[#D8E5EC] hover:bg-[#EAF3F7] cursor-pointer rounded-xl"
+              className="text-xs font-bold text-[#7A756E] border-[#E2DDD5] hover:bg-[#EFEBE4] cursor-pointer rounded-xl"
             >
               <X className="w-3.5 h-3.5 mr-1" />
               <span>Reject</span>
@@ -206,7 +206,7 @@ export default function GeneratedQuestionCard({
               size="sm" 
               onClick={() => onApprove && onApprove(question.id)}
               disabled={status === 'approved'}
-              className="text-xs font-bold bg-[#2E8B57] hover:bg-[#2E8B57]/90 text-[#FFFFFF] shadow-xs cursor-pointer rounded-xl"
+              className="text-xs font-bold bg-[#2E8B57] hover:bg-[#2E8B57]/90 text-[#FFFDF9] shadow-xs cursor-pointer rounded-xl"
             >
               <Check className="w-3.5 h-3.5 mr-1" />
               <span>{status === 'approved' ? 'Approved' : 'Approve for Pool'}</span>

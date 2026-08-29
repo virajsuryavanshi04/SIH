@@ -173,10 +173,10 @@ export default function Quiz() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#EAF3F7] flex items-center justify-center">
+      <div className="min-h-screen bg-[#EFEBE4] flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-3 border-[#176B87] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#123B5D]">Calibrating questions across official role competencies...</p>
+          <div className="w-10 h-10 border-3 border-[#A85D4C] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-[#2D3030]">Calibrating questions across official role competencies...</p>
         </div>
       </div>
     );
@@ -184,12 +184,12 @@ export default function Quiz() {
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen bg-[#EAF3F7] flex items-center justify-center p-4">
-        <div className="bg-[#FFFFFF] p-8 rounded-2xl border border-[#123047]/10 text-center space-y-4 max-w-md">
-          <AlertCircle className="w-8 h-8 text-[#D49A2A] mx-auto" />
-          <h2 className="text-lg font-bold text-[#123B5D]">Assessment Ready</h2>
-          <p className="text-xs text-[#123047]">Please configure a new assessment session.</p>
-          <Button onClick={() => navigate('/assessment')} className="bg-[#176B87] text-[#FFFFFF]">
+      <div className="min-h-screen bg-[#EFEBE4] flex items-center justify-center p-4">
+        <div className="bg-[#FFFDF9] p-8 rounded-2xl border border-[#292B2B]/10 text-center space-y-4 max-w-md">
+          <AlertCircle className="w-8 h-8 text-[#B38A3D] mx-auto" />
+          <h2 className="text-lg font-bold text-[#2D3030]">Assessment Ready</h2>
+          <p className="text-xs text-[#292B2B]">Please configure a new assessment session.</p>
+          <Button onClick={() => navigate('/assessment')} className="bg-[#A85D4C] text-[#FFFDF9]">
             Go to Assessments
           </Button>
         </div>
@@ -200,22 +200,22 @@ export default function Quiz() {
   const progressPercent = questions.length > 0 ? ((currentIndex) / Math.max(questions.length, 8)) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-[#F4F8FB] flex flex-col selection:bg-[#176B87]/20 selection:text-[#123B5D]">
+    <div className="min-h-screen bg-[#F7F4EE] flex flex-col selection:bg-[#A85D4C]/20 selection:text-[#2D3030]">
       {/* Quiz Top Fixed Header */}
-      <header className="h-16 border-b border-[#123B5D] flex items-center justify-between px-4 sm:px-8 bg-[#123B5D] text-[#FFFFFF] fixed top-0 w-full z-20 shadow-md">
+      <header className="h-16 border-b border-[#2D3030] flex items-center justify-between px-4 sm:px-8 bg-[#2D3030] text-[#FFFDF9] fixed top-0 w-full z-20 shadow-md">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#176B87] text-[#FFFFFF] flex items-center justify-center font-bold text-xs">
+          <div className="w-8 h-8 rounded-lg bg-[#A85D4C] text-[#FFFDF9] flex items-center justify-center font-bold text-xs">
             <Brain className="w-4 h-4" />
           </div>
-          <span className="font-semibold text-sm text-[#FFFFFF] hidden sm:inline">
+          <span className="font-semibold text-sm text-[#FFFDF9] hidden sm:inline">
             {assessmentType === 'adaptive' ? 'Adaptive Capability Assessment' : 'Baseline Competency Diagnostic'}
           </span>
-          <span className="font-semibold text-xs text-[#FFFFFF] sm:hidden">Diagnostic Session</span>
+          <span className="font-semibold text-xs text-[#FFFDF9] sm:hidden">Diagnostic Session</span>
         </div>
         
         <div className="flex items-center space-x-3">
-          <span className="text-xs font-semibold text-[#FFFFFF] flex items-center gap-1.5 bg-[#FFFFFF]/10 border border-[#FFFFFF]/20 px-3 py-1 rounded-lg font-mono">
-            <Clock className="w-3.5 h-3.5 text-[#D49A2A]" />
+          <span className="text-xs font-semibold text-[#FFFDF9] flex items-center gap-1.5 bg-[#FFFDF9]/10 border border-[#FFFDF9]/20 px-3 py-1 rounded-lg font-mono">
+            <Clock className="w-3.5 h-3.5 text-[#B38A3D]" />
             <span>{formatTimer(elapsedSeconds)}</span>
           </span>
         </div>
@@ -226,12 +226,12 @@ export default function Quiz() {
         
         {/* Subtle Adaptive Transition Feedback Alert */}
         {adaptiveMessage && (
-          <div className="mb-3 p-3.5 rounded-xl bg-[#EAF3F7] border border-[#176B87]/30 text-xs font-mono font-semibold text-[#123047] flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="mb-3 p-3.5 rounded-xl bg-[#EFEBE4] border border-[#A85D4C]/30 text-xs font-mono font-semibold text-[#292B2B] flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#176B87] shrink-0" />
+              <Sparkles className="w-4 h-4 text-[#A85D4C] shrink-0" />
               <span>{adaptiveMessage}</span>
             </div>
-            <span className="text-[10px] uppercase font-bold text-[#176B87] bg-[#176B87]/10 px-2 py-0.5 rounded">
+            <span className="text-[10px] uppercase font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2 py-0.5 rounded">
               Adaptive Engine
             </span>
           </div>
@@ -239,18 +239,18 @@ export default function Quiz() {
 
         {/* Progress Bar & Header */}
         <div className="py-4 space-y-2 text-left">
-          <div className="flex justify-between text-xs font-semibold text-[#123047]">
+          <div className="flex justify-between text-xs font-semibold text-[#292B2B]">
             <span>Question {currentIndex + 1} {questions.length > 0 ? `of ${Math.max(questions.length, 8)}` : ''}</span>
-            <span className="font-mono flex items-center gap-1 text-[#176B87]">
+            <span className="font-mono flex items-center gap-1 text-[#A85D4C]">
               <Sparkles className="w-3 h-3" />
               <span>Real-Time Difficulty Calibration</span>
             </span>
           </div>
-          <Progress value={Math.min(100, Math.max(10, progressPercent))} indicatorColor="bg-[#176B87]" className="h-2 bg-[#D8E5EC]" />
+          <Progress value={Math.min(100, Math.max(10, progressPercent))} indicatorColor="bg-[#A85D4C]" className="h-2 bg-[#E2DDD5]" />
         </div>
 
         {/* Question Card Arena */}
-        <div className="bg-[#FFFFFF] p-6 sm:p-8 rounded-2xl border border-[#D8E5EC] shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-6">
+        <div className="bg-[#FFFDF9] p-6 sm:p-8 rounded-2xl border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] space-y-6">
           <QuestionCard 
             question={currentQuestion} 
             selectedOption={currentAnswer?.selectedOptionId}
@@ -269,9 +269,9 @@ export default function Quiz() {
       </div>
 
       {/* Footer Navigation Bar */}
-      <div className="fixed bottom-0 w-full border-t border-[#D8E5EC] bg-[#FFFFFF] p-4 shadow-lg z-20">
+      <div className="fixed bottom-0 w-full border-t border-[#E2DDD5] bg-[#FFFDF9] p-4 shadow-lg z-20">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <span className="text-xs text-[#5D7180] font-medium">
+          <span className="text-xs text-[#7A756E] font-medium">
             {!canProceed 
               ? 'Select an option & confidence level to proceed' 
               : 'Confidence recorded • Ready to advance'}
@@ -280,7 +280,7 @@ export default function Quiz() {
             size="default" 
             onClick={handleNext} 
             disabled={!canProceed || submitting}
-            className="px-6 h-10 rounded-xl font-semibold bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] shadow-xs flex items-center gap-2 cursor-pointer"
+            className="px-6 h-10 rounded-xl font-semibold bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] shadow-xs flex items-center gap-2 cursor-pointer"
           >
             <span>
               {submitting 

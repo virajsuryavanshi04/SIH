@@ -2,7 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] text-[#123047] shadow-[0_1px_3px_rgba(18,59,93,0.04)] transition-all", className)} {...props} />
+  <div ref={ref} className={cn("rounded-2xl border border-[#E2DDD5] bg-[#FFFDF9] text-[#292B2B] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] transition-all", className)} {...props} />
 ))
 Card.displayName = "Card"
 
@@ -12,12 +12,12 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }, ref) => (
-  <h3 ref={ref} className={cn("text-lg sm:text-xl font-semibold leading-snug tracking-tight text-[#123047]", className)} {...props} />
+  <h3 ref={ref} className={cn("text-lg sm:text-xl font-semibold leading-snug tracking-tight text-[#292B2B]", className)} {...props} />
 ))
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn("text-sm text-[#5D7180] leading-relaxed", className)} {...props} />
+  <p ref={ref} className={cn("text-sm text-[#7A756E] leading-relaxed", className)} {...props} />
 ))
 CardDescription.displayName = "CardDescription"
 
