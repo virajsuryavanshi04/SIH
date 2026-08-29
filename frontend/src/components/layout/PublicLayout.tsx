@@ -24,7 +24,7 @@ export default function PublicLayout() {
                 About Architecture
               </Link>
               <Link to="/login">
-                <Button className="bg-[#176B87] hover:bg-[#123B5D] text-[#FFFFFF] font-semibold shadow-xs">
+                <Button className="bg-[#176B87] hover:bg-[#176B87]/90 text-[#FFFFFF] font-semibold shadow-xs transition-colors cursor-pointer">
                   Portal Login
                 </Button>
               </Link>
