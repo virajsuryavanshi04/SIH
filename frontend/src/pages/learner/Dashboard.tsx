@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Clock, BookOpen, Route, Award, Play, AlertCircle, AlertTriangle } from 'lucide-react';
 import RadialCapabilityOverview, { RadialCompetencyNode } from '@/components/dashboard/RadialCapabilityOverview';
@@ -21,6 +21,9 @@ export default function Dashboard() {
   const [selectedScorecardItem, setSelectedScorecardItem] = useState<CompetencyScorecardItem | null>(null);
   const [radialNodes, setRadialNodes] = useState<RadialCompetencyNode[]>([]);
   const [selectedRadialNode, setSelectedRadialNode] = useState<RadialCompetencyNode | null>(null);
+
+  const priorityGapRef = useRef<HTMLDivElement>(null);
+  const [isPriorityGapHighlighted, setIsPriorityGapHighlighted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchDashboardTelemetry = async () => {
@@ -182,6 +185,36 @@ export default function Dashboard() {
     { label: 'Benchmark Verification', status: 'upcoming', number: '◎' }
   ];
 
+  // Handler to inspect and focus primary gap
+  const handleInspectPrimaryGap = () => {
+    let targetItem: CompetencyScorecardItem | undefined;
+    let targetNode: RadialCompetencyNode | undefined;
+
+    if (bottleneckGap) {
+      targetItem = scorecardItems.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
+      targetNode = radialNodes.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
+    } else if (diagnosis?.primary_gap) {
+      targetItem = scorecardItems.find(n => n.name.toLowerCase() === diagnosis.primary_gap.toLowerCase());
+      targetNode = radialNodes.find(n => n.name.toLowerCase() === diagnosis.primary_gap.toLowerCase());
+    } else if (scorecardItems.length > 0) {
+      const sorted = [...scorecardItems].sort((a, b) => (b.gap ?? 0) - (a.gap ?? 0));
+      targetItem = sorted[0];
+      targetNode = radialNodes.find(n => n.id === targetItem?.id);
+    }
+
+    if (targetItem) setSelectedScorecardItem(targetItem);
+    if (targetNode) setSelectedRadialNode(targetNode);
+
+    if (priorityGapRef.current) {
+      priorityGapRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    setIsPriorityGapHighlighted(true);
+    setTimeout(() => {
+      setIsPriorityGapHighlighted(false);
+    }, 1500);
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-16 text-left">
       
@@ -260,15 +293,8 @@ export default function Dashboard() {
           <Button
             variant="outline"
             size="default"
-            onClick={() => {
-              if (bottleneckGap) {
-                const targetItem = scorecardItems.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
-                if (targetItem) setSelectedScorecardItem(targetItem);
-                const targetNode = radialNodes.find(n => n.name === bottleneckGap.competency_name || n.id === bottleneckGap.competency_id);
-                if (targetNode) setSelectedRadialNode(targetNode);
-              }
-            }}
-            className="w-full border-[#B38A3D]/40 text-[#292B2B] hover:bg-[#B38A3D]/10 font-semibold text-xs sm:text-sm h-9.5 rounded-xl cursor-pointer"
+            onClick={handleInspectPrimaryGap}
+            className="w-full border-[#B38A3D]/40 text-[#292B2B] hover:bg-[#B38A3D]/10 font-semibold text-xs sm:text-sm h-9.5 rounded-xl cursor-pointer transition-all duration-200"
           >
             Inspect Primary Gap
           </Button>
@@ -323,7 +349,14 @@ export default function Dashboard() {
         </div>
 
         {/* Right: Priority Gap / Selected Competency Inspector */}
-        <div className="lg:col-span-5">
+        <div 
+          ref={priorityGapRef}
+          id="priority-gap-section"
+          className={cn(
+            "lg:col-span-5 transition-all duration-300 rounded-2xl",
+            isPriorityGapHighlighted && "ring-3 ring-[#B38A3D] shadow-[0_0_24px_rgba(179,138,61,0.25)]"
+          )}
+        >
           <DashboardPriorityGap
             item={selectedScorecardItem}
             diagnosis={diagnosis}
