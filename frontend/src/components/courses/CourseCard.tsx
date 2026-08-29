@@ -20,7 +20,7 @@ export default function CourseCard({ course, onEnroll }: Props) {
   const isCompleted = course.progress_status === 'completed';
 
   return (
-    <div className="flex flex-col h-full rounded-2xl border border-[#E2DDD5] bg-[#FFFDF9] hover:border-[#A85D4C]/60 transition-all p-6 space-y-4 shadow-xs text-left group">
+    <div className="flex flex-col h-full rounded-2xl border border-[#E2DDD5] bg-[#FFFDF9] hover:border-[#A85D4C]/60 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out p-6 space-y-4 shadow-[0_1px_3px_rgba(45,48,48,0.04)] text-left group">
       
       {/* Header: Title + Match Badge */}
       <div className="flex items-start justify-between gap-3">
@@ -87,7 +87,7 @@ export default function CourseCard({ course, onEnroll }: Props) {
                 "w-full font-semibold text-xs sm:text-sm shadow-xs h-9 flex items-center justify-center gap-1.5 cursor-pointer rounded-xl",
                 isEnrolled 
                   ? "bg-[#2D3030] text-[#FFFDF9] hover:bg-[#2D3030]/90" 
-                  : "bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9]"
+                  : "bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9]"
               )}
             >
               <span>{isEnrolled ? 'Continue Module' : 'Launch Accredited Resource'}</span>

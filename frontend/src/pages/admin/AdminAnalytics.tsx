@@ -82,12 +82,12 @@ export default function AdminAnalytics() {
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2DDD5" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#292B2B' }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#7A756E' }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="postTraining" name="Post-Intervention" stroke="#A85D4C" fill="#A85D4C" fillOpacity={0.15} />
-                  <Area type="monotone" dataKey="baseline" name="Baseline Score" stroke="#2D3030" fill="#2D3030" fillOpacity={0.08} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2DDD5" strokeOpacity={0.6} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#7A756E', fontWeight: 600 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#7A756E' }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #E2DDD5', backgroundColor: '#FFFDF9', boxShadow: '0 4px 16px rgba(45, 48, 48, 0.08)' }} labelStyle={{ fontWeight: 'bold', color: '#292B2B' }} />
+                  <Area type="monotone" dataKey="postTraining" name="Post-Intervention" stroke="#A85D4C" strokeWidth={2} fill="#A85D4C" fillOpacity={0.15} />
+                  <Area type="monotone" dataKey="baseline" name="Baseline Score" stroke="#2D3030" strokeWidth={1.5} fill="#2D3030" fillOpacity={0.06} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -102,10 +102,10 @@ export default function AdminAnalytics() {
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={deptComparison} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2DDD5" />
-                  <XAxis dataKey="dept" tick={{ fontSize: 10, fill: '#292B2B' }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#7A756E' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2DDD5" strokeOpacity={0.6} />
+                  <XAxis dataKey="dept" tick={{ fontSize: 10, fill: '#7A756E', fontWeight: 600 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#7A756E' }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid #E2DDD5', backgroundColor: '#FFFDF9', boxShadow: '0 4px 16px rgba(45, 48, 48, 0.08)' }} labelStyle={{ fontWeight: 'bold', color: '#292B2B' }} />
                   <Bar dataKey="avgScore" name="Average Score" fill="#A85D4C" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="completionRate" name="Curriculum Completion %" fill="#2E8B57" radius={[4, 4, 0, 0]} />
                 </BarChart>

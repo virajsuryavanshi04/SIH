@@ -16,7 +16,7 @@ export default function CompetencyCard({ data, onClick }: Props) {
   
   return (
     <Card 
-      className="cursor-pointer hover:border-[#A85D4C] hover:shadow-md transition-all group bg-[#FFFDF9] border-[#E2DDD5] rounded-2xl" 
+      className="cursor-pointer hover:border-[#A85D4C] hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out group bg-[#FFFDF9] border-[#E2DDD5] rounded-2xl shadow-[0_1px_3px_rgba(45,48,48,0.04)]" 
       onClick={onClick}
     >
       <CardContent className="p-5 space-y-4">

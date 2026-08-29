@@ -74,9 +74,9 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
 
         {/* Right Live Spatial Competency Network Visualization */}
         <div className="lg:col-span-6">
-          <div className="relative bg-[radial-gradient(ellipse_at_center,_#EFEBE460_0%,_#FFFDF9_75%)] rounded-2xl border border-[#E2DDD5] p-4 sm:p-6 shadow-sm overflow-hidden min-h-[460px] sm:min-h-[470px] flex flex-col justify-between">
+          <div className="relative bg-[#FFFDF9]/85 backdrop-blur-md bg-[radial-gradient(ellipse_at_center,_#F7F4EE80_0%,_#FFFDF9_75%)] rounded-2xl border border-[#E2DDD5]/90 p-4 sm:p-6 shadow-[0_2px_8px_rgba(45,48,48,0.03)] overflow-hidden min-h-[460px] sm:min-h-[470px] flex flex-col justify-between">
             {/* Top Bar Header */}
-            <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3 text-xs">
+            <div className="flex items-center justify-between border-b border-[#E2DDD5]/80 pb-3 text-xs">
               <div className="flex items-center space-x-2 text-left">
                 <div className="w-6 h-6 rounded-lg bg-[#A85D4C]/10 flex items-center justify-center text-[#A85D4C] shrink-0">
                   <Brain className="w-3.5 h-3.5" />
@@ -105,7 +105,7 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                 <circle cx="50%" cy="50%" r="20%" fill="none" stroke="#E2DDD5" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
                 <circle cx="50%" cy="50%" r="37%" fill="none" stroke="#E2DDD5" strokeWidth="1" strokeDasharray="4 4" strokeOpacity="0.35" />
 
-                {/* Spokes from Central Anchor (YOU) to each Competency */}
+                {/* Spokes from Central Anchor (YOU) to each Competency with Clear Visibility */}
                 {HERO_NETWORK_NODES.map((node, index) => {
                   const total = HERO_NETWORK_NODES.length;
                   const angleDeg = -90 + index * (360 / total);
@@ -114,7 +114,43 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                   const targetY = 50 + 36 * Math.sin(angleRad);
 
                   const isSpokeHighlighted = hoveredNode === node.id || hoveredNode === 'center-you';
-                  const spokeOpacity = isSpokeHighlighted ? 0.95 : hoveredNode !== null ? 0.2 : 0.45;
+                  const isGap = node.isGap;
+                  const isProficient = node.status === 'proficient';
+                  const isOnTrack = node.status === 'on_track';
+
+                  // Clear, visible color mapping matching each competency status
+                  const strokeColor = isGap
+                    ? '#B38A3D'
+                    : isProficient
+                    ? '#2E8B57'
+                    : isOnTrack
+                    ? '#A85D4C'
+                    : '#B38A3D';
+
+                  // Width hierarchy
+                  const strokeWidth = isSpokeHighlighted
+                    ? 2.5
+                    : isGap
+                    ? 2
+                    : 1.5;
+
+                  // Opacity hierarchy - all 5 connections remain clearly visible
+                  const strokeOpacity = isSpokeHighlighted
+                    ? 0.95
+                    : hoveredNode !== null
+                    ? 0.2
+                    : isGap
+                    ? 0.85
+                    : isProficient
+                    ? 0.65
+                    : 0.75;
+
+                  // Dash pattern for gaps / developing
+                  const strokeDasharray = isGap
+                    ? '4 4'
+                    : node.status === 'priority_gap'
+                    ? '3 3'
+                    : 'none';
 
                   return (
                     <line
@@ -123,11 +159,11 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                       y1="50%"
                       x2={`${targetX}%`}
                       y2={`${targetY}%`}
-                      stroke={node.isGap ? '#B38A3D' : '#A85D4C'}
-                      strokeOpacity={spokeOpacity}
-                      strokeWidth={isSpokeHighlighted ? 2.5 : node.isGap ? 2 : 1.5}
-                      strokeDasharray={node.isGap ? '4 4' : 'none'}
-                      className={node.isGap ? 'animate-flow-line' : ''}
+                      stroke={strokeColor}
+                      strokeOpacity={strokeOpacity}
+                      strokeWidth={strokeWidth}
+                      strokeDasharray={strokeDasharray}
+                      className={isGap ? 'animate-flow-line' : ''}
                     />
                   );
                 })}
@@ -136,13 +172,19 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
               {/* Central Anchor / "YOU" Node */}
               <div
                 style={{ left: '50%', top: '50%' }}
+                tabIndex={0}
+                role="region"
+                aria-label={`Overall Officer Readiness: ${Math.round(HERO_NETWORK_NODES.reduce((acc, n) => acc + n.score, 0) / HERO_NETWORK_NODES.length)}%`}
                 onMouseEnter={() => setHoveredNode('center-you')}
+                onMouseLeave={() => setHoveredNode(null)}
+                onFocus={() => setHoveredNode('center-you')}
+                onBlur={() => setHoveredNode(null)}
                 className={cn(
-                  "absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 z-15 select-none",
-                  hoveredNode === 'center-you' ? "scale-108 z-25" : "hover:scale-104"
+                  "absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 ease-out z-15 select-none rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A85D4C] focus-visible:ring-offset-2",
+                  hoveredNode === 'center-you' ? "scale-[1.03] z-25 shadow-lg" : "hover:scale-[1.02]"
                 )}
               >
-                <div className="w-[76px] h-[76px] sm:w-[82px] sm:h-[82px] rounded-full bg-[#2D3030] border-2 border-[#E2DDD5] ring-2 ring-[#A85D4C]/30 text-[#FFFDF9] flex flex-col items-center justify-center p-1 shadow-md text-center">
+                <div className="w-[76px] h-[76px] sm:w-[82px] sm:h-[82px] rounded-full bg-[#2D3030] border-2 border-[#E2DDD5] ring-2 ring-[#A85D4C]/30 text-[#FFFDF9] flex flex-col items-center justify-center p-1 shadow-[0_2px_6px_rgba(45,48,48,0.15)] text-center transition-all duration-200 ease-out">
                   <span className="text-[8px] sm:text-[9px] font-mono uppercase text-[#A85D4C] font-bold tracking-wider leading-none">
                     YOU
                   </span>
@@ -170,19 +212,27 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                   <div
                     key={node.id}
                     style={{ left: `${posX}%`, top: `${posY}%` }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${node.label}: ${node.score}% (Target: ${node.target}%)`}
                     onMouseEnter={() => setHoveredNode(node.id)}
+                    onMouseLeave={() => setHoveredNode(null)}
+                    onFocus={() => setHoveredNode(node.id)}
+                    onBlur={() => setHoveredNode(null)}
                     className={cn(
-                      "absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 z-10",
-                      isSelected ? "scale-105 z-20" : "hover:scale-102"
+                      "absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 ease-out z-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A85D4C] focus-visible:ring-offset-2",
+                      isSelected ? "scale-[1.02] z-20" : "hover:scale-[1.02]"
                     )}
                   >
                     <div className={cn(
-                      "p-1.5 sm:p-2.5 rounded-xl border flex items-center space-x-2 transition-all shadow-xs backdrop-blur-sm",
+                      "p-2 sm:p-2.5 rounded-xl border flex items-center space-x-2.5 transition-all duration-200 ease-out bg-[#FFFDF9]/90 backdrop-blur-sm",
                       isGap 
-                        ? "bg-[#FFFDF9]/95 border-[#B38A3D] ring-2 ring-[#B38A3D]/25 shadow-sm"
+                        ? "border-[#B38A3D] ring-2 ring-[#B38A3D]/30 shadow-[0_2px_8px_rgba(179,138,61,0.12)] hover:shadow-md"
                         : node.status === 'proficient'
-                        ? "bg-[#FFFDF9]/90 border-[#2E8B57]/40 hover:border-[#2E8B57]"
-                        : "bg-[#FFFDF9]/90 border-[#E2DDD5] hover:border-[#A85D4C]"
+                        ? "border-[#2E8B57]/40 hover:border-[#2E8B57] shadow-[0_1px_3px_rgba(46,139,87,0.06)] hover:shadow-md"
+                        : node.status === 'on_track'
+                        ? "border-[#A85D4C]/35 hover:border-[#A85D4C] shadow-[0_1px_3px_rgba(168,93,76,0.06)] hover:shadow-md"
+                        : "border-[#B38A3D]/40 hover:border-[#B38A3D] shadow-[0_1px_3px_rgba(179,138,61,0.06)] hover:shadow-md"
                     )}>
                       {/* Circular Score Progress Ring */}
                       <div className="relative w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center shrink-0">
@@ -193,7 +243,7 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                             r="14"
                             fill="none"
                             stroke="#E2DDD5"
-                            strokeWidth="3"
+                            strokeWidth="2.5"
                           />
                           <circle
                             cx="18"
@@ -205,9 +255,11 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                                 ? '#B38A3D'
                                 : node.status === 'proficient'
                                 ? '#2E8B57'
-                                : '#A85D4C'
+                                : node.status === 'on_track'
+                                ? '#A85D4C'
+                                : '#B38A3D'
                             }
-                            strokeWidth="3.5"
+                            strokeWidth="3"
                             strokeDasharray="88"
                             strokeDashoffset={88 - (88 * node.score) / 100}
                             strokeLinecap="round"
@@ -216,25 +268,44 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
                         </svg>
                         <span className={cn(
                           "absolute font-mono font-bold text-[9px] sm:text-[10px]",
-                          isGap ? "text-[#B38A3D]" : node.status === 'proficient' ? "text-[#2E8B57]" : "text-[#292B2B]"
+                          isGap 
+                            ? "text-[#B38A3D]" 
+                            : node.status === 'proficient' 
+                            ? "text-[#2E8B57]" 
+                            : node.status === 'on_track'
+                            ? "text-[#A85D4C]"
+                            : "text-[#B38A3D]"
                         )}>
                           {node.score}%
                         </span>
                       </div>
 
-                      <div className="text-left">
-                        <div className="text-[10px] sm:text-[11px] font-bold text-[#292B2B] leading-tight flex items-center gap-1">
+                      <div className="text-left min-w-0">
+                        <div className="text-[11px] sm:text-xs font-bold text-[#292B2B] leading-tight flex items-center gap-1">
                           <span>{node.label}</span>
-                          {isGap && <AlertTriangle className="w-2.5 h-2.5 text-[#B38A3D] shrink-0" />}
+                          {isGap ? (
+                            <AlertTriangle className="w-3 h-3 text-[#B38A3D] shrink-0" />
+                          ) : node.status === 'proficient' ? (
+                            <CheckCircle2 className="w-3 h-3 text-[#2E8B57] shrink-0" />
+                          ) : null}
                         </div>
-                        <div className="text-[8px] sm:text-[9px] text-[#7A756E] font-mono">
-                          Target: {node.target}% {isGap ? '(-22% Gap)' : ''}
+                        <div className="text-[9px] sm:text-[10px] text-[#7A756E] font-mono mt-0.5 flex items-center gap-1.5">
+                          <span>Target: {node.target}%</span>
+                          {isGap ? (
+                            <span className="text-[#B38A3D] font-bold">(-22% Gap)</span>
+                          ) : node.status === 'proficient' ? (
+                            <span className="text-[#2E8B57] font-semibold">✓ Strong</span>
+                          ) : node.status === 'on_track' ? (
+                            <span className="text-[#A85D4C] font-semibold">On Track</span>
+                          ) : (
+                            <span className="text-[#B38A3D] font-semibold">(-24% Gap)</span>
+                          )}
                         </div>
                       </div>
                     </div>
 
                     {isGap && (
-                      <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-1.5 sm:px-2 py-0.2 rounded-md bg-[#B38A3D] text-[#FFFDF9] text-[7px] sm:text-[8px] font-bold tracking-wider shadow-xs uppercase font-mono">
+                      <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.2 rounded-md bg-[#B38A3D] text-[#FFFDF9] text-[7px] sm:text-[8px] font-bold tracking-wider shadow-xs uppercase font-mono border border-[#7D4036]/20">
                         PRIMARY BOTTLENECK
                       </div>
                     )}
@@ -244,7 +315,7 @@ export default function HeroIntelligence({ onExploreClick, onHowItWorksClick }: 
             </div>
 
             {/* Bottom Dynamic Diagnostic Insight Strip */}
-            <div className="p-3 sm:p-3.5 rounded-xl bg-[#EFEBE4]/90 border border-[#E2DDD5] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-left shadow-xs">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-[#F7F4EE]/90 backdrop-blur-sm border border-[#E2DDD5]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-left shadow-[0_1px_2px_rgba(45,48,48,0.02)]">
               <div className="flex items-start sm:items-center space-x-2.5 text-[#292B2B]">
                 <div className="w-7 h-7 rounded-lg bg-[#A85D4C]/10 flex items-center justify-center text-[#A85D4C] shrink-0 mt-0.5 sm:mt-0">
                   <Activity className="w-3.5 h-3.5" />

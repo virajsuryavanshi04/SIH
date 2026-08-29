@@ -223,7 +223,7 @@ export default function UploadZone({ onUploadSuccess }: Props) {
           size="sm"
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer px-5 rounded-xl"
+          className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer px-5 rounded-xl transition-all duration-200 ease-out"
         >
           {uploading ? (
             <div className="flex items-center gap-2">

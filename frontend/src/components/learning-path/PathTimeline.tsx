@@ -102,7 +102,7 @@ export default function PathTimeline({ items }: Props) {
 
                 {isCurrent && (
                   <Link to="/courses">
-                    <Button size="sm" className="bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-8.5 px-4 flex items-center gap-1.5 cursor-pointer">
+                    <Button size="sm" className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-8.5 px-4 flex items-center gap-1.5 cursor-pointer transition-all duration-200 ease-out">
                       <span>Start Learning</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Button>

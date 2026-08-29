@@ -1,36 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #2D3030;
-  --color-primary-deep: #2D3030;
-  --color-teal: #A85D4C;
-  --color-accent-teal: #7D4036;
-  --color-gold: #B38A3D;
+  /* Core Charcoal + Terracotta + Cream Tokens */
+  --color-charcoal: #2D3030;
+  --color-deep-terracotta: #7D4036;
+  --color-terracotta: #A85D4C;
+  --color-warm-cream: #F7F4EE;
+  --color-warm-white: #FFFDF9;
+  --color-primary-text: #292B2B;
   --color-slate: #7A756E;
   --color-muted: #8C857B;
-  --color-background: #F7F4EE;
-  --color-surface-subtle: #EFEBE4;
-  --color-surface: #EFEBE4;
-  --color-white: #FFFDF9;
+  --color-border: #E2DDD5;
+  --color-border-subtle: #EBE6DE;
+  --color-gold: #B38A3D;
+
+  /* 3-Level Surface Hierarchy */
+  --color-surface-lvl1: #F7F4EE; /* Level 1 — Page / Workspace Background */
+  --color-surface-lvl2: #FFFDF9; /* Level 2 — Primary Surface / Cards / Modals */
+  --color-surface-lvl3: #EFEBE4; /* Level 3 — Elevated / Pills / Containers */
+
+  /* Semantic Status Colors */
   --color-success: #2E8B57;
   --color-warning: #B38A3D;
   --color-critical: #D9534F;
   --color-info: #A85D4C;
 
-  /* Semantic mappings */
+  /* Compatibility Theme Mappings */
+  --color-navy: #2D3030;
+  --color-primary-deep: #2D3030;
+  --color-teal: #A85D4C;
+  --color-accent-teal: #7D4036;
   --color-primary: #A85D4C;
   --color-primary-dark: #2D3030;
   --color-accent: #7D4036;
+  --color-background: #F7F4EE;
+  --color-surface: #EFEBE4;
+  --color-surface-subtle: #EFEBE4;
+  --color-white: #FFFDF9;
   --color-text-primary: #292B2B;
   --color-text-secondary: #7A756E;
   --color-text-muted: #8C857B;
   --color-text: #292B2B;
   --color-dark: #2D3030;
-  --color-border: #E2DDD5;
-  --color-border-subtle: #EBE6DE;
 
+  /* Standard Typography & Radius Tokens */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius-xl: 1rem;
   --radius-lg: 0.75rem;
   --radius-md: 0.5rem;
   --radius-sm: 0.25rem;
@@ -65,6 +81,39 @@
   h1, h2, h3, h4, h5, h6 {
     color: #292B2B;
     letter-spacing: -0.02em;
+  }
+  ::selection {
+    background-color: rgba(168, 93, 76, 0.15);
+    color: #7D4036;
+  }
+}
+
+/* Reusable Glass & Depth Utilities */
+.glass-panel {
+  background-color: rgba(255, 253, 249, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 221, 213, 0.85);
+}
+
+.glass-dropdown {
+  background-color: rgba(255, 253, 249, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 221, 213, 0.9);
+  box-shadow: 0 4px 20px rgba(45, 48, 48, 0.08);
+}
+
+.glass-header {
+  background-color: rgba(255, 253, 249, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(226, 221, 213, 0.8);
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-panel, .glass-dropdown, .glass-header {
+    background-color: #FFFDF9;
   }
 }
 

@@ -75,10 +75,10 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
             <Card 
               key={option.id}
               className={cn(
-                "cursor-pointer transition-all border rounded-xl",
+                "cursor-pointer transition-all duration-200 ease-out border rounded-xl active:scale-[0.995]",
                 isSelected 
-                  ? "border-[#A85D4C] bg-[#A85D4C]/5 shadow-xs ring-2 ring-[#A85D4C]/20" 
-                  : "border-[#E2DDD5] hover:border-[#A85D4C]/50 hover:bg-[#EFEBE4] bg-[#FFFDF9]"
+                  ? "border-[#A85D4C] bg-[#A85D4C]/5 shadow-[0_1px_3px_rgba(168,93,76,0.15)] ring-2 ring-[#A85D4C]/25" 
+                  : "border-[#E2DDD5] hover:border-[#A85D4C]/50 hover:bg-[#F7F4EE] hover:shadow-xs bg-[#FFFDF9]"
               )}
               onClick={() => onSelect(option.id)}
             >

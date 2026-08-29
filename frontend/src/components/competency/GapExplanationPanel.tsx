@@ -104,7 +104,7 @@ export default function GapExplanationPanel({ isOpen, onClose, data }: Props) {
         
         <div className="p-6 border-t border-[#E2DDD5] bg-[#FFFDF9]">
           <Link to={data.gap > 0 ? "/learning-path" : "/assessment"}>
-            <Button className="w-full h-11 text-sm font-bold bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] shadow-xs flex items-center justify-center gap-2 cursor-pointer rounded-xl">
+            <Button className="w-full h-11 text-sm font-bold bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] shadow-xs flex items-center justify-center gap-2 cursor-pointer rounded-xl transition-all duration-200 ease-out">
               <span>{data.gap > 0 ? "Fix This Gap in Learning Path" : "Take Reassessment"}</span>
               <ArrowRight className="w-4 h-4" />
             </Button>

@@ -214,46 +214,25 @@ export default function Dashboard() {
         
         {/* A. YOUR READINESS */}
         <div className="bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] flex flex-col justify-between space-y-4">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#7A756E] block">
               YOUR READINESS
             </span>
             <div className="flex items-baseline gap-2.5">
-              <span className="text-4xl font-extrabold text-[#292B2B] font-mono">{overallReadiness}%</span>
+              <span className="text-4xl sm:text-5xl font-extrabold text-[#292B2B] font-mono tracking-tight">{overallReadiness}%</span>
               {deltaPoints > 0 && (
-                <span className="text-xs font-bold text-[#2E8B57] font-mono bg-[#2E8B57]/10 px-2 py-0.5 rounded-md border border-[#2E8B57]/20">
+                <span className="text-xs font-bold text-[#2E8B57] font-mono bg-[#2E8B57]/10 px-2.5 py-1 rounded-md border border-[#2E8B57]/20">
                   ↑ +{deltaPoints} pts
                 </span>
               )}
             </div>
+          </div>
+          <div className="pt-3 border-t border-[#E2DDD5]/70">
             <p className="text-xs text-[#7A756E] leading-relaxed">
               {assessmentsCount > 0 
                 ? `${assessmentsCount} verified assessment${assessmentsCount > 1 ? 's' : ''} recorded • Continuous evidence`
                 : 'Pending initial assessment evaluation'}
             </p>
-          </div>
-
-          {/* Sparkline from historical records */}
-          <div className="pt-1">
-            <div className="flex items-end gap-1.5 h-9 w-full bg-[#EFEBE4] p-2 rounded-xl border border-[#E2DDD5]">
-              {historyList.length > 0 ? (
-                historyList.slice(-5).map((h: any, i: number) => (
-                  <div 
-                    key={i} 
-                    style={{ height: `${Math.max(20, Math.min(100, h.score))}%` }} 
-                    className="bg-[#A85D4C] flex-1 rounded-xs transition-all"
-                    title={`${h.competency_name}: ${h.score}%`}
-                  />
-                ))
-              ) : (
-                <>
-                  <div className="bg-[#A85D4C]/20 w-1/4 h-[30%] rounded-xs" />
-                  <div className="bg-[#A85D4C]/40 w-1/4 h-[50%] rounded-xs" />
-                  <div className="bg-[#A85D4C]/60 w-1/4 h-[70%] rounded-xs" />
-                  <div className="bg-[#A85D4C] w-1/4 h-[90%] rounded-xs" />
-                </>
-              )}
-            </div>
           </div>
         </div>
 

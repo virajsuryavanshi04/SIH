@@ -12,7 +12,7 @@ interface Props {
 
 export default function StatCard({ title, value, icon: Icon, trend, trendUp = true }: Props) {
   return (
-    <Card className="border border-[#E2DDD5] bg-[#FFFDF9] shadow-sm rounded-2xl">
+    <Card className="border border-[#E2DDD5] bg-[#FFFDF9] shadow-[0_2px_8px_rgba(45,48,48,0.05)] rounded-2xl hover:border-[#A85D4C]/40 transition-all duration-200 ease-out">
       <CardContent className="p-5">
         <div className="flex justify-between items-start mb-3">
           <div className="w-11 h-11 bg-[#A85D4C]/10 border border-[#A85D4C]/20 rounded-xl flex items-center justify-center text-[#A85D4C] shadow-2xs">

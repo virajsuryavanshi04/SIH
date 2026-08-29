@@ -74,10 +74,10 @@ export default function CompetencyScorecard({
               key={comp.id}
               onClick={() => onSelect(comp)}
               className={cn(
-                "p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer text-left space-y-2.5",
+                "p-3.5 sm:p-4 rounded-xl border transition-all duration-200 ease-out cursor-pointer text-left space-y-2.5",
                 isSelected
                   ? "bg-[#A85D4C]/5 border-[#A85D4C] ring-2 ring-[#A85D4C]/20 shadow-xs"
-                  : "bg-[#FFFDF9] border-[#E2DDD5] hover:border-[#A85D4C]/40 hover:bg-[#EFEBE4]/60"
+                  : "bg-[#FFFDF9] border-[#E2DDD5] hover:border-[#A85D4C]/50 hover:bg-[#F7F4EE] hover:shadow-xs"
               )}
             >
               {/* Row 1: Competency Name & Status Badge */}

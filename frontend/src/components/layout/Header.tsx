@@ -141,7 +141,7 @@ export default function Header() {
   };
 
   return (
-    <header className="h-16 bg-[#FFFDF9] border-b border-[#E2DDD5] flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
+    <header className="h-16 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-[#E2DDD5]/80 flex items-center justify-between px-6 sm:px-8 sticky top-0 z-30">
       {/* Left: Greeting & Active Intelligence Status */}
       <div className="flex flex-col text-left">
         <h2 className="text-base sm:text-lg font-bold text-[#292B2B] tracking-tight">
@@ -176,8 +176,8 @@ export default function Header() {
 
           {/* Notifications Dropdown Panel */}
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFDF9] rounded-xl shadow-lg border border-[#E2DDD5] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="px-4 py-2.5 border-b border-[#E2DDD5] flex items-center justify-between">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#FFFDF9]/95 backdrop-blur-md rounded-xl shadow-[0_4px_20px_rgba(45,48,48,0.08)] border border-[#E2DDD5]/90 py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="px-4 py-2.5 border-b border-[#E2DDD5]/80 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <span className="text-xs font-bold text-[#292B2B] uppercase tracking-wider">Notifications</span>
                   {unreadCount > 0 && (
@@ -219,13 +219,9 @@ export default function Header() {
                           <p className={cn("text-xs font-bold text-[#292B2B] truncate", !n.read && "font-black")}>
                             {n.title}
                           </p>
-                          <span className="text-[10px] font-mono text-[#7A756E] shrink-0">
-                            {n.timestamp}
-                          </span>
+                          <span className="text-[10px] font-mono text-[#8C857B] shrink-0">{n.timestamp}</span>
                         </div>
-                        <p className="text-[11px] text-[#7A756E] leading-snug line-clamp-2">
-                          {n.message}
-                        </p>
+                        <p className="text-[11px] text-[#7A756E] line-clamp-2 leading-relaxed">{n.message}</p>
                       </div>
                       {!n.read && (
                         <span className="w-1.5 h-1.5 rounded-full bg-[#A85D4C] shrink-0 mt-1.5" />
@@ -238,59 +234,65 @@ export default function Header() {
           )}
         </div>
 
-        {/* Profile Avatar with Popover */}
-        <div className="relative border-l border-[#E2DDD5] pl-3" ref={profileRef}>
-          <button 
+        {/* User Profile Avatar with Popover */}
+        <div className="relative" ref={profileRef}>
+          <button
             onClick={() => {
               setProfileOpen(!profileOpen);
               setNotificationsOpen(false);
             }}
-            aria-label="User Profile Menu"
-            className="flex items-center space-x-2 rounded-full p-0.5 hover:ring-2 hover:ring-[#A85D4C]/30 transition-all cursor-pointer"
+            className="flex items-center space-x-2 p-1 rounded-xl hover:bg-[#EFEBE4] transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A85D4C]/20"
           >
-            <Avatar className="h-8 w-8 ring-1 ring-[#E2DDD5]">
-              <AvatarFallback className="bg-[#2D3030] text-[#FFFDF9] font-bold text-xs font-mono">
-                {user?.full_name?.charAt(0) || 'A'}
+            <Avatar className="w-8.5 h-8.5 rounded-xl border border-[#E2DDD5] bg-[#A85D4C] text-[#FFFDF9] shadow-2xs">
+              <AvatarFallback className="bg-[#A85D4C] text-[#FFFDF9] font-bold text-xs font-mono">
+                {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'A'}
               </AvatarFallback>
             </Avatar>
-            <ChevronDown className="w-3 h-3 text-[#7A756E] hidden sm:block" />
+            <ChevronDown className={cn("w-3.5 h-3.5 text-[#7A756E] transition-transform duration-150", profileOpen && "rotate-180")} />
           </button>
 
-          {/* Profile Dropdown Menu */}
+          {/* Profile Dropdown Panel */}
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-[#FFFDF9] rounded-xl shadow-lg border border-[#E2DDD5] py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              {/* User Details Header */}
-              <div className="px-4 py-3 border-b border-[#E2DDD5] space-y-1">
-                <p className="text-xs font-bold text-[#292B2B] leading-tight">
-                  {user?.full_name || 'Arjun Patel'}
-                </p>
-                <p className="text-[11px] text-[#7A756E] font-mono truncate">
-                  {user?.email || 'arjun.patel@gov.in'}
-                </p>
-                <div className="pt-1">
-                  <span className="inline-block px-2 py-0.5 bg-[#A85D4C]/10 text-[#A85D4C] font-mono text-[10px] font-bold rounded">
-                    {roleName}
+            <div className="absolute right-0 mt-2 w-64 bg-[#FFFDF9]/95 backdrop-blur-md rounded-xl shadow-[0_4px_20px_rgba(45,48,48,0.08)] border border-[#E2DDD5]/90 py-2 text-left z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              {/* User Identity Header */}
+              <div className="px-4 py-3 border-b border-[#E2DDD5]/80">
+                <p className="text-xs font-bold text-[#292B2B] truncate">{user?.full_name || 'Arjun Patel'}</p>
+                <p className="text-[11px] text-[#7A756E] truncate font-medium">{user?.email || 'arjun.patel@gov.in'}</p>
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20">
+                    {user?.designation || 'Statistical Officer'}
                   </span>
                 </div>
               </div>
 
-              {/* Menu Links */}
+              {/* Quick Links */}
               <div className="py-1">
                 <Link
                   to="/profile"
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] hover:text-[#7D4036] transition-colors"
+                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] transition-colors"
                 >
-                  <UserIcon className="w-3.5 h-3.5 text-[#A85D4C]" />
-                  <span>View Profile & Credentials</span>
+                  <UserIcon className="w-3.5 h-3.5 text-[#7A756E]" />
+                  <span>Profile & Official Evidence</span>
+                </Link>
+                <Link
+                  to="/competencies"
+                  onClick={() => setProfileOpen(false)}
+                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] transition-colors"
+                >
+                  <Brain className="w-3.5 h-3.5 text-[#7A756E]" />
+                  <span>Capability Map</span>
                 </Link>
               </div>
 
-              {/* Sign Out Button */}
-              <div className="pt-1 border-t border-[#E2DDD5]">
+              {/* Sign Out */}
+              <div className="border-t border-[#E2DDD5] pt-1 mt-1">
                 <button
-                  onClick={handleSignOut}
-                  className="flex items-center space-x-2.5 px-4 py-2 w-full text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] hover:text-[#B38A3D] transition-colors cursor-pointer text-left"
+                  onClick={() => {
+                    setProfileOpen(false);
+                    logout();
+                  }}
+                  className="flex items-center space-x-2.5 w-full px-4 py-2 text-xs font-medium text-[#D9534F] hover:bg-[#D9534F]/10 transition-colors cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

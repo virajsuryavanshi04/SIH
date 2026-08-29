@@ -14,7 +14,7 @@ interface Props {
 
 export default function AIInsightCard({ insight }: Props) {
   return (
-    <Card className="bg-[#FFFDF9] border border-[#E2DDD5] shadow-sm relative overflow-hidden rounded-2xl">
+    <Card className="bg-[#FFFDF9]/90 backdrop-blur-sm border border-[#E2DDD5] shadow-[0_2px_8px_rgba(45,48,48,0.04)] relative overflow-hidden rounded-2xl">
       <CardContent className="p-6 relative z-10 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-[#292B2B] font-bold text-sm uppercase tracking-wider">
@@ -42,7 +42,7 @@ export default function AIInsightCard({ insight }: Props) {
         
         <div className="pt-2">
           <Link to="/learning-path">
-            <Button className="w-full bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-bold shadow-xs">
+            <Button className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold shadow-xs transition-all duration-200 ease-out">
               View Recommended Path <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>

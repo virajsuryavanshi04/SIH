@@ -151,7 +151,7 @@ export default function DashboardPriorityGap({
         </div>
 
         <Link to={!isAssessed ? '/assessment' : '/courses'} className="block w-full">
-          <Button className="w-full bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-10 rounded-xl flex items-center justify-center gap-2 cursor-pointer">
+          <Button className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-10 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 ease-out">
             <span>{!isAssessed ? 'Take Baseline Assessment' : 'Start Learning Module'}</span>
             <ArrowRight className="w-4 h-4" />
           </Button>

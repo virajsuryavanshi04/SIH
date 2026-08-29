@@ -27,15 +27,15 @@ export default function PublicLayout() {
           </div>
         </div>
       </nav>
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         <Outlet />
       </main>
-      <footer className="bg-[#2D3030] border-t border-[#2D3030] py-8 text-center text-[#FFFDF9]/70 text-sm">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="bg-[#2D3030] border-t border-[#2D3030] py-4 sm:py-5 text-center text-[#FFFDF9]/70 text-xs sm:text-sm">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
-            <Brain className="w-5 h-5 text-[#A85D4C]" />
+            <Brain className="w-4.5 h-4.5 text-[#A85D4C]" />
             <span className="font-bold text-[#FFFDF9]">SmartLearn Platform</span>
-            <span className="text-[#FFFDF9]/60">| Capacity Building in India's Official Statistical System</span>
+            <span className="text-[#FFFDF9]/60 hidden md:inline">| Capacity Building in India's Official Statistical System</span>
           </div>
           <p>&copy; {new Date().getFullYear()} Ministry of Statistics & Programme Implementation. All rights reserved.</p>
         </div>

@@ -358,7 +358,7 @@ export default function CompetencyDiagnosticMatrix({ competencies, onSelectNode 
                             <Link to="/assessment" className="block">
                               <Button
                                 size="sm"
-                                className="w-full bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-semibold text-xs h-8 rounded-lg flex items-center justify-center gap-1 cursor-pointer"
+                                className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs h-8 rounded-lg flex items-center justify-center gap-1 cursor-pointer transition-all duration-200 ease-out"
                               >
                                 <span>Practice / Audit Competency</span>
                                 <ArrowRight className="w-3 h-3" />

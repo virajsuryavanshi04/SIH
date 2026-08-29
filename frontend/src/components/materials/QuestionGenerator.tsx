@@ -264,7 +264,7 @@ export default function QuestionGenerator({
               }
               setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1));
             }}
-            className="bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer rounded-xl"
+            className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold text-xs shadow-xs cursor-pointer rounded-xl"
           >
             <span>Approve & Next</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -335,7 +335,7 @@ export default function QuestionGenerator({
 
       <Button 
         size="lg" 
-        className="w-full bg-[#A85D4C] hover:bg-[#2D3030] text-[#FFFDF9] font-bold shadow-xs cursor-pointer flex items-center justify-center gap-2 rounded-xl" 
+        className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold shadow-xs cursor-pointer flex items-center justify-center gap-2 rounded-xl transition-all duration-200 ease-out" 
         onClick={handleGenerate} 
         disabled={generating}
       >
