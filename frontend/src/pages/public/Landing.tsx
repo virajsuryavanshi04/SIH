@@ -24,26 +24,26 @@ export default function Landing() {
       />
 
       {/* 2. THE 4-STEP VALUE PROPOSITION (Assess, Diagnose, Learn, Measure) */}
-      <section id="how-it-works" className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#FFFFFF] border-b border-[#D8E5EC]">
-        <div className="max-w-7xl mx-auto space-y-12 text-left">
-          <div className="space-y-3 max-w-3xl">
-            <span className="text-xs font-mono font-bold text-[#176B87] uppercase tracking-widest block">
+      <section id="how-it-works" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-[#FFFFFF] border-b border-[#D8E5EC]">
+        <div className="max-w-[1440px] mx-auto space-y-8 sm:space-y-10 text-left">
+          <div className="space-y-2.5 max-w-3xl">
+            <span className="text-xs font-semibold text-[#176B87] uppercase tracking-widest block">
               THE SMARTLEARN METHODOLOGY
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#123047] tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#123047] tracking-tight leading-tight">
               A continuous, evidence-based capability pipeline.
             </h2>
-            <p className="text-sm sm:text-base text-[#5D7180] leading-relaxed">
+            <p className="text-base sm:text-[17px] text-[#5D7180] leading-[1.6]">
               SmartLearn identifies competency gaps, diagnoses why they exist, recommends targeted learning through iGOT Karmayogi, and continuously measures capability growth.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Step 1: Assess */}
-            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/50 transition-all shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/40 transition-colors shadow-xs space-y-4 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-[#123B5D] text-[#FFFFFF] flex items-center justify-center font-mono font-bold text-sm shadow-xs">
-                  <Target className="w-5 h-5 text-[#D49A2A]" />
+                <div className="w-10 h-10 rounded-xl bg-[#123B5D]/10 text-[#123B5D] flex items-center justify-center font-mono font-bold text-sm shadow-xs">
+                  <Target className="w-5 h-5 text-[#123B5D]" />
                 </div>
                 <h3 className="text-lg font-semibold text-[#123047]">1. Assess</h3>
                 <p className="text-sm text-[#5D7180] leading-relaxed">
@@ -56,10 +56,10 @@ export default function Landing() {
             </div>
 
             {/* Step 2: Diagnose */}
-            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/50 transition-all shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/40 transition-colors shadow-xs space-y-4 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-[#176B87] text-[#FFFFFF] flex items-center justify-center font-mono font-bold text-sm shadow-xs">
-                  <Search className="w-5 h-5 text-[#FFFFFF]" />
+                <div className="w-10 h-10 rounded-xl bg-[#176B87]/10 text-[#176B87] flex items-center justify-center font-mono font-bold text-sm shadow-xs">
+                  <Search className="w-5 h-5 text-[#176B87]" />
                 </div>
                 <h3 className="text-lg font-semibold text-[#123047]">2. Diagnose</h3>
                 <p className="text-sm text-[#5D7180] leading-relaxed">
@@ -72,10 +72,10 @@ export default function Landing() {
             </div>
 
             {/* Step 3: Learn */}
-            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/50 transition-all shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/40 transition-colors shadow-xs space-y-4 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-[#D49A2A]/20 text-[#123B5D] border border-[#D49A2A]/40 flex items-center justify-center font-mono font-bold text-sm shadow-xs">
-                  <BookOpen className="w-5 h-5 text-[#123B5D]" />
+                <div className="w-10 h-10 rounded-xl bg-[#D49A2A]/15 text-[#D49A2A] border border-[#D49A2A]/30 flex items-center justify-center font-mono font-bold text-sm shadow-xs">
+                  <BookOpen className="w-5 h-5 text-[#D49A2A]" />
                 </div>
                 <h3 className="text-lg font-semibold text-[#123047]">3. Learn</h3>
                 <p className="text-sm text-[#5D7180] leading-relaxed">
@@ -88,14 +88,14 @@ export default function Landing() {
             </div>
 
             {/* Step 4: Measure */}
-            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/50 transition-all shadow-[0_1px_3px_rgba(11,37,69,0.04)] space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl border border-[#D8E5EC] bg-[#FFFFFF] hover:border-[#176B87]/40 transition-colors shadow-xs space-y-4 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-[#2E8B57]/15 text-[#2E8B57] border border-[#2E8B57]/30 flex items-center justify-center font-mono font-bold text-sm shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-[#2E8B57]/10 text-[#2E8B57] border border-[#2E8B57]/20 flex items-center justify-center font-mono font-bold text-sm shadow-xs">
                   <TrendingUp className="w-5 h-5 text-[#2E8B57]" />
                 </div>
                 <h3 className="text-lg font-semibold text-[#123047]">4. Measure</h3>
                 <p className="text-sm text-[#5D7180] leading-relaxed">
-                  Adaptive reassessments verify capability gains over time, updating the officer's live capability portfolio and readiness telemetry.
+                  Adaptive reassessments verify capability gains over time, updating the officer's live capability portfolio and readiness profile.
                 </p>
               </div>
               <div className="pt-2 text-xs font-mono text-[#2E8B57] font-semibold">

@@ -7,7 +7,7 @@ export default function About() {
       <div className="text-center space-y-4">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#176B87]/10 text-[#176B87] border border-[#176B87]/20 shadow-xs">
           <Sparkles className="w-3.5 h-3.5 text-[#176B87]" />
-          <span>SIH26101 Solution Architecture</span>
+          <span>SmartLearn Solution Architecture</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-[#123B5D] tracking-tight">
           About SmartLearn Intelligence Platform

@@ -54,12 +54,7 @@ export default function Login() {
             <div className="w-9 h-9 rounded-xl bg-[#176B87] flex items-center justify-center text-[#FFFFFF] shadow-sm">
               <Brain className="w-5 h-5" />
             </div>
-            <div className="flex items-center">
-              <span className="text-xl font-bold tracking-tight text-[#123047]">SmartLearn</span>
-              <span className="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-[#D49A2A]/15 text-[#123047] border border-[#D49A2A]/30">
-                SIH 2026
-              </span>
-            </div>
+            <span className="text-xl font-bold tracking-tight text-[#123047]">SmartLearn</span>
           </div>
           <div>
             <CardTitle className="text-lg font-bold tracking-tight text-[#123047]">Official Portal Access</CardTitle>

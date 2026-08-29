@@ -2,7 +2,7 @@
  * Demonstration Dataset for SmartLearn National Workforce Competency Intelligence
  * 
  * NOTE: All statistics in this file are illustrative sample datasets designed
- * for product demonstration and SIH 2026 evaluation. They do not represent
+ * for product demonstration and capacity building evaluation. They do not represent
  * live Government of India census records.
  */
 
