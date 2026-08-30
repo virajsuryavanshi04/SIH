@@ -5,8 +5,12 @@ import unittest
 import io
 from fastapi.testclient import TestClient
 
+from pathlib import Path
+
 # Ensure backend directory is in python path
-sys.path.insert(0, "d:/Affan/Hackathons/SIH/SmartLearn/backend")
+backend_dir = Path(__file__).resolve().parent.parent / "backend"
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 from main import app
 from config import settings

@@ -1,12 +1,16 @@
 import os
+import sys
+from pathlib import Path
 import unittest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from fastapi import status
 
-# Adjust path to import backend modules
-import sys
-sys.path.insert(0, "d:/Affan/Hackathons/SIH/SmartLearn/backend")
+# Adjust path to import backend modules dynamically relative to repo root
+BASE_DIR = Path(__file__).resolve().parent.parent
+backend_dir = BASE_DIR / "backend"
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 from main import app
 from config import Settings, settings
@@ -133,7 +137,7 @@ class TestPhase6ProductionHardening(unittest.TestCase):
 
     def test_11_frontend_production_build_artifacts(self):
         """TEST 11: Frontend production build artifacts exist and chunking is optimized."""
-        dist_dir = "d:/Affan/Hackathons/SIH/SmartLearn/frontend/dist"
+        dist_dir = os.path.join(BASE_DIR, "frontend", "dist")
         self.assertTrue(os.path.exists(dist_dir), "frontend/dist does not exist.")
         assets_dir = os.path.join(dist_dir, "assets")
         self.assertTrue(os.path.exists(assets_dir), "frontend/dist/assets does not exist.")
@@ -145,10 +149,10 @@ class TestPhase6ProductionHardening(unittest.TestCase):
 
     def test_12_docker_configuration(self):
         """TEST 12: Docker configuration files exist with valid service definitions."""
-        base_dir = "d:/Affan/Hackathons/SIH/SmartLearn"
-        self.assertTrue(os.path.exists(os.path.join(base_dir, "backend/Dockerfile")))
-        self.assertTrue(os.path.exists(os.path.join(base_dir, "frontend/Dockerfile")))
-        self.assertTrue(os.path.exists(os.path.join(base_dir, "frontend/nginx.conf")))
+        base_dir = str(BASE_DIR)
+        self.assertTrue(os.path.exists(os.path.join(base_dir, "backend", "Dockerfile")))
+        self.assertTrue(os.path.exists(os.path.join(base_dir, "frontend", "Dockerfile")))
+        self.assertTrue(os.path.exists(os.path.join(base_dir, "frontend", "nginx.conf")))
         self.assertTrue(os.path.exists(os.path.join(base_dir, "docker-compose.yml")))
         self.assertTrue(os.path.exists(os.path.join(base_dir, ".dockerignore")))
 
@@ -160,7 +164,7 @@ class TestPhase6ProductionHardening(unittest.TestCase):
 
     def test_13_ci_configuration(self):
         """TEST 13: GitHub Actions CI workflow exists and defines backend tests & frontend build."""
-        ci_path = "d:/Affan/Hackathons/SIH/SmartLearn/.github/workflows/ci.yml"
+        ci_path = os.path.join(BASE_DIR, ".github", "workflows", "ci.yml")
         self.assertTrue(os.path.exists(ci_path), ".github/workflows/ci.yml does not exist.")
 
         with open(ci_path, "r", encoding="utf-8") as f:

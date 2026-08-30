@@ -4,9 +4,11 @@ import unittest
 from datetime import datetime, timedelta
 from fastapi.testclient import TestClient
 
-backend_dir = "d:/Affan/Hackathons/SIH/SmartLearn/backend"
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
+from pathlib import Path
+
+backend_dir = Path(__file__).resolve().parent.parent / "backend"
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 from main import app
 from database import SessionLocal

@@ -1,7 +1,7 @@
 import os
 import re
 
-d = r"d:\Affan\Hackathons\SIH\SmartLearn\backend"
+d = os.path.dirname(os.path.abspath(__file__))
 
 for r, _, fs in os.walk(d):
     for f in fs:

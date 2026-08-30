@@ -5,10 +5,12 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from datetime import datetime
 
+from pathlib import Path
+
 # Adjust path to import backend modules
-backend_dir = r"d:\Affan\Hackathons\SIH\SmartLearn\backend"
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
+backend_dir = Path(__file__).resolve().parent.parent / "backend"
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 from main import app
 from database import SessionLocal

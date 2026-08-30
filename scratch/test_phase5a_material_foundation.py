@@ -3,8 +3,12 @@ import sys
 import io
 import unittest
 
+from pathlib import Path
+
 # Add backend to path
-sys.path.insert(0, os.path.abspath("d:/Affan/Hackathons/SIH/SmartLearn/backend"))
+backend_dir = Path(__file__).resolve().parent.parent / "backend"
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
