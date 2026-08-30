@@ -6,7 +6,7 @@ import { CompetencyScorecardItem } from '@/components/dashboard/CompetencyScorec
 import DashboardPriorityGap from '@/components/dashboard/DashboardPriorityGap';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { competencyApi, courseApi, learningPathApi } from '@/lib/api';
+import { competencyApi, courseApi, learningPathApi, recommendationApi } from '@/lib/api';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [learningPath, setLearningPath] = useState<any>(null);
   const [historyList, setHistoryList] = useState<any[]>([]);
+  const [nextAction, setNextAction] = useState<any>(null);
   
   const [scorecardItems, setScorecardItems] = useState<CompetencyScorecardItem[]>([]);
   const [selectedScorecardItem, setSelectedScorecardItem] = useState<CompetencyScorecardItem | null>(null);
@@ -29,13 +30,14 @@ export default function Dashboard() {
     const fetchDashboardTelemetry = async () => {
       try {
         setLoading(true);
-        const [compRes, insightRes, diagRes, recRes, pathRes, histRes] = await Promise.allSettled([
+        const [compRes, insightRes, diagRes, recRes, pathRes, histRes, nextActionRes] = await Promise.allSettled([
           competencyApi.getMyCompetencies(),
           competencyApi.getMyInsights(),
           competencyApi.getMyDiagnosis(),
           courseApi.getRecommended(),
           learningPathApi.get(),
           competencyApi.getMyHistory(),
+          recommendationApi.getNextAction(),
         ]);
 
         const rawComps = compRes.status === 'fulfilled' ? compRes.value.data || [] : [];
@@ -44,6 +46,7 @@ export default function Dashboard() {
         const rawRecs = recRes.status === 'fulfilled' ? recRes.value.data || [] : [];
         const rawPath = pathRes.status === 'fulfilled' ? pathRes.value.data || null : null;
         const rawHist = histRes.status === 'fulfilled' ? histRes.value.data || [] : [];
+        const rawNextAction = nextActionRes.status === 'fulfilled' ? nextActionRes.value.data || null : null;
 
         setCompetencies(rawComps);
         setInsights(rawInsights);
@@ -51,6 +54,7 @@ export default function Dashboard() {
         setRecommendations(rawRecs);
         setLearningPath(rawPath);
         setHistoryList(rawHist);
+        setNextAction(rawNextAction);
 
         // 1. Build Radial Competency Nodes
         const builtRadialNodes: RadialCompetencyNode[] = rawComps.map((c: any) => {
@@ -303,28 +307,30 @@ export default function Dashboard() {
         {/* C. NEXT STEP */}
         <div className="bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] flex flex-col justify-between space-y-4">
           <div className="space-y-1.5">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#A85D4C] block">
-              NEXT STEP
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-[#292B2B] leading-snug truncate">
-              {topRecommendation ? topRecommendation.title : 'Take Adaptive Assessment'}
-            </h3>
-            <p className="text-xs text-[#7A756E] leading-relaxed flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#A85D4C] shrink-0" />
-              <span className="truncate">
-                {topRecommendation 
-                  ? `${topRecommendation.duration_hours}h • ${topRecommendation.provider}` 
-                  : '15 min • Multi-Competency Diagnostic'}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#A85D4C]">
+                NEXT STEP
               </span>
+              {nextAction && (
+                <span className="text-[10px] font-mono font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2 py-0.5 rounded-md border border-[#A85D4C]/25">
+                  {nextAction.action_type.replace('_', ' ')}
+                </span>
+              )}
+            </div>
+            <h3 className="text-base sm:text-lg font-bold text-[#292B2B] leading-snug truncate">
+              {nextAction ? nextAction.title : (topRecommendation ? topRecommendation.title : 'Take Adaptive Assessment')}
+            </h3>
+            <p className="text-xs text-[#7A756E] leading-relaxed line-clamp-2">
+              {nextAction ? nextAction.reason : (topRecommendation ? `${topRecommendation.duration_hours}h • ${topRecommendation.provider}` : '15 min • Multi-Competency Diagnostic')}
             </p>
           </div>
 
-          <Link to="/learning-path" className="block w-full">
+          <Link to={nextAction ? nextAction.next_step.route : "/learning-path"} className="block w-full">
             <Button
               size="default"
               className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-9.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>{topRecommendation ? 'Launch Recommended Module' : 'View Learning Path'}</span>
+              <span>{nextAction ? nextAction.next_step.label : (topRecommendation ? 'Launch Recommended Module' : 'View Learning Path')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </Link>

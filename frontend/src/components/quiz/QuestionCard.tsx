@@ -13,6 +13,7 @@ export interface QuestionData {
   id: number;
   text: string;
   question_text?: string;
+  question_type?: string;
   difficulty?: string;
   competency_id?: number;
   competency_name?: string;
@@ -35,6 +36,12 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
     return { label: 'Level 3: Policy & Analysis', color: 'bg-[#B38A3D]/15 text-[#292B2B] border-[#B38A3D]/40' };
   };
 
+  const getTypeLabel = (type?: string) => {
+    if (type === 'WORD_PROBLEM') return 'Word Problem';
+    if (type === 'CASE_STUDY') return 'Case Study';
+    return 'Short MCQ';
+  };
+
   const diffTag = getDifficultyLabel(question.difficulty);
 
   return (
@@ -48,6 +55,11 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
             <span>{question.competency_name}</span>
           </span>
         )}
+
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-[#EFEBE4] text-[#A85D4C] border border-[#E2DDD5]">
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>{getTypeLabel(question.question_type)}</span>
+        </span>
 
         {question.topic_name && (
           <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5]">

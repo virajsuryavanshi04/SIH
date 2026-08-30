@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - SECRET_KEY=smartlearn-secure-production-key-2026-sih
+      - DATABASE_URL=sqlite:///./smartlearn.db
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:80
+      - AI_PROVIDER=mock
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/smartlearn.db:/app/smartlearn.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

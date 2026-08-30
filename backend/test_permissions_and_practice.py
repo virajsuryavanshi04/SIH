@@ -52,6 +52,10 @@ def test_permissions_and_practice_workflow():
 
     admin_token = create_access_token(data={"sub": admin.email, "role": "admin"})
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    db.close()
+
+    from config import settings
+    settings.AI_PROVIDER = "mock"
 
     # ------------------------------------------------------------
     # TEST 1: Authentication & Role Verification
@@ -72,7 +76,7 @@ def test_permissions_and_practice_workflow():
         "assessment_type": "practice",
         "competency_ids": [1],
         "difficulty": "2",
-        "question_count": 5
+        "question_count": 10
     })
     assert practice_res.status_code == 200, f"Practice start failed: {practice_res.text}"
     p_data = practice_res.json()

@@ -15,10 +15,14 @@ class Assessment(Base):
     completed_at = Column(DateTime, nullable=True)
     overall_score = Column(Float, nullable=True)
     adaptive_state = Column(JSON, nullable=True)  # stores real-time streak, per-topic difficulty, and progress
+    source_material_id = Column(Integer, ForeignKey("learning_materials.id"), nullable=True)
+    material_quiz_set_id = Column(Integer, ForeignKey("material_quiz_question_sets.id"), nullable=True)
 
     user = relationship("User", back_populates="assessments")
     answers = relationship("AssessmentAnswer", back_populates="assessment", cascade="all, delete-orphan")
     diagnoses = relationship("AIDiagnosis", back_populates="assessment", cascade="all, delete-orphan")
+    source_material = relationship("LearningMaterial", foreign_keys=[source_material_id])
+    material_quiz_set = relationship("MaterialQuizQuestionSet", foreign_keys=[material_quiz_set_id])
 
 class Question(Base):
     __tablename__ = "questions"
@@ -51,6 +55,22 @@ class Question(Base):
     competency = relationship("Competency")
     topic = relationship("CompetencyTopic", back_populates="questions")
     material = relationship("LearningMaterial", foreign_keys=[source_material_id])
+    review_history = relationship("QuestionReviewHistory", back_populates="question", cascade="all, delete-orphan", order_by="desc(QuestionReviewHistory.created_at)")
+
+class QuestionReviewHistory(Base):
+    __tablename__ = "question_review_history"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
+    admin_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    previous_status = Column(String(50), nullable=True)
+    new_status = Column(String(50), nullable=False)
+    action = Column(String(50), nullable=False)  # APPROVE, REJECT, EDIT
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    question = relationship("Question", back_populates="review_history")
+    admin_user = relationship("User")
 
 class QuestionOption(Base):
     __tablename__ = "question_options"
@@ -68,9 +88,11 @@ class AssessmentAnswer(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False, index=True)
-    question_id = Column(Integer, ForeignKey("questions.id"), nullable=False, index=True)
+    question_id = Column(Integer, ForeignKey("questions.id"), nullable=True, index=True)
+    material_quiz_question_id = Column(Integer, ForeignKey("material_quiz_questions.id"), nullable=True, index=True)
     selected_answer = Column(Text, nullable=True)
     selected_option_id = Column(Integer, ForeignKey("question_options.id"), nullable=True)
+    selected_material_option_id = Column(Integer, ForeignKey("material_quiz_options.id"), nullable=True)
     is_correct = Column(Boolean, nullable=True)
     confidence_level = Column(Integer, nullable=False, default=2)  # 1 = Low, 2 = Medium, 3 = High
     response_time = Column(Integer, nullable=True)  # in seconds
@@ -80,6 +102,8 @@ class AssessmentAnswer(Base):
     assessment = relationship("Assessment", back_populates="answers")
     question = relationship("Question")
     selected_option = relationship("QuestionOption")
+    material_quiz_question = relationship("MaterialQuizQuestion", foreign_keys=[material_quiz_question_id])
+    selected_material_option = relationship("MaterialQuizOption", foreign_keys=[selected_material_option_id])
 
 class UserQuestionHistory(Base):
     """Tracks seen questions per user to prevent repetitive exposure."""

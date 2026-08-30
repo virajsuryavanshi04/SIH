@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from auth.dependencies import get_current_user
 from models.user import User
+from models.competency import Competency, RoleCompetency
 from models.assessment import Assessment, AssessmentAnswer, QuestionOption, Question
 from schemas.assessment import (
     StartAssessmentRequest, 
@@ -31,16 +32,97 @@ def start_assessment(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Starts an official assessment (baseline, adaptive_reassessment, or practice).
-    Initializes adaptive state and selects calibrated questions.
+    Starts an official assessment session with configurable question count, question type,
+    and adaptive difficulty. Validates eligible approved question pool before creation.
     """
-    ass_type = req.assessment_type or "baseline"
+    ass_type = req.assessment_type or "adaptive"
     
-    # Initialize real-time adaptive state
+    # 1. Validate Question Count (must be in {10, 15, 20})
+    raw_count = req.question_count if req.question_count is not None else 10
+    if raw_count not in [10, 15, 20]:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid question count. Supported question counts are 10, 15, or 20."
+        )
+    target_count = int(raw_count)
+
+    # 2. Validate Question Type
+    raw_type = (req.question_type or "MIXED").strip().upper()
+    valid_types = ["SHORT_MCQ", "WORD_PROBLEM", "CASE_STUDY", "MIXED"]
+    if raw_type not in valid_types:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid question type. Supported question types are Short MCQ, Word Problem, Case Study, or Mixed."
+        )
+    q_type = raw_type
+
+    # 3. Resolve & Validate Competencies
+    target_comp_ids = []
+    if req.competency_id:
+        target_comp_ids = [req.competency_id]
+    elif req.competency_ids:
+        target_comp_ids = req.competency_ids
+    elif current_user and current_user.role_id:
+        role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == current_user.role_id).all()
+        target_comp_ids = [r.competency_id for r in role_reqs]
+    elif current_user and current_user.designation:
+        role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == current_user.designation).all()
+        target_comp_ids = [r.competency_id for r in role_reqs]
+
+    if not target_comp_ids:
+        target_comp_ids = [c.id for c in db.query(Competency).all()]
+
+    if not target_comp_ids:
+        target_comp_ids = [1, 2, 3, 4, 5, 6, 7, 8]
+
+    # Verify competencies exist
+    existing_comps = db.query(Competency).filter(Competency.id.in_(target_comp_ids)).all()
+    if len(existing_comps) != len(set(target_comp_ids)):
+        raise HTTPException(status_code=422, detail="One or more specified competencies do not exist.")
+
+    # 4. Check Approved Pool Sufficiency BEFORE Creating Assessment Record
+    from sqlalchemy import or_
+    pool_query = db.query(Question).filter(
+        Question.status == "approved",
+        Question.competency_id.in_(target_comp_ids)
+    )
+    if q_type == "SHORT_MCQ":
+        pool_query = pool_query.filter(or_(Question.question_type == "SHORT_MCQ", Question.question_type.is_(None)))
+    elif q_type in ["WORD_PROBLEM", "CASE_STUDY"]:
+        pool_query = pool_query.filter(Question.question_type == q_type)
+    elif q_type == "MIXED":
+        pool_query = pool_query.filter(or_(Question.question_type.in_(["SHORT_MCQ", "WORD_PROBLEM", "CASE_STUDY"]), Question.question_type.is_(None)))
+
+    available_count = pool_query.count()
+    if available_count < target_count:
+        type_display = {
+            "SHORT_MCQ": "Short MCQ",
+            "WORD_PROBLEM": "Word Problem",
+            "CASE_STUDY": "Case Study",
+            "MIXED": "Mixed"
+        }.get(q_type, q_type)
+        
+        if len(target_comp_ids) == 1:
+            comp_obj = db.query(Competency).filter(Competency.id == target_comp_ids[0]).first()
+            comp_display = comp_obj.name if comp_obj else "the selected competency"
+        else:
+            comp_display = "the selected competencies"
+
+        raise HTTPException(
+            status_code=422,
+            detail=f"Only {available_count} approved {type_display} questions are currently available for {comp_display}. Please choose a smaller assessment or another question type."
+        )
+
+    # 5. Initialize Adaptive State
     adaptive_state = AdaptiveAssessmentService.initialize_adaptive_state(
-        db, current_user, req.competency_ids, req.question_count or 8
+        db=db,
+        user=current_user,
+        competency_ids=target_comp_ids,
+        target_question_count=target_count,
+        question_type=q_type
     )
 
+    # 6. Create Assessment Record
     assessment = Assessment(
         user_id=current_user.id, 
         assessment_type=ass_type,
@@ -52,43 +134,75 @@ def start_assessment(
     db.commit()
     db.refresh(assessment)
     
-    questions = select_questions(
-        db, 
-        user=current_user, 
-        competency_ids=req.competency_ids, 
-        difficulty=req.difficulty, 
-        question_count=req.question_count,
-        assessment_type=ass_type
-    )
-    
+    # 7. Select Initial Question(s)
     q_list = []
     comp_names = set()
-    for q in questions:
-        c_name = getattr(q, 'competency_name', q.competency.name if q.competency else "Competency")
-        comp_names.add(c_name)
-        t_name = getattr(q, 'topic_name', q.topic.name if q.topic else None)
-        
-        # Options without is_correct leak
-        opts = [OptionResponse(id=o.id, text=o.text, order=o.order) for o in sorted(q.options, key=lambda x: x.order)]
-        
-        q_list.append(QuestionResponse(
-            id=q.id,
-            text=q.question_text or q.text,
-            question_text=q.question_text or q.text,
-            question_type="mcq",
-            difficulty=str(q.difficulty),
-            competency_id=q.competency_id,
-            competency_name=c_name,
-            topic_id=q.topic_id,
-            topic_name=t_name,
-            cognitive_level=q.cognitive_level or "understand",
-            options=opts
-        ))
+
+    if ass_type == "adaptive":
+        first_cid = adaptive_state["current_competency_id"]
+        first_tid = adaptive_state["current_topic_id"]
+        first_diff = adaptive_state["current_difficulty"]
+
+        first_q, _ = AdaptiveAssessmentService.select_adaptive_question(
+            db=db,
+            user_id=current_user.id,
+            competency_id=first_cid,
+            topic_id=first_tid,
+            difficulty=first_diff,
+            excluded_ids=[],
+            question_type=q_type
+        )
+        if first_q:
+            c_name = first_q.competency.name if first_q.competency else "Official Competency"
+            comp_names.add(c_name)
+            t_name = first_q.topic.name if first_q.topic else "General Concept"
+            opts = [OptionResponse(id=o.id, text=o.text, order=o.order) for o in sorted(first_q.options, key=lambda x: x.order)]
+            q_list.append(QuestionResponse(
+                id=first_q.id,
+                text=first_q.question_text or first_q.text,
+                question_text=first_q.question_text or first_q.text,
+                question_type=first_q.question_type or "SHORT_MCQ",
+                difficulty=str(first_q.difficulty),
+                competency_id=first_q.competency_id,
+                competency_name=c_name,
+                topic_id=first_q.topic_id,
+                topic_name=t_name,
+                cognitive_level=first_q.cognitive_level or "understand",
+                options=opts
+            ))
+    else:
+        questions = select_questions(
+            db, 
+            user=current_user, 
+            competency_ids=target_comp_ids, 
+            difficulty=req.difficulty, 
+            question_count=target_count,
+            assessment_type=ass_type,
+            question_type=q_type
+        )
+        for q in questions:
+            c_name = getattr(q, 'competency_name', q.competency.name if q.competency else "Competency")
+            comp_names.add(c_name)
+            t_name = getattr(q, 'topic_name', q.topic.name if q.topic else None)
+            opts = [OptionResponse(id=o.id, text=o.text, order=o.order) for o in sorted(q.options, key=lambda x: x.order)]
+            q_list.append(QuestionResponse(
+                id=q.id,
+                text=q.question_text or q.text,
+                question_text=q.question_text or q.text,
+                question_type=q.question_type or "SHORT_MCQ",
+                difficulty=str(q.difficulty),
+                competency_id=q.competency_id,
+                competency_name=c_name,
+                topic_id=q.topic_id,
+                topic_name=t_name,
+                cognitive_level=q.cognitive_level or "understand",
+                options=opts
+            ))
         
     return AssessmentStartResponse(
         assessment_id=assessment.id,
         assessment_type=ass_type,
-        total_questions=len(q_list),
+        total_questions=target_count,
         competencies_covered=list(comp_names),
         questions=q_list
     )
@@ -102,7 +216,7 @@ def adaptive_next_step(
 ):
     """
     Submits an answer and returns the next dynamically adapted question based on streak,
-    difficulty adjustments, and weak subtopic detection.
+    difficulty adjustments, and weak subtopic detection within the configured question type pool.
     """
     assessment = db.query(Assessment).filter(Assessment.id == id, Assessment.user_id == current_user.id).first()
     if not assessment:
@@ -139,12 +253,13 @@ def adaptive_next_step(
         id=nq["id"],
         text=nq["text"],
         question_text=nq["text"],
-        difficulty=nq["difficulty"],
-        competency_id=nq["competency_id"],
-        competency_name=nq["competency_name"],
-        topic_id=nq["topic_id"],
-        topic_name=nq["topic_name"],
-        cognitive_level=nq["cognitive_level"],
+        question_type=nq.get("question_type", "SHORT_MCQ"),
+        difficulty=nq.get("difficulty", "2"),
+        competency_id=nq.get("competency_id"),
+        competency_name=nq.get("competency_name"),
+        topic_id=nq.get("topic_id"),
+        topic_name=nq.get("topic_name"),
+        cognitive_level=nq.get("cognitive_level", "understand"),
         options=opts
     )
 
@@ -200,12 +315,18 @@ def get_result(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
-    """Fetch structured diagnostic results for an assessment session."""
-    assessment = db.query(Assessment).filter(Assessment.id == id, Assessment.user_id == current_user.id).first()
+    """Fetch structured diagnostic results and response review for an assessment session."""
+    assessment = db.query(Assessment).filter(Assessment.id == id).first()
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment session not found")
         
-    return get_assessment_result(db, id, current_user.id)
+    if assessment.user_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Access denied. You can only view your own assessment results.")
+
+    if assessment.status != "completed":
+        raise HTTPException(status_code=400, detail="Assessment results are available only after assessment completion.")
+
+    return get_assessment_result(db, id, assessment.user_id)
 
 @router.get("/history/list")
 def get_history(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

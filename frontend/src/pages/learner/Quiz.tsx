@@ -96,7 +96,7 @@ export default function Quiz() {
       setSubmitting(true);
       const timeTaken = Math.max(5, Math.round((Date.now() - startTime) / 1000));
       
-      if (assessmentType === 'adaptive') {
+      if (assessmentType === 'adaptive' || assessmentType === 'material_quiz') {
         // Dynamic adaptive step progression
         const stepRes = await assessmentApi.adaptiveNext(assessmentId, {
           question_id: currentQuestion.id,
@@ -197,7 +197,8 @@ export default function Quiz() {
     );
   }
 
-  const progressPercent = questions.length > 0 ? ((currentIndex) / Math.max(questions.length, 8)) * 100 : 0;
+  const targetTotalQuestions = location.state?.totalQuestions || 10;
+  const progressPercent = targetTotalQuestions > 0 ? ((currentIndex + 1) / targetTotalQuestions) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-[#F7F4EE] flex flex-col selection:bg-[#A85D4C]/20 selection:text-[#2D3030]">
@@ -240,13 +241,13 @@ export default function Quiz() {
         {/* Progress Bar & Header */}
         <div className="py-4 space-y-2 text-left">
           <div className="flex justify-between text-xs font-semibold text-[#292B2B]">
-            <span>Question {currentIndex + 1} {questions.length > 0 ? `of ${Math.max(questions.length, 8)}` : ''}</span>
+            <span>Question {currentIndex + 1} of {targetTotalQuestions}</span>
             <span className="font-mono flex items-center gap-1 text-[#A85D4C]">
               <Sparkles className="w-3 h-3" />
               <span>Real-Time Difficulty Calibration</span>
             </span>
           </div>
-          <Progress value={Math.min(100, Math.max(10, progressPercent))} indicatorColor="bg-[#A85D4C]" className="h-2 bg-[#E2DDD5]" />
+          <Progress value={Math.min(100, Math.max(5, progressPercent))} indicatorColor="bg-[#A85D4C]" className="h-2 bg-[#E2DDD5]" />
         </div>
 
         {/* Question Card Arena */}

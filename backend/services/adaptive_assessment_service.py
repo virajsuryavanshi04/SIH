@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Optional, Tuple
 import random
 
 from models.assessment import Question, QuestionOption, Assessment, AssessmentAnswer, UserQuestionHistory
+from models.material import LearningMaterial, MaterialQuizQuestionSet, MaterialQuizQuestion, MaterialQuizOption
 from models.competency import Competency, CompetencyTopic, RoleCompetency
 from models.user_competency import UserCompetency, CompetencyScore
 from models.user import User
@@ -40,7 +41,8 @@ class AdaptiveAssessmentService:
         db: Session, 
         user: User, 
         competency_ids: Optional[List[int]] = None, 
-        target_question_count: int = 10
+        target_question_count: int = 10,
+        question_type: Optional[str] = "MIXED"
     ) -> Dict[str, Any]:
         """
         Initializes per-competency and per-topic starting difficulty based on user's existing evidence.
@@ -89,8 +91,11 @@ class AdaptiveAssessmentService:
         first_topics = [t.id for t in topics if t.competency_id == first_cid]
         first_tid = first_topics[0] if first_topics else None
 
+        normalized_q_type = (question_type or "MIXED").upper()
+
         state = {
             "competency_ids": comp_ids,
+            "question_type": normalized_q_type,
             "per_competency_difficulty": per_comp_diff,
             "per_topic_difficulty": per_topic_diff,
             "streaks": {str(cid): {"correct": 0, "incorrect": 0} for cid in comp_ids},
@@ -105,7 +110,7 @@ class AdaptiveAssessmentService:
             "current_topic_id": first_tid,
             "current_difficulty": per_comp_diff.get(str(first_cid), 2),
             "answered_count": 0,
-            "target_question_count": max(len(comp_ids), target_question_count),
+            "target_question_count": target_question_count,
             "seen_question_ids": []
         }
         return state
@@ -154,10 +159,12 @@ class AdaptiveAssessmentService:
         competency_id: int, 
         topic_id: Optional[int], 
         difficulty: int, 
-        excluded_ids: List[int]
+        excluded_ids: List[int],
+        question_type: Optional[str] = None
     ) -> Tuple[Optional[Question], bool]:
         """
-        Finds a validated question matching competency, topic, and difficulty while avoiding seen questions.
+        Finds an approved question matching competency, question_type, and difficulty.
+        Strictly restricts selection to approved questions.
         Returns: (Question | None, question_generation_required: bool)
         """
         # Fetch user's persistent seen questions history
@@ -166,6 +173,18 @@ class AdaptiveAssessmentService:
         all_excluded = set(excluded_ids).union(user_seen)
 
         diff_aliases = cls.difficulty_str_list(difficulty)
+        norm_type = (question_type or "MIXED").upper()
+
+        from sqlalchemy import or_
+
+        def apply_type_filter(q_query):
+            if norm_type == "SHORT_MCQ":
+                return q_query.filter(or_(Question.question_type == "SHORT_MCQ", Question.question_type.is_(None)))
+            elif norm_type in ["WORD_PROBLEM", "CASE_STUDY"]:
+                return q_query.filter(Question.question_type == norm_type)
+            elif norm_type == "MIXED":
+                return q_query.filter(or_(Question.question_type.in_(["SHORT_MCQ", "WORD_PROBLEM", "CASE_STUDY"]), Question.question_type.is_(None)))
+            return q_query
 
         # 1. Exact Topic + Difficulty Match
         if topic_id:
@@ -175,6 +194,7 @@ class AdaptiveAssessmentService:
                 Question.difficulty.in_(diff_aliases),
                 Question.status == "approved"
             )
+            query = apply_type_filter(query)
             if all_excluded:
                 query = query.filter(Question.id.not_in(all_excluded))
             candidate = query.first()
@@ -187,13 +207,14 @@ class AdaptiveAssessmentService:
             Question.difficulty.in_(diff_aliases),
             Question.status == "approved"
         )
+        query = apply_type_filter(query)
         if all_excluded:
             query = query.filter(Question.id.not_in(all_excluded))
         candidate = query.first()
         if candidate:
             return candidate, False
 
-        # 3. Adjacent Difficulty Match (Tolerance fallback)
+        # 3. Adjacent Difficulty Match (Tolerance fallback within competency & question type)
         adjacent_diffs = [difficulty - 1, difficulty + 1]
         for adj_d in adjacent_diffs:
             if 1 <= adj_d <= 3:
@@ -203,52 +224,50 @@ class AdaptiveAssessmentService:
                     Question.difficulty.in_(adj_aliases),
                     Question.status == "approved"
                 )
+                query = apply_type_filter(query)
                 if all_excluded:
                     query = query.filter(Question.id.not_in(all_excluded))
                 candidate = query.first()
                 if candidate:
                     return candidate, False
 
-        # 4. Fallback: Any unseen approved question in competency
+        # 4. Fallback: Any unseen approved question in competency matching question_type
         query = db.query(Question).filter(
             Question.competency_id == competency_id,
             Question.status == "approved"
         )
+        query = apply_type_filter(query)
         if all_excluded:
             query = query.filter(Question.id.not_in(all_excluded))
         candidate = query.first()
         if candidate:
             return candidate, False
 
-        # 5. On-the-fly Source-Grounded Question Generation via AIService
-        try:
-            from ai.service import AIService
-            comp_obj = db.query(Competency).filter(Competency.id == competency_id).first()
-            if comp_obj:
-                top_obj = db.query(CompetencyTopic).filter(CompetencyTopic.id == topic_id).first() if topic_id else None
-                c_name = comp_obj.name
-                t_name = top_obj.name if top_obj else "Statistical Analysis"
-                
-                generated_data = AIService().generate_question(
-                    competency_name=c_name,
-                    topic_name=t_name,
-                    difficulty=str(difficulty)
-                )
-                
-                if generated_data:
-                    new_q = AIService.validate_and_store_question(
-                        db=db,
-                        q_data=generated_data,
-                        competency_id=competency_id,
-                        topic_id=topic_id,
-                        created_by_user_id=user_id
-                    )
-                    if new_q:
-                        return new_q, False
-        except Exception:
-            pass
+        # 5. Session-only fallback: If all approved questions were seen previously by user,
+        # fallback to approved questions not yet seen in the current session (excluded_ids only)
+        fallback_query = db.query(Question).filter(
+            Question.competency_id == competency_id,
+            Question.status == "approved"
+        )
+        fallback_query = apply_type_filter(fallback_query)
+        if excluded_ids:
+            fallback_query = fallback_query.filter(Question.id.not_in(excluded_ids))
+        candidate = fallback_query.first()
+        if candidate:
+            return candidate, False
 
-        # 6. Fallback if generation is unavailable
+        # 6. Framework fallback: If current competency pool is exhausted in current session,
+        # select an approved question from any competency matching question_type not in excluded_ids
+        framework_query = db.query(Question).filter(
+            Question.status == "approved"
+        )
+        framework_query = apply_type_filter(framework_query)
+        if excluded_ids:
+            framework_query = framework_query.filter(Question.id.not_in(excluded_ids))
+        candidate = framework_query.first()
+        if candidate:
+            return candidate, False
+
         return None, True
 
     @classmethod
@@ -316,6 +335,17 @@ class AdaptiveAssessmentService:
             raise ValueError("Assessment session not found")
 
         state = assessment.adaptive_state or cls.initialize_adaptive_state(db, assessment.user)
+
+        if assessment.assessment_type == "material_quiz" or assessment.source_material_id is not None:
+            return cls.process_material_quiz_adaptive_step(
+                db=db,
+                assessment=assessment,
+                user_id=user_id,
+                question_id=question_id,
+                selected_option_id=selected_option_id,
+                confidence_level=confidence_level,
+                time_taken_seconds=time_taken_seconds
+            )
 
         question = db.query(Question).filter(Question.id == question_id).first()
         if not question:
@@ -404,9 +434,11 @@ class AdaptiveAssessmentService:
             state["seen_question_ids"].append(question_id)
 
         # 4. Check Completion Condition
+        from sqlalchemy.orm.attributes import flag_modified
         target_count = state.get("target_question_count", 10)
         if state["answered_count"] >= target_count:
             assessment.adaptive_state = state
+            flag_modified(assessment, "adaptive_state")
             db.commit()
             final_result = cls.finalize_adaptive_assessment(db, assessment_id, user_id)
             return {
@@ -417,14 +449,16 @@ class AdaptiveAssessmentService:
 
         # 5. Determine Next Question Target
         next_cid, next_tid, next_diff = cls.choose_next_target(db, state)
+        q_type_constraint = state.get("question_type", "MIXED")
         next_q, gen_required = cls.select_adaptive_question(
-            db, user_id, next_cid, next_tid, next_diff, state["seen_question_ids"]
+            db, user_id, next_cid, next_tid, next_diff, state["seen_question_ids"], question_type=q_type_constraint
         )
 
         state["current_competency_id"] = next_cid
         state["current_topic_id"] = next_tid
         state["current_difficulty"] = next_diff
         assessment.adaptive_state = state
+        flag_modified(assessment, "adaptive_state")
         db.commit()
 
         if gen_required or not next_q:
@@ -451,6 +485,7 @@ class AdaptiveAssessmentService:
             "next_question": {
                 "id": next_q.id,
                 "text": next_q.question_text or next_q.text,
+                "question_type": next_q.question_type or "SHORT_MCQ",
                 "difficulty": str(next_q.difficulty),
                 "competency_id": next_q.competency_id,
                 "competency_name": next_q.competency.name if next_q.competency else "Competency",
@@ -610,16 +645,237 @@ class AdaptiveAssessmentService:
         assessment.completed_at = datetime.utcnow()
         db.commit()
 
-        return {
-            "assessment_id": assessment_id,
-            "overall_readiness": overall,
-            "overall_score": overall,
-            "total_questions": total_questions,
-            "total_correct": total_correct,
-            "competency_breakdown": comp_breakdown,
-            "topic_scores": topic_scores,
-            "difficulty_performance": diff_summary,
-            "strongest_topic": strongest_topic,
-            "weakest_topic": weakest_topic,
-            "message": "Adaptive assessment completed successfully."
+        from services.assessment_service import get_assessment_result
+        return get_assessment_result(db, assessment_id, user_id)
+
+    @classmethod
+    def initialize_material_quiz_session(
+        cls,
+        db: Session,
+        user_id: int,
+        material_id: int,
+        question_set_id: int,
+        question_count: int = 10,
+        question_type: str = "MIXED"
+    ) -> tuple[Assessment, MaterialQuizQuestion]:
+        """
+        Initializes an adaptive assessment session for personal material quiz.
+        Starts at difficulty Level 2 (Medium).
+        """
+        mat = db.query(LearningMaterial).filter(LearningMaterial.id == material_id).first()
+        if not mat:
+            raise ValueError("Learning material not found")
+
+        q_set = db.query(MaterialQuizQuestionSet).filter(MaterialQuizQuestionSet.id == question_set_id).first()
+        if not q_set:
+            raise ValueError("Material quiz question set not found")
+
+        adaptive_state = {
+            "material_id": material_id,
+            "material_quiz_set_id": question_set_id,
+            "target_question_count": question_count,
+            "question_type": question_type,
+            "current_difficulty": 2,
+            "streaks": {"correct": 0, "incorrect": 0},
+            "answered_count": 0,
+            "seen_question_ids": [],
+            "performance_by_difficulty": {
+                "1": {"total": 0, "correct": 0},
+                "2": {"total": 0, "correct": 0},
+                "3": {"total": 0, "correct": 0}
+            }
         }
+
+        # Pick first question at Medium difficulty (Level 2)
+        first_q = db.query(MaterialQuizQuestion).filter(
+            MaterialQuizQuestion.set_id == question_set_id,
+            MaterialQuizQuestion.difficulty == "2"
+        ).first()
+
+        if not first_q:
+            first_q = db.query(MaterialQuizQuestion).filter(
+                MaterialQuizQuestion.set_id == question_set_id
+            ).first()
+
+        if not first_q:
+            raise ValueError("No questions found in this material quiz set")
+
+        assessment = Assessment(
+            user_id=user_id,
+            source_material_id=material_id,
+            material_quiz_set_id=question_set_id,
+            assessment_type="material_quiz",
+            status="in_progress",
+            started_at=datetime.utcnow(),
+            adaptive_state=adaptive_state
+        )
+        db.add(assessment)
+        db.commit()
+        db.refresh(assessment)
+
+        return assessment, first_q
+
+    @classmethod
+    def process_material_quiz_adaptive_step(
+        cls,
+        db: Session,
+        assessment: Assessment,
+        user_id: int,
+        question_id: int,
+        selected_option_id: int,
+        confidence_level: int = 2,
+        time_taken_seconds: int = 15
+    ) -> Dict[str, Any]:
+        """
+        Handles adaptive difficulty step for personal material quiz.
+        Streak rule: 2 consecutive correct -> promote; 2 consecutive incorrect -> demote.
+        """
+        assessment_id = assessment.id
+        state = assessment.adaptive_state or {}
+
+        question = db.query(MaterialQuizQuestion).filter(MaterialQuizQuestion.id == question_id).first()
+        if not question:
+            raise ValueError("Material quiz question not found")
+
+        opt = db.query(MaterialQuizOption).filter(MaterialQuizOption.id == selected_option_id).first()
+        is_correct = opt.is_correct if opt else False
+
+        # 1. Record Answer
+        ans = AssessmentAnswer(
+            assessment_id=assessment_id,
+            material_quiz_question_id=question_id,
+            selected_material_option_id=selected_option_id,
+            confidence_level=confidence_level,
+            is_correct=is_correct,
+            response_time=time_taken_seconds,
+            time_taken_seconds=time_taken_seconds
+        )
+        db.add(ans)
+
+        # 2. Update Adaptive State Streaks & Difficulty
+        q_diff_int = cls.normalize_difficulty_int(question.difficulty)
+        diff_key = str(q_diff_int)
+        if "performance_by_difficulty" not in state:
+            state["performance_by_difficulty"] = {"1": {"total": 0, "correct": 0}, "2": {"total": 0, "correct": 0}, "3": {"total": 0, "correct": 0}}
+        if diff_key not in state["performance_by_difficulty"]:
+            state["performance_by_difficulty"][diff_key] = {"total": 0, "correct": 0}
+        state["performance_by_difficulty"][diff_key]["total"] += 1
+        if is_correct:
+            state["performance_by_difficulty"][diff_key]["correct"] += 1
+
+        streaks = state.get("streaks", {"correct": 0, "incorrect": 0})
+        curr_diff = state.get("current_difficulty", 2)
+        new_diff, new_c_streak, new_i_streak = cls.compute_next_difficulty(
+            curr_diff, is_correct, streaks.get("correct", 0), streaks.get("incorrect", 0)
+        )
+        state["streaks"] = {"correct": new_c_streak, "incorrect": new_i_streak}
+        state["current_difficulty"] = new_diff
+
+        # Update progress counters
+        state["answered_count"] = state.get("answered_count", 0) + 1
+        if "seen_question_ids" not in state:
+            state["seen_question_ids"] = []
+        if question_id not in state["seen_question_ids"]:
+            state["seen_question_ids"].append(question_id)
+
+        # 3. Check Completion Condition
+        target_count = state.get("target_question_count", 10)
+        if state["answered_count"] >= target_count:
+            from sqlalchemy.orm.attributes import flag_modified
+            assessment.adaptive_state = state
+            assessment.status = "completed"
+            assessment.completed_at = datetime.utcnow()
+            flag_modified(assessment, "adaptive_state")
+
+            all_ans = db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id == assessment_id).all()
+            corr = sum(1 for a in all_ans if a.is_correct)
+            assessment.overall_score = round((corr / len(all_ans)) * 100.0, 1) if all_ans else 0.0
+            db.commit()
+
+            from services.assessment_service import get_assessment_result
+            final_result = get_assessment_result(db, assessment_id, user_id)
+            return {
+                "is_completed": True,
+                "assessment_id": assessment_id,
+                "result": final_result
+            }
+
+        # 4. Choose Next Question from Session Pool
+        set_id = assessment.material_quiz_set_id
+        seen_ids = state["seen_question_ids"]
+
+        # Exact difficulty match
+        next_q = db.query(MaterialQuizQuestion).filter(
+            MaterialQuizQuestion.set_id == set_id,
+            MaterialQuizQuestion.difficulty == str(new_diff),
+            MaterialQuizQuestion.id.not_in(seen_ids)
+        ).first()
+
+        # Fallback 1: Adjacent difficulty
+        if not next_q:
+            adjacent = [new_diff - 1, new_diff + 1]
+            adj_strs = [str(d) for d in adjacent if 1 <= d <= 3]
+            next_q = db.query(MaterialQuizQuestion).filter(
+                MaterialQuizQuestion.set_id == set_id,
+                MaterialQuizQuestion.difficulty.in_(adj_strs),
+                MaterialQuizQuestion.id.not_in(seen_ids)
+            ).first()
+
+        # Fallback 2: Any unseen in set
+        if not next_q:
+            next_q = db.query(MaterialQuizQuestion).filter(
+                MaterialQuizQuestion.set_id == set_id,
+                MaterialQuizQuestion.id.not_in(seen_ids)
+            ).first()
+
+        if next_q:
+            from sqlalchemy.orm.attributes import flag_modified
+            assessment.adaptive_state = state
+            flag_modified(assessment, "adaptive_state")
+            db.commit()
+
+            opts = []
+            for o in sorted(next_q.options, key=lambda x: x.order):
+                opts.append({
+                    "id": o.id,
+                    "text": o.text,
+                    "order": o.order
+                })
+
+            c_name = next_q.material.title if next_q.material else "Material Study"
+            return {
+                "is_completed": False,
+                "step": state["answered_count"] + 1,
+                "total_steps": target_count,
+                "next_question": {
+                    "id": next_q.id,
+                    "text": next_q.question_text,
+                    "question_text": next_q.question_text,
+                    "question_type": next_q.question_type,
+                    "difficulty": next_q.difficulty,
+                    "cognitive_level": next_q.cognitive_level,
+                    "competency_id": None,
+                    "competency_name": c_name,
+                    "options": opts
+                }
+            }
+        else:
+            # Pool exhausted -> finalize
+            from sqlalchemy.orm.attributes import flag_modified
+            assessment.adaptive_state = state
+            assessment.status = "completed"
+            assessment.completed_at = datetime.utcnow()
+            flag_modified(assessment, "adaptive_state")
+
+            all_ans = db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id == assessment_id).all()
+            corr = sum(1 for a in all_ans if a.is_correct)
+            assessment.overall_score = round((corr / len(all_ans)) * 100.0, 1) if all_ans else 0.0
+            db.commit()
+
+            from services.assessment_service import get_assessment_result
+            final_result = get_assessment_result(db, assessment_id, user_id)
+            return {
+                "is_completed": True,
+                "assessment_id": assessment_id,
+                "result": final_result
+            }

@@ -11,8 +11,114 @@ class MockProvider(AIProvider):
     def generate(self, prompt: str, system_prompt: str = '', temperature: float = 0.7, max_tokens: int = 2000) -> str:
         prompt_lower = prompt.lower()
 
+        # 0. Material Quiz MCQ Generation (Phase 5C)
+        if ("material quiz" in prompt_lower or "material_quiz" in prompt_lower or "calibrated material quiz" in prompt_lower) and ("question" in prompt_lower or "mcq" in prompt_lower) and "flashcard" not in prompt_lower:
+            is_tcp_udp = "tcp" in prompt_lower and "udp" in prompt_lower
+            
+            # Detect count
+            req_count = 10
+            c_match = re.search(r'generate\s+(\d+)', prompt_lower)
+            if c_match:
+                req_count = int(c_match.group(1))
+
+            # Detect requested question_type
+            q_type = "MIXED"
+            if "of type short_mcq" in prompt_lower:
+                q_type = "SHORT_MCQ"
+            elif "of type word_problem" in prompt_lower:
+                q_type = "WORD_PROBLEM"
+            elif "of type case_study" in prompt_lower:
+                q_type = "CASE_STUDY"
+            elif "distributed across short_mcq" in prompt_lower or "4 short_mcq" in prompt_lower or "5 short_mcq" in prompt_lower or "8 short_mcq" in prompt_lower:
+                q_type = "MIXED"
+
+            # Distribution calculation for MIXED
+            if q_type == "MIXED":
+                if req_count == 10:
+                    counts = [("SHORT_MCQ", 4), ("WORD_PROBLEM", 3), ("CASE_STUDY", 3)]
+                elif req_count == 15:
+                    counts = [("SHORT_MCQ", 5), ("WORD_PROBLEM", 5), ("CASE_STUDY", 5)]
+                elif req_count == 20:
+                    counts = [("SHORT_MCQ", 8), ("WORD_PROBLEM", 6), ("CASE_STUDY", 6)]
+                else:
+                    sm = int(req_count * 0.4)
+                    wp = int(req_count * 0.3)
+                    cs = req_count - sm - wp
+                    counts = [("SHORT_MCQ", sm), ("WORD_PROBLEM", wp), ("CASE_STUDY", cs)]
+            else:
+                counts = [(q_type, req_count)]
+
+            generated = []
+            q_idx = 1
+            for typ, n in counts:
+                for i in range(n):
+                    diff = str(((i + len(generated)) % 3) + 1)  # alternate 1, 2, 3
+                    if is_tcp_udp:
+                        if typ == "SHORT_MCQ":
+                            qt = f"What fundamental transport property distinguishes TCP from UDP under variable network conditions? (Item {q_idx})"
+                            ans = "TCP provides reliable, connection-oriented byte stream transmission with error checking."
+                            d1 = "TCP transmits datagrams without establishing a connection."
+                            d2 = "TCP prioritizes low latency over packet acknowledgment."
+                            d3 = "TCP eliminates the need for IP layer routing."
+                            exp = "TCP guarantees delivery via sequence numbers and acknowledgments, whereas UDP is connectionless and unacknowledged."
+                        elif typ == "WORD_PROBLEM":
+                            qt = f"A real-time financial telemetry application requires low-latency packet delivery where occasional dropped packets are acceptable. Which transport protocol configuration should the network engineer implement? (Item {q_idx})"
+                            ans = "User Datagram Protocol (UDP) with application-level timestamping."
+                            d1 = "Transmission Control Protocol (TCP) with three-way handshake."
+                            d2 = "Synchronous point-to-point leased circuit without packet headers."
+                            d3 = "Persistent TCP socket with retransmission timers set to infinite."
+                            exp = "UDP incurs minimal transmission overhead and zero retransmission latency, making it optimal for time-sensitive financial streams."
+                        else:  # CASE_STUDY
+                            qt = f"Case Study: An enterprise statistical data center is deploying a distributed file replication service across multiple cloud regions. Given that data integrity is strictly mandatory and silent corruption cannot be tolerated, which transport mechanism is required? (Item {q_idx})"
+                            ans = "TCP connection with checksum verification and guaranteed acknowledgment."
+                            d1 = "Raw UDP broadcast across unencrypted UDP ports."
+                            d2 = "Connectionless multicast without sequence verification."
+                            d3 = "Stateless datagram transmission bypassing transport sockets."
+                            exp = "The replication service demands complete byte-level data integrity, which is guaranteed by TCP's connection orientation and flow control."
+                    else:
+                        if typ == "SHORT_MCQ":
+                            qt = f"In statistical sampling methodology, what is the primary purpose of stratification when population variance varies across subgroups? (Item {q_idx})"
+                            ans = "To partition heterogeneous population units into homogeneous strata, thereby reducing estimator variance."
+                            d1 = "To maximize the non-sampling error across all enumeration blocks."
+                            d2 = "To eliminate the necessity of probability sample selection."
+                            d3 = "To ensure equal sample allocation regardless of stratum standard deviation."
+                            exp = "Stratification ensures internal homogeneity within strata, yielding higher precision and lower standard errors."
+                        elif typ == "WORD_PROBLEM":
+                            qt = f"A field survey supervisor has 500 enumeration units divided into rural and urban strata with standard deviations of 12 and 24 respectively. Under Neyman optimal allocation, which stratum receives a larger sampling fraction? (Item {q_idx})"
+                            ans = "The urban stratum receives a proportionally larger sample due to its higher standard deviation."
+                            d1 = "The rural stratum receives all samples because of geographical size."
+                            d2 = "Both strata receive identical sample sizes regardless of standard deviation."
+                            d3 = "Sample allocation is determined solely by convenience sampling."
+                            exp = "Neyman optimal allocation distributes sample size proportional to stratum size multiplied by stratum standard deviation (n_h proportional to N_h * S_h)."
+                        else:  # CASE_STUDY
+                            qt = f"Case Study: The National Statistics Office is conducting a national household expenditure survey. Enumerators report significant non-response in affluent urban clusters. Which data quality protocol must be applied? (Item {q_idx})"
+                            ans = "Apply calibrated non-response weight adjustments and dual-stage substitution auditing."
+                            d1 = "Discard all urban observations and double rural weights arbitrarily."
+                            d2 = "Replace non-responding households with arbitrary intercept interviews."
+                            d3 = "Treat non-response as zero expenditure without bias estimation."
+                            exp = "Official survey standards require systematic non-response weighting adjustments to prevent estimator bias."
+
+                    generated.append({
+                        "question_text": qt,
+                        "question_type": typ,
+                        "difficulty": diff,
+                        "cognitive_level": "understand" if diff == "1" else ("apply" if diff == "2" else "analyze"),
+                        "options": [
+                            {"text": ans, "is_correct": True, "order": 1},
+                            {"text": d1, "is_correct": False, "order": 2},
+                            {"text": d2, "is_correct": False, "order": 3},
+                            {"text": d3, "is_correct": False, "order": 4}
+                        ],
+                        "correct_answer": ans,
+                        "explanation": exp,
+                        "concept": "Core Subject Topic"
+                    })
+                    q_idx += 1
+
+            return json.dumps({"questions": generated})
+
         # 1. Question Generation (Single or Multiple)
-        if "generate" in prompt_lower and ("question" in prompt_lower or "mcq" in prompt_lower):
+        if "generate" in prompt_lower and ("question" in prompt_lower or "mcq" in prompt_lower) and "flashcard" not in prompt_lower and "mind map" not in prompt_lower and "mindmap" not in prompt_lower and "notes" not in prompt_lower:
             # Statistical Question Template Pool
             pool = [
                 {
@@ -215,7 +321,24 @@ class MockProvider(AIProvider):
             else:
                 return json.dumps(available[0])
 
-        # 2. AI Gap Diagnosis & Explanation
+        # 2. AI Gap Diagnosis & Cognitive Misconception Interpretation
+        elif "misconception" in prompt_lower or "cognitive" in prompt_lower or "telemetry" in prompt_lower or "primary_bottleneck" in prompt_lower:
+            return json.dumps({
+                "primary_bottleneck": "Stratified Sampling Allocation & Variance Estimation",
+                "diagnostic_confidence": "HIGH",
+                "evidence_summary": "Observed repeated errors under stratified sampling calculations where variance weights were misapplied.",
+                "misconceptions": [
+                    {
+                        "topic": "Stratified Sampling",
+                        "pattern": "Confusion between proportional and Neyman optimal sample allocation",
+                        "classification": "LIKELY_MISCONCEPTION",
+                        "evidence_count": 2,
+                        "explanation": "Selected proportional allocation formulas when stratum standard deviations were explicitly heterogeneous.",
+                        "high_confidence_error": True
+                    }
+                ],
+                "remediation_focus": "Review MoSPI module on Stratified Survey Design and Neyman Sample Size Distribution."
+            })
         elif "diagnose" in prompt_lower or "gap" in prompt_lower or "root" in prompt_lower:
             return json.dumps({
                 "primary_gap": "Stratified Sampling Allocation & Variance Estimation",
@@ -236,6 +359,105 @@ class MockProvider(AIProvider):
                     "Data Quality": 0.60
                 },
                 "summary": "Covers field survey design, sample size determination, non-sampling error minimization, and official data validation rules."
+            })
+
+        # 4. Short Notes Generation
+        elif "notes" in prompt_lower or "short notes" in prompt_lower or "executive notes" in prompt_lower:
+            # Check for controlled grounding test keywords
+            is_tcp_udp = "tcp" in prompt_lower and "udp" in prompt_lower
+            if is_tcp_udp:
+                return json.dumps({
+                    "title": "Networking Protocols: TCP vs UDP",
+                    "sections": [
+                        {"heading": "Overview", "content": "Comparison of fundamental transport layer protocols: Transmission Control Protocol (TCP) and User Datagram Protocol (UDP)."},
+                        {"heading": "Key Concepts", "content": "TCP provides connection-oriented, reliable data delivery with error checking. In contrast, UDP is connectionless and prioritized for lower latency."},
+                        {"heading": "Important Definitions", "content": "TCP: Connection-oriented transport protocol.\nUDP: Connectionless transport protocol."},
+                        {"heading": "Key Takeaways", "content": "Choose TCP when reliability is essential; choose UDP when real-time speed and low overhead are prioritized."}
+                    ]
+                })
+
+            return json.dumps({
+                "title": "Statistical Methods & Sampling Notes",
+                "sections": [
+                    {"heading": "Overview", "content": "Comprehensive overview of official statistical sampling methodologies, survey execution standards, and variance reduction techniques."},
+                    {"heading": "Key Concepts", "content": "Stratified sampling partitions heterogeneous populations into homogeneous strata. Optimal Neyman allocation minimizes estimator variance when stratum standard deviations differ."},
+                    {"heading": "Important Definitions", "content": "Design Effect (Deff): Ratio of estimator variance under complex sampling design to simple random sampling variance.\nStratification: Classification of units into non-overlapping groups."},
+                    {"heading": "Examples & Applications", "content": "Application in National Sample Survey (NSS) multi-stage socioeconomic surveys and Periodic Labour Force Survey (PLFS) sampling frames."},
+                    {"heading": "Key Takeaways", "content": "Effective survey design requires balancing sample allocation, minimizing non-sampling error, and verifying data validation rules."}
+                ]
+            })
+
+        # 5. Flashcard Generation
+        elif "flashcard" in prompt_lower or "flashcards" in prompt_lower:
+            is_tcp_udp = "tcp" in prompt_lower and "udp" in prompt_lower
+            if is_tcp_udp:
+                return json.dumps({
+                    "cards": [
+                        {"front": "Is TCP connection-oriented or connectionless?", "back": "TCP is connection-oriented, establishing a session before data transfer.", "order": 1},
+                        {"front": "What is the primary characteristic of UDP?", "back": "UDP is connectionless, transmitting datagrams without prior handshake.", "order": 2},
+                        {"front": "When should TCP be preferred over UDP?", "back": "When data integrity and guaranteed delivery are mandatory.", "order": 3}
+                    ]
+                })
+
+            return json.dumps({
+                "cards": [
+                    {"front": "What is the primary objective of Neyman Optimal Allocation?", "back": "To minimize the variance of the population mean estimator for a fixed total sample size.", "order": 1},
+                    {"front": "How does intra-cluster correlation affect the design effect (Deff)?", "back": "A positive intra-cluster correlation increases the design effect (Deff > 1), raising estimator variance.", "order": 2},
+                    {"front": "What constitutes a Primary Sampling Unit (PSU) in national surveys?", "back": "Typically a census enumeration block in urban areas or a revenue village in rural areas.", "order": 3},
+                    {"front": "What is the difference between sampling error and non-sampling error?", "back": "Sampling error arises from inspecting a subset; non-sampling error results from measurement, non-response, or processing mistakes.", "order": 4},
+                    {"front": "When is stratified sampling most efficient compared to simple random sampling?", "back": "When intra-stratum variation is small (homogeneity) and inter-stratum variation is large.", "order": 5}
+                ]
+            })
+
+        # 6. Mind Map Generation
+        elif "mind map" in prompt_lower or "mindmap" in prompt_lower or "concept map" in prompt_lower:
+            is_tcp_udp = "tcp" in prompt_lower and "udp" in prompt_lower
+            if is_tcp_udp:
+                return json.dumps({
+                    "label": "Transport Protocols",
+                    "children": [
+                        {
+                            "label": "TCP",
+                            "children": [
+                                {"label": "Connection-Oriented", "children": []},
+                                {"label": "Reliable Delivery", "children": []}
+                            ]
+                        },
+                        {
+                            "label": "UDP",
+                            "children": [
+                                {"label": "Connectionless", "children": []},
+                                {"label": "Low Latency", "children": []}
+                            ]
+                        }
+                    ]
+                })
+
+            return json.dumps({
+                "label": "Statistical Survey Design",
+                "children": [
+                    {
+                        "label": "Sampling Strategies",
+                        "children": [
+                            {"label": "Stratified Sampling", "children": [{"label": "Proportional Allocation", "children": []}, {"label": "Neyman Optimal Allocation", "children": []}]},
+                            {"label": "Cluster Sampling", "children": [{"label": "Primary Sampling Units", "children": []}, {"label": "Intra-Cluster Correlation", "children": []}]}
+                        ]
+                    },
+                    {
+                        "label": "Error Estimation",
+                        "children": [
+                            {"label": "Sampling Error & Deff", "children": []},
+                            {"label": "Non-Sampling Imputation", "children": []}
+                        ]
+                    },
+                    {
+                        "label": "Quality Assurance",
+                        "children": [
+                            {"label": "Field Verification", "children": []},
+                            {"label": "Data Consistency Auditing", "children": []}
+                        ]
+                    }
+                ]
             })
 
         return "{}"
