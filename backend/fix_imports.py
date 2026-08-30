@@ -10,7 +10,7 @@ for r, _, fs in os.walk(d):
             with open(p, 'r', encoding='utf-8') as file:
                 c = file.read()
             
-            # Replace from ..package import module -> from package import module
+            # Replace from package import module -> from package import module
             c = re.sub(r'from \.\.([a-zA-Z0-9_]+)', r'from \1', c)
             
             # For modules inside a package (like models, routers), replace from .module import -> from package.module import

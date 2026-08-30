@@ -621,9 +621,6 @@ class RecommendationService:
         db.refresh(path)
         return path
 
-# Type alias helper
-Tuple_Result = Dict[str, Any]
-
 # Legacy helper
 def recommend_courses(db: Session, user_id: int):
     user = db.query(User).filter(User.id == user_id).first()

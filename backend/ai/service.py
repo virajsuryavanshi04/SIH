@@ -1,6 +1,9 @@
 import json
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
+
+Tuple_Validation = Tuple[bool, str]
+
 from sqlalchemy.orm import Session
 
 from ai.base import AIProvider
@@ -902,6 +905,3 @@ Required JSON Output Schema:
         db.commit()
         db.refresh(question)
         return question
-
-# Type alias helper
-Tuple_Validation = tuple[bool, str]
