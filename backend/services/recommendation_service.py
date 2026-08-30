@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 
+Tuple_Result = Dict[str, Any]
+
 from models.course import Course, CourseCompetency
 from models.learning_path import LearningPath, LearningPathItem, LearningProgress
 from models.competency import Competency, RoleCompetency, CompetencyTopic
@@ -37,7 +39,7 @@ class RecommendationService:
         user: User, 
         user_competencies: List[Dict[str, Any]],
         role_comp_ids: List[int]
-    ) -> Tuple_Result:
+    ) -> Dict[str, Any]:
         """
         Calculates a deterministic 0-100 match score and generates a transparent explanation.
         """
