@@ -87,8 +87,6 @@ frontend/dist-ssr/
 dist/
 build/
 out/
-*.tsbuildinfo
-frontend/*.tsbuildinfo
 
 # Logs & Cache
 logs
