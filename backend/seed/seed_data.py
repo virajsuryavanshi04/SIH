@@ -264,7 +264,7 @@ def seed_database(db: Session):
     for comp_id, items in question_templates.items():
         t_id = topic_map.get(comp_id)
         for idx, (q_text, correct_ans, opt2, opt3, opt4, expl) in enumerate(items):
-            for var in range(8): # Generate 16 calibrated questions per competency (128 total)
+            for var in range(15): # Generate 15 calibrated questions per template (150 total)
                 diff_level = "1" if var % 3 == 0 else ("2" if var % 3 == 1 else "3")
                 diff_str = "beginner" if diff_level == "1" else ("intermediate" if diff_level == "2" else "advanced")
                 
@@ -363,3 +363,168 @@ def seed_database(db: Session):
     )
     db.add(prog)
     db.commit()
+
+    # --- 13. Question Bank Import (80 Governed Items) ---
+    from seed.import_question_bank import import_questions
+    import_questions()
+
+    # Ensure all imported bank questions have approved status for assessments
+    for q in db.query(Question).filter(Question.bank_question_id.isnot(None)).all():
+        q.status = "approved"
+    db.commit()
+
+    # --- 14. Baseline Official Learning Materials & Multi-Modal Content ---
+    from models.material import LearningMaterial, MaterialNote, MaterialFlashcardDeck, MaterialFlashcard, MaterialMindMap, MaterialQuizQuestionSet, MaterialQuizQuestion, MaterialQuizOption
+    
+    if db.query(LearningMaterial).count() < 225:
+        for m_id in range(1, 226):
+            if not db.query(LearningMaterial).filter(LearningMaterial.id == m_id).first():
+                scope = "OFFICIAL_COMPETENCY" if m_id == 49 or m_id % 2 == 1 else "OTHER_LEARNING"
+                mat = LearningMaterial(
+                    id=m_id,
+                    title="Official Statistical Methods Handbook" if m_id == 49 else f"Statistical Training Resource #{m_id}",
+                    filename="official_methods.pdf" if m_id == 49 else f"resource_{m_id}.pdf",
+                    original_filename="official_methods.pdf" if m_id == 49 else f"resource_{m_id}.pdf",
+                    file_type="application/pdf",
+                    file_size=2048,
+                    storage_path="uploads/official_methods.pdf" if m_id == 49 else f"uploads/resource_{m_id}.pdf",
+                    competency_id=((m_id - 1) % 8) + 1,
+                    material_scope=scope,
+                    uploaded_by=1 if scope == "OFFICIAL_COMPETENCY" else 3,
+                    processing_status="completed",
+                    extracted_text="Official Statistical Methods Handbook and Guidelines covering sampling, regression, and data inference."
+                )
+                db.add(mat)
+        db.commit()
+
+    # --- 15. Baseline Study Notes, Flashcard Decks, Mind Maps & Quizzes ---
+    if db.query(MaterialNote).count() < 55:
+        for n_id in range(1, 56):
+            note = MaterialNote(
+                material_id=((n_id - 1) % 50) + 1,
+                title=f"Study Notes #{n_id}",
+                content={"title": f"Study Notes #{n_id}", "sections": [{"heading": "Core Principles", "content": "Comprehensive summary."}]},
+                status="ready",
+                version=1
+            )
+            db.add(note)
+        db.commit()
+
+    if db.query(MaterialFlashcardDeck).count() < 40:
+        for d_id in range(1, 41):
+            deck = MaterialFlashcardDeck(
+                material_id=((d_id - 1) % 50) + 1,
+                title=f"Flashcard Deck #{d_id}",
+                version=1,
+                status="ready"
+            )
+            db.add(deck)
+            db.flush()
+            for c_idx in range(1, 5):
+                card = MaterialFlashcard(
+                    deck_id=deck.id,
+                    material_id=deck.material_id,
+                    front=f"Concept #{c_idx} of Deck #{d_id}",
+                    back=f"Detailed definition of Concept #{c_idx}.",
+                    order=c_idx
+                )
+                db.add(card)
+        db.commit()
+
+    if db.query(MaterialMindMap).count() < 45:
+        for mm_id in range(1, 46):
+            mm = MaterialMindMap(
+                material_id=((mm_id - 1) % 50) + 1,
+                root_node={"label": f"Mind Map #{mm_id}", "children": [{"label": "Branch 1"}, {"label": "Branch 2"}]},
+                status="ready",
+                version=1
+            )
+            db.add(mm)
+        db.commit()
+
+    if db.query(MaterialQuizQuestionSet).count() < 85:
+        for qs_id in range(1, 86):
+            qs = MaterialQuizQuestionSet(
+                material_id=((qs_id - 1) % 50) + 1,
+                title=f"Practice Quiz #{qs_id}",
+                version=1,
+                status="ready"
+            )
+            db.add(qs)
+            db.flush()
+            for q_idx in range(1, 4):
+                mq = MaterialQuizQuestion(
+                    set_id=qs.id,
+                    material_id=qs.material_id,
+                    question_text=f"Sample question {q_idx} for Quiz #{qs_id}?",
+                    question_type="SHORT_MCQ",
+                    difficulty="2",
+                    cognitive_level="apply",
+                    correct_answer="Option A (Correct)",
+                    explanation="Detailed explanation.",
+                    created_at=datetime.utcnow()
+                )
+                db.add(mq)
+                db.flush()
+                db.add_all([
+                    MaterialQuizOption(question_id=mq.id, text="Option A (Correct)", is_correct=True, order=1),
+                    MaterialQuizOption(question_id=mq.id, text="Option B", is_correct=False, order=2),
+                    MaterialQuizOption(question_id=mq.id, text="Option C", is_correct=False, order=3),
+                    MaterialQuizOption(question_id=mq.id, text="Option D", is_correct=False, order=4),
+                ])
+        db.commit()
+
+    # --- 16. Baseline Historical Assessments & Scores ---
+    all_users = db.query(User).all()
+    user_ids = [u.id for u in all_users] if all_users else [1, 3]
+
+    if db.query(Assessment).count() < 385:
+        for a_idx in range(1, 386):
+            u_id = user_ids[a_idx % len(user_ids)]
+            score_val = 50.0 + (a_idx % 45)
+            ass = Assessment(
+                user_id=u_id,
+                assessment_type="adaptive" if a_idx % 2 == 0 else "diagnostic",
+                type="adaptive",
+                status="completed",
+                overall_score=score_val,
+                started_at=datetime.utcnow() - timedelta(days=a_idx % 90 + 1),
+                completed_at=datetime.utcnow() - timedelta(days=a_idx % 90 + 1)
+            )
+            db.add(ass)
+        db.commit()
+
+    if db.query(CompetencyScore).count() < 510:
+        for cs_idx in range(1, 515):
+            u_id = user_ids[cs_idx % len(user_ids)]
+            c_id = (cs_idx % 8) + 1
+            src = "baseline" if cs_idx % 3 == 0 else ("adaptive" if cs_idx % 3 == 1 else "reassessment")
+            score_rec = CompetencyScore(
+                user_id=u_id,
+                competency_id=c_id,
+                score=45.0 + (cs_idx % 50),
+                source=src,
+                assessed_at=datetime.utcnow() - timedelta(days=cs_idx % 60)
+            )
+            db.add(score_rec)
+        db.commit()
+
+    if db.query(AIDiagnosis).count() < 45:
+        first_ass = db.query(Assessment).first()
+        ass_id = first_ass.id if first_ass else 1
+        for d_idx in range(1, 46):
+            u_id = user_ids[d_idx % len(user_ids)]
+            diag_rec = AIDiagnosis(
+                user_id=u_id,
+                assessment_id=ass_id,
+                competency_id=(d_idx % 8) + 1,
+                primary_gap=f"Identified Concept Deficit #{d_idx}",
+                root_cause=f"Underlying conceptual gap #{d_idx}.",
+                explanation=f"Detailed cognitive explanation for diagnosis #{d_idx}.",
+                confidence=85.0
+            )
+            db.add(diag_rec)
+        db.commit()
+
+
+

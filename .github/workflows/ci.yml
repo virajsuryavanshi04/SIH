@@ -24,6 +24,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
+      - name: Initialize and Seed Test Database
+        env:
+          PYTHONPATH: backend
+          DATABASE_URL: sqlite:///backend/smartlearn.db
+        run: |
+          python -c "import sys; sys.path.insert(0, 'backend'); from database import engine, Base, SessionLocal; from seed.seed_data import seed_database; Base.metadata.create_all(bind=engine); db = SessionLocal(); seed_database(db); db.close()"
+
       - name: Run Backend Regression Test Suites
         env:
           PYTHONPATH: backend
