@@ -25,11 +25,24 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Run Backend Regression Test Suites
+        env:
+          PYTHONPATH: backend
+          DATABASE_URL: sqlite:///backend/smartlearn.db
         run: |
-          cd backend
-          python -m unittest discover -s ../scratch -p "test_phase*.py"
-          python test_role_workflow.py
-          python test_permissions_and_practice.py
+          python scratch/test_phase7_master_e2e_validation.py
+          python scratch/test_phase6_production_hardening.py
+          python scratch/test_phase5g_cognitive_diagnosis.py
+          python scratch/test_phase5f_progress_analytics.py
+          python scratch/test_phase5e_closed_loop.py
+          python scratch/test_phase5d_personalized_learning.py
+          python scratch/test_phase5c_material_quiz.py
+          python scratch/test_phase5b_study_content.py
+          python scratch/test_phase5a_material_foundation.py
+          python scratch/test_phase4_results_and_review.py
+          python scratch/test_phase3_learner_assessment.py
+          python scratch/test_phase2_governance.py
+          python backend/test_role_workflow.py
+          python backend/test_permissions_and_practice.py
 
   frontend-build:
     runs-on: ubuntu-latest
