@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
 from auth.dependencies import get_current_user, require_admin
@@ -11,6 +11,9 @@ from ai.service import AIService
 from config import settings
 from typing import Optional
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/materials", tags=["materials"])
 
@@ -299,60 +302,448 @@ from schemas.material import (
     StudyContentStatusResponse
 )
 
-@router.get("/{id}/study-content-status", response_model=StudyContentStatusResponse)
+def _verify_material_access(mat, current_user):
+    """Shared ownership check for material endpoints."""
+    if mat.uploaded_by != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Access denied. You can only access your own materials.")
+
+@router.get("/{id}/study-content-status")
 def get_study_content_status(
     id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Checks whether notes, flashcards, and mind maps exist for this material."""
+    """Checks current generation state for notes, flashcards, mind maps, and quiz sets."""
     mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
     if not mat:
         raise HTTPException(status_code=404, detail="Material not found")
+    _verify_material_access(mat, current_user)
 
-    if mat.uploaded_by != current_user.id and current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Access denied. You can only view study content for your own materials.")
-
+    # Notes — check any status (generating, ready, failed)
     latest_note = db.query(MaterialNote).filter(
-        MaterialNote.material_id == id,
-        MaterialNote.status == "ready"
+        MaterialNote.material_id == id
+    ).order_by(MaterialNote.version.desc()).first()
+    latest_ready_note = db.query(MaterialNote).filter(
+        MaterialNote.material_id == id, MaterialNote.status == "ready"
     ).order_by(MaterialNote.version.desc()).first()
 
+    # Flashcards
     latest_deck = db.query(MaterialFlashcardDeck).filter(
-        MaterialFlashcardDeck.material_id == id,
-        MaterialFlashcardDeck.status == "ready"
+        MaterialFlashcardDeck.material_id == id
+    ).order_by(MaterialFlashcardDeck.version.desc()).first()
+    latest_ready_deck = db.query(MaterialFlashcardDeck).filter(
+        MaterialFlashcardDeck.material_id == id, MaterialFlashcardDeck.status == "ready"
     ).order_by(MaterialFlashcardDeck.version.desc()).first()
 
+    # Mind Map
     latest_mm = db.query(MaterialMindMap).filter(
-        MaterialMindMap.material_id == id,
-        MaterialMindMap.status == "ready"
+        MaterialMindMap.material_id == id
     ).order_by(MaterialMindMap.version.desc()).first()
+    latest_ready_mm = db.query(MaterialMindMap).filter(
+        MaterialMindMap.material_id == id, MaterialMindMap.status == "ready"
+    ).order_by(MaterialMindMap.version.desc()).first()
+
+    # Quiz
+    latest_quiz = db.query(MaterialQuizQuestionSet).filter(
+        MaterialQuizQuestionSet.material_id == id
+    ).order_by(MaterialQuizQuestionSet.version.desc()).first()
+    latest_ready_quiz = db.query(MaterialQuizQuestionSet).filter(
+        MaterialQuizQuestionSet.material_id == id, MaterialQuizQuestionSet.status == "ready"
+    ).order_by(MaterialQuizQuestionSet.version.desc()).first()
 
     return {
         "material_id": id,
-        "has_notes": bool(latest_note),
-        "notes_version": latest_note.version if latest_note else None,
-        "has_flashcards": bool(latest_deck),
-        "flashcards_version": latest_deck.version if latest_deck else None,
-        "flashcards_count": len(latest_deck.cards) if latest_deck else None,
-        "has_mind_map": bool(latest_mm),
-        "mind_map_version": latest_mm.version if latest_mm else None
+        "has_notes": bool(latest_ready_note),
+        "notes_status": latest_note.status if latest_note else None,
+        "notes_version": latest_ready_note.version if latest_ready_note else None,
+        "notes_updated_at": str(latest_ready_note.created_at) if latest_ready_note else None,
+        "has_flashcards": bool(latest_ready_deck),
+        "flashcards_status": latest_deck.status if latest_deck else None,
+        "flashcards_version": latest_ready_deck.version if latest_ready_deck else None,
+        "flashcards_count": len(latest_ready_deck.cards) if latest_ready_deck else None,
+        "flashcards_updated_at": str(latest_ready_deck.created_at) if latest_ready_deck else None,
+        "has_mind_map": bool(latest_ready_mm),
+        "mind_map_status": latest_mm.status if latest_mm else None,
+        "mind_map_version": latest_ready_mm.version if latest_ready_mm else None,
+        "mind_map_updated_at": str(latest_ready_mm.created_at) if latest_ready_mm else None,
+        "has_quiz": bool(latest_ready_quiz),
+        "quiz_status": latest_quiz.status if latest_quiz else None,
+        "quiz_version": latest_ready_quiz.version if latest_ready_quiz else None,
+        "quiz_updated_at": str(latest_ready_quiz.created_at) if latest_ready_quiz else None,
     }
 
-# 1. Short Notes
-@router.post("/{id}/notes/generate", response_model=MaterialNotesResponse)
-def generate_material_notes(
+# ============================================================
+# MATERIAL WORKSPACE API (consolidated)
+# ============================================================
+
+@router.get("/{id}/workspace")
+def get_material_workspace(
     id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Generates and persists structured executive study notes grounded in uploaded material."""
+    """
+    Returns full material workspace data: metadata, generation states,
+    resource version history, quiz set history, and quiz attempt history.
+    """
     mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
     if not mat:
         raise HTTPException(status_code=404, detail="Material not found")
+    _verify_material_access(mat, current_user)
 
-    if mat.uploaded_by != current_user.id and current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Access denied. You can only generate study notes for your own materials.")
+    comp_name = mat.competency.name if mat.competency else None
+    topic_name = mat.topic.name if mat.topic else None
+
+    # --- Notes history ---
+    all_notes = db.query(MaterialNote).filter(
+        MaterialNote.material_id == id
+    ).order_by(MaterialNote.version.desc()).all()
+    notes_history = [
+        {"id": n.id, "version": n.version, "status": n.status, "title": n.title, "created_at": str(n.created_at)}
+        for n in all_notes
+    ]
+
+    # --- Flashcard history ---
+    all_decks = db.query(MaterialFlashcardDeck).filter(
+        MaterialFlashcardDeck.material_id == id
+    ).order_by(MaterialFlashcardDeck.version.desc()).all()
+    flashcard_history = [
+        {"id": d.id, "version": d.version, "status": d.status, "title": d.title,
+         "card_count": len(d.cards), "created_at": str(d.created_at)}
+        for d in all_decks
+    ]
+
+    # --- Mind map history ---
+    all_maps = db.query(MaterialMindMap).filter(
+        MaterialMindMap.material_id == id
+    ).order_by(MaterialMindMap.version.desc()).all()
+    mind_map_history = [
+        {"id": m.id, "version": m.version, "status": m.status, "created_at": str(m.created_at)}
+        for m in all_maps
+    ]
+
+    # --- Quiz set history ---
+    all_quiz_sets = db.query(MaterialQuizQuestionSet).filter(
+        MaterialQuizQuestionSet.material_id == id
+    ).order_by(MaterialQuizQuestionSet.version.desc()).all()
+    quiz_set_history = []
+    for qs in all_quiz_sets:
+        q_count = len(qs.questions) if qs.questions else 0
+        # Find assessment attempts for this quiz set
+        attempts = db.query(Assessment).filter(
+            Assessment.material_quiz_set_id == qs.id,
+            Assessment.user_id == current_user.id
+        ).order_by(Assessment.started_at.desc()).all()
+        attempt_list = []
+        for a in attempts:
+            attempt_list.append({
+                "assessment_id": a.id,
+                "status": a.status,
+                "score": a.overall_score,
+                "started_at": str(a.started_at) if a.started_at else None,
+                "completed_at": str(a.completed_at) if a.completed_at else None,
+            })
+        quiz_set_history.append({
+            "id": qs.id,
+            "version": qs.version,
+            "status": qs.status,
+            "title": qs.title,
+            "question_count": q_count,
+            "created_at": str(qs.created_at),
+            "attempts": attempt_list
+        })
+
+    # --- Current generation states ---
+    latest_note = all_notes[0] if all_notes else None
+    latest_deck = all_decks[0] if all_decks else None
+    latest_map = all_maps[0] if all_maps else None
+    latest_quiz = all_quiz_sets[0] if all_quiz_sets else None
+
+    return {
+        "material": {
+            "id": mat.id,
+            "title": mat.title,
+            "original_filename": mat.original_filename or mat.filename,
+            "file_type": mat.file_type,
+            "file_size": mat.file_size,
+            "material_scope": mat.material_scope or ("OFFICIAL_COMPETENCY" if mat.competency_id else "OTHER_LEARNING"),
+            "competency_id": mat.competency_id,
+            "competency_name": comp_name,
+            "topic_id": mat.topic_id,
+            "topic_name": topic_name,
+            "processing_status": mat.processing_status,
+            "detected_topics": mat.detected_topics or [],
+            "upload_date": str(mat.upload_date or mat.created_at),
+            "created_at": str(mat.created_at or mat.upload_date),
+        },
+        "generation_state": {
+            "notes": latest_note.status if latest_note else None,
+            "flashcards": latest_deck.status if latest_deck else None,
+            "mind_map": latest_map.status if latest_map else None,
+            "quiz": latest_quiz.status if latest_quiz else None,
+        },
+        "latest_versions": {
+            "notes_version": next((n.version for n in all_notes if n.status == "ready"), None),
+            "flashcards_version": next((d.version for d in all_decks if d.status == "ready"), None),
+            "flashcards_count": next((len(d.cards) for d in all_decks if d.status == "ready"), None),
+            "mind_map_version": next((m.version for m in all_maps if m.status == "ready"), None),
+            "quiz_version": next((q.version for q in all_quiz_sets if q.status == "ready"), None),
+        },
+        "history": {
+            "notes": notes_history,
+            "flashcards": flashcard_history,
+            "mind_maps": mind_map_history,
+            "quiz_sets": quiz_set_history,
+        }
+    }
+
+@router.get("/{id}/quiz/history")
+def get_material_quiz_history(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Returns all quiz attempts (assessments) for a given material, including
+    score, status, and completed_at. Enforces ownership.
+    """
+    mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
+    if not mat:
+        raise HTTPException(status_code=404, detail="Material not found")
+    _verify_material_access(mat, current_user)
+
+    attempts = db.query(Assessment).filter(
+        Assessment.source_material_id == id,
+        Assessment.user_id == current_user.id
+    ).order_by(Assessment.started_at.desc()).all()
+
+    result = []
+    for a in attempts:
+        quiz_set = db.query(MaterialQuizQuestionSet).filter(
+            MaterialQuizQuestionSet.id == a.material_quiz_set_id
+        ).first() if a.material_quiz_set_id else None
+        result.append({
+            "assessment_id": a.id,
+            "quiz_set_version": quiz_set.version if quiz_set else None,
+            "quiz_set_title": quiz_set.title if quiz_set else None,
+            "score": a.overall_score,
+            "total_questions": len(quiz_set.questions) if quiz_set and quiz_set.questions else None,
+            "status": a.status,
+            "started_at": str(a.started_at) if a.started_at else None,
+            "completed_at": str(a.completed_at) if a.completed_at else None,
+        })
+
+    return result
+
+# ============================================================
+# CONDITIONAL COURSE RECOMMENDATIONS FOR OTHER_LEARNING
+# ============================================================
+
+@router.get("/{id}/related-courses")
+def get_related_courses_for_material(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    For OTHER_LEARNING materials, analyzes detected topics and compares them
+    against available official courses. Returns related courses only when
+    genuine semantic/topic overlap exists. Returns empty list if no overlap.
+    """
+    from models.course import Course, CourseCompetency
+    from models.competency import Competency, CompetencyTopic
+
+    mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
+    if not mat:
+        raise HTTPException(status_code=404, detail="Material not found")
+    _verify_material_access(mat, current_user)
+
+    # For OFFICIAL_COMPETENCY materials, return courses linked to that competency
+    if mat.material_scope == "OFFICIAL_COMPETENCY" and mat.competency_id:
+        course_comps = db.query(CourseCompetency).filter(
+            CourseCompetency.competency_id == mat.competency_id
+        ).all()
+        courses = []
+        for cc in course_comps:
+            c = db.query(Course).filter(Course.id == cc.course_id, Course.is_active == True).first()
+            if c:
+                courses.append({
+                    "course_id": c.id,
+                    "title": c.title,
+                    "provider": c.provider,
+                    "description": c.description,
+                    "similarity_reason": f"Directly linked to competency: {mat.competency.name}" if mat.competency else "Official competency match",
+                    "confidence": 1.0
+                })
+        return courses
+
+    # For OTHER_LEARNING: extract topic keywords from the material
+    material_topics = set()
+    if mat.detected_topics:
+        for t in mat.detected_topics:
+            if isinstance(t, str):
+                # Normalize: split multi-word topics into individual keywords
+                for word in t.lower().replace(",", " ").replace("/", " ").split():
+                    cleaned = word.strip().strip(".-_()")
+                    if len(cleaned) > 2:
+                        material_topics.add(cleaned)
+
+    if not material_topics:
+        return []
+
+    # Build a set of course keywords from all active courses
+    all_courses = db.query(Course).filter(Course.is_active == True).all()
+    matched_courses = []
+
+    for course in all_courses:
+        course_keywords = set()
+        # Extract from title
+        for word in (course.title or "").lower().replace(",", " ").replace("/", " ").split():
+            cleaned = word.strip().strip(".-_()")
+            if len(cleaned) > 2:
+                course_keywords.add(cleaned)
+        # Extract from description
+        for word in (course.description or "").lower().replace(",", " ").replace("/", " ").split():
+            cleaned = word.strip().strip(".-_()")
+            if len(cleaned) > 2:
+                course_keywords.add(cleaned)
+        # Extract competency name via CourseCompetency
+        comps = db.query(CourseCompetency).filter(CourseCompetency.course_id == course.id).all()
+        for cc in comps:
+            comp = db.query(Competency).filter(Competency.id == cc.competency_id).first()
+            if comp:
+                for word in comp.name.lower().replace(",", " ").replace("/", " ").split():
+                    cleaned = word.strip().strip(".-_()")
+                    if len(cleaned) > 2:
+                        course_keywords.add(cleaned)
+
+        # Calculate overlap
+        overlap = material_topics & course_keywords
+        # Require at least 2 matching keywords or 20% of material topics
+        min_matches = max(2, int(len(material_topics) * 0.2))
+        if len(overlap) >= min_matches:
+            confidence = round(len(overlap) / max(len(material_topics), 1), 2)
+            matched_courses.append({
+                "course_id": course.id,
+                "title": course.title,
+                "provider": course.provider,
+                "description": course.description,
+                "similarity_reason": f"Topic overlap: {', '.join(sorted(list(overlap)[:5]))}",
+                "confidence": min(confidence, 1.0),
+                "matching_keywords": sorted(list(overlap)[:8])
+            })
+
+    # Sort by confidence descending, return top 5
+    matched_courses.sort(key=lambda x: x["confidence"], reverse=True)
+    return matched_courses[:5]
+
+# ============================================================
+# BACKGROUND GENERATION WORKERS
+# ============================================================
+
+def _bg_generate_notes(material_id: int, note_id: int):
+    """Background worker: generates notes and updates the DB record."""
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        note_obj = db.query(MaterialNote).filter(MaterialNote.id == note_id).first()
+        mat = db.query(LearningMaterial).filter(LearningMaterial.id == material_id).first()
+        if not note_obj or not mat:
+            return
+        ai = AIService()
+        notes_data = ai.generate_short_notes(mat.extracted_text, mat.title)
+        note_obj.title = notes_data.get("title", mat.title)
+        note_obj.content = notes_data
+        note_obj.status = "ready"
+        db.commit()
+        logger.info(f"Background notes generation completed: note_id={note_id}, material_id={material_id}")
+    except Exception as e:
+        logger.error(f"Background notes generation failed: note_id={note_id}, error={e}")
+        try:
+            note_obj = db.query(MaterialNote).filter(MaterialNote.id == note_id).first()
+            if note_obj:
+                note_obj.status = "failed"
+                db.commit()
+        except Exception:
+            pass
+    finally:
+        db.close()
+
+def _bg_generate_flashcards(material_id: int, deck_id: int, count: int):
+    """Background worker: generates flashcards and updates the DB record."""
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        deck_obj = db.query(MaterialFlashcardDeck).filter(MaterialFlashcardDeck.id == deck_id).first()
+        mat = db.query(LearningMaterial).filter(LearningMaterial.id == material_id).first()
+        if not deck_obj or not mat:
+            return
+        ai = AIService()
+        cards_data = ai.generate_flashcards(mat.extracted_text, mat.title, count=count)
+        for idx, card in enumerate(cards_data, 1):
+            c_obj = MaterialFlashcard(
+                deck_id=deck_obj.id,
+                material_id=material_id,
+                front=card["front"],
+                back=card["back"],
+                order=card.get("order", idx)
+            )
+            db.add(c_obj)
+        deck_obj.status = "ready"
+        db.commit()
+        logger.info(f"Background flashcards generation completed: deck_id={deck_id}, material_id={material_id}")
+    except Exception as e:
+        logger.error(f"Background flashcards generation failed: deck_id={deck_id}, error={e}")
+        try:
+            deck_obj = db.query(MaterialFlashcardDeck).filter(MaterialFlashcardDeck.id == deck_id).first()
+            if deck_obj:
+                deck_obj.status = "failed"
+                db.commit()
+        except Exception:
+            pass
+    finally:
+        db.close()
+
+def _bg_generate_mind_map(material_id: int, mm_id: int):
+    """Background worker: generates mind map and updates the DB record."""
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        mm_obj = db.query(MaterialMindMap).filter(MaterialMindMap.id == mm_id).first()
+        mat = db.query(LearningMaterial).filter(LearningMaterial.id == material_id).first()
+        if not mm_obj or not mat:
+            return
+        ai = AIService()
+        mm_data = ai.generate_mind_map(mat.extracted_text, mat.title)
+        mm_obj.root_node = mm_data
+        mm_obj.status = "ready"
+        db.commit()
+        logger.info(f"Background mind map generation completed: mm_id={mm_id}, material_id={material_id}")
+    except Exception as e:
+        logger.error(f"Background mind map generation failed: mm_id={mm_id}, error={e}")
+        try:
+            mm_obj = db.query(MaterialMindMap).filter(MaterialMindMap.id == mm_id).first()
+            if mm_obj:
+                mm_obj.status = "failed"
+                db.commit()
+        except Exception:
+            pass
+    finally:
+        db.close()
+
+# 1. Short Notes
+@router.post("/{id}/notes/generate")
+def generate_material_notes(
+    id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Creates a notes placeholder with 'generating' status and dispatches AI generation to background."""
+    mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
+    if not mat:
+        raise HTTPException(status_code=404, detail="Material not found")
+    _verify_material_access(mat, current_user)
 
     if mat.processing_status != "completed" or not mat.extracted_text or len(mat.extracted_text.strip()) < 10:
         raise HTTPException(status_code=400, detail="This material is not ready for AI study content yet.")
@@ -365,38 +756,26 @@ def generate_material_notes(
     max_v = db.query(func.max(MaterialNote.version)).filter(MaterialNote.material_id == id).scalar() or 0
     next_v = max_v + 1
 
-    try:
-        ai = AIService()
-        notes_data = ai.generate_short_notes(mat.extracted_text, mat.title)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate study notes: {str(e)}")
-
     note_obj = MaterialNote(
         material_id=id,
-        title=notes_data.get("title", mat.title),
-        content=notes_data,
-        status="ready",
+        title=f"{mat.title} — Notes v{next_v}",
+        content={},
+        status="generating",
         version=next_v
     )
     db.add(note_obj)
     db.commit()
     db.refresh(note_obj)
 
-    comp_name = mat.competency.name if mat.competency else None
-    topic_name = mat.topic.name if mat.topic else None
+    background_tasks.add_task(_bg_generate_notes, id, note_obj.id)
 
     return {
         "id": note_obj.id,
         "material_id": mat.id,
         "title": note_obj.title,
-        "material_title": mat.title,
-        "material_scope": mat.material_scope,
-        "competency_name": comp_name,
-        "topic_name": topic_name,
-        "sections": notes_data.get("sections", []),
         "version": note_obj.version,
-        "status": note_obj.status,
-        "created_at": note_obj.created_at
+        "status": "generating",
+        "message": "Notes generation started in background."
     }
 
 @router.get("/{id}/notes", response_model=MaterialNotesResponse)
@@ -440,20 +819,19 @@ def get_material_notes(
     }
 
 # 2. Flashcards
-@router.post("/{id}/flashcards/generate", response_model=MaterialFlashcardsResponse)
+@router.post("/{id}/flashcards/generate")
 def generate_material_flashcards(
     id: int,
+    background_tasks: BackgroundTasks,
     count: int = 8,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Generates and persists a fresh deck of high-yield active recall flashcards."""
+    """Creates a flashcard deck placeholder and dispatches generation to background."""
     mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
     if not mat:
         raise HTTPException(status_code=404, detail="Material not found")
-
-    if mat.uploaded_by != current_user.id and current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Access denied. You can only generate flashcards for your own materials.")
+    _verify_material_access(mat, current_user)
 
     if mat.processing_status != "completed" or not mat.extracted_text or len(mat.extracted_text.strip()) < 10:
         raise HTTPException(status_code=400, detail="This material is not ready for AI study content yet.")
@@ -466,55 +844,25 @@ def generate_material_flashcards(
     max_v = db.query(func.max(MaterialFlashcardDeck.version)).filter(MaterialFlashcardDeck.material_id == id).scalar() or 0
     next_v = max_v + 1
 
-    try:
-        ai = AIService()
-        cards_data = ai.generate_flashcards(mat.extracted_text, mat.title, count=count)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate flashcards: {str(e)}")
-
     deck_obj = MaterialFlashcardDeck(
         material_id=id,
-        title=f"Flashcards: {mat.title}",
+        title=f"Flashcards: {mat.title} v{next_v}",
         version=next_v,
-        status="ready"
+        status="generating"
     )
     db.add(deck_obj)
     db.commit()
     db.refresh(deck_obj)
 
-    created_cards = []
-    for idx, card in enumerate(cards_data, 1):
-        c_obj = MaterialFlashcard(
-            deck_id=deck_obj.id,
-            material_id=id,
-            front=card["front"],
-            back=card["back"],
-            order=card.get("order", idx)
-        )
-        db.add(c_obj)
-        created_cards.append(c_obj)
-
-    db.commit()
-
-    comp_name = mat.competency.name if mat.competency else None
-    topic_name = mat.topic.name if mat.topic else None
+    background_tasks.add_task(_bg_generate_flashcards, id, deck_obj.id, count)
 
     return {
         "deck_id": deck_obj.id,
         "material_id": mat.id,
         "title": deck_obj.title,
-        "material_title": mat.title,
-        "material_scope": mat.material_scope,
-        "competency_name": comp_name,
-        "topic_name": topic_name,
         "version": deck_obj.version,
-        "total_cards": len(created_cards),
-        "status": deck_obj.status,
-        "cards": [
-            {"id": c.id, "front": c.front, "back": c.back, "order": c.order}
-            for c in created_cards
-        ],
-        "created_at": deck_obj.created_at
+        "status": "generating",
+        "message": "Flashcards generation started in background."
     }
 
 @router.get("/{id}/flashcards", response_model=MaterialFlashcardsResponse)
@@ -565,19 +913,18 @@ def get_material_flashcards(
     }
 
 # 3. Mind Map
-@router.post("/{id}/mind-map/generate", response_model=MaterialMindMapResponse)
+@router.post("/{id}/mind-map/generate")
 def generate_material_mind_map(
     id: int,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Generates and persists a hierarchical concept mind map tree."""
+    """Creates a mind map placeholder and dispatches generation to background."""
     mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
     if not mat:
         raise HTTPException(status_code=404, detail="Material not found")
-
-    if mat.uploaded_by != current_user.id and current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Access denied. You can only generate mind maps for your own materials.")
+    _verify_material_access(mat, current_user)
 
     if mat.processing_status != "completed" or not mat.extracted_text or len(mat.extracted_text.strip()) < 10:
         raise HTTPException(status_code=400, detail="This material is not ready for AI study content yet.")
@@ -590,37 +937,24 @@ def generate_material_mind_map(
     max_v = db.query(func.max(MaterialMindMap.version)).filter(MaterialMindMap.material_id == id).scalar() or 0
     next_v = max_v + 1
 
-    try:
-        ai = AIService()
-        mm_data = ai.generate_mind_map(mat.extracted_text, mat.title)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate mind map: {str(e)}")
-
     mm_obj = MaterialMindMap(
         material_id=id,
-        root_node=mm_data,
-        status="ready",
+        root_node={},
+        status="generating",
         version=next_v
     )
     db.add(mm_obj)
     db.commit()
     db.refresh(mm_obj)
 
-    comp_name = mat.competency.name if mat.competency else None
-    topic_name = mat.topic.name if mat.topic else None
+    background_tasks.add_task(_bg_generate_mind_map, id, mm_obj.id)
 
     return {
         "id": mm_obj.id,
         "material_id": mat.id,
-        "title": mm_data.get("label", mat.title),
-        "material_title": mat.title,
-        "material_scope": mat.material_scope,
-        "competency_name": comp_name,
-        "topic_name": topic_name,
-        "root_node": mm_data,
         "version": mm_obj.version,
-        "status": mm_obj.status,
-        "created_at": mm_obj.created_at
+        "status": "generating",
+        "message": "Mind map generation started in background."
     }
 
 @router.get("/{id}/mind-map", response_model=MaterialMindMapResponse)
@@ -973,6 +1307,7 @@ def start_material_quiz(
     db.commit()
     db.refresh(q_set)
 
+    logger.info(f"Initiating Material Quiz: material_id={material.id}, scope={material.material_scope}, format={q_type_upper}, count={req.question_count}, text_len={len(material.extracted_text)}")
     ai_service = AIService()
     try:
         comp_name = material.competency.name if material.competency else None
@@ -985,7 +1320,9 @@ def start_material_quiz(
             competency_name=comp_name,
             topic_name=topic_name
         )
+        logger.info(f"Material Quiz generation succeeded: material_id={material.id}, generated_count={len(raw_questions)}")
     except Exception as e:
+        logger.error(f"Material Quiz generation failed: material_id={material.id}, format={q_type_upper}, count={req.question_count}, error={e}")
         q_set.status = "failed"
         db.commit()
         raise HTTPException(

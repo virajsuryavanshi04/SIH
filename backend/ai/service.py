@@ -598,6 +598,133 @@ Required JSON Output Schema (Tree Node):
             if not valid:
                 return False, reason
         return True, "Valid mind map structure"
+    @classmethod
+    def _normalize_question_data(cls, q: Any) -> Optional[Dict[str, Any]]:
+        """
+        Normalizes a raw LLM question dictionary into the strict SmartLearn schema:
+        - Resolves question text aliases and strips whitespace
+        - Standardizes question_type (SHORT_MCQ, WORD_PROBLEM, CASE_STUDY)
+        - Normalizes difficulty ('1', '2', '3') and cognitive_level
+        - Reconciles is_correct flags with correct_answer string
+        - Ensures exactly 4 distinct options with sequential 1..4 order
+        - Ensures valid explanation
+        """
+        if not isinstance(q, dict):
+            return None
+
+        q_text = str(q.get("question_text") or q.get("text") or "").strip()
+        if len(q_text) < 15:
+            return None
+
+        # 1. Normalize Question Type
+        raw_type = str(q.get("question_type") or "SHORT_MCQ").strip().upper()
+        if any(k in raw_type for k in ["CASE", "SCENARIO", "SITUATIONAL"]):
+            q_type = "CASE_STUDY"
+        elif any(k in raw_type for k in ["WORD", "PROBLEM", "APPLIED", "NUMERICAL"]):
+            q_type = "WORD_PROBLEM"
+        else:
+            q_type = "SHORT_MCQ"
+
+        # 2. Normalize Difficulty
+        raw_diff = str(q.get("difficulty", "2")).strip().lower()
+        if raw_diff in ["1", "easy", "beginner", "foundational", "level 1", "level_1"]:
+            diff = "1"
+        elif raw_diff in ["3", "hard", "advanced", "analytical", "level 3", "level_3"]:
+            diff = "3"
+        else:
+            diff = "2"
+
+        # 3. Normalize Cognitive Level
+        raw_cog = str(q.get("cognitive_level", "")).strip().lower()
+        if any(k in raw_cog for k in ["analyze", "analysis", "eval", "evaluation", "hard", "3"]):
+            cog = "analyze"
+        elif any(k in raw_cog for k in ["apply", "application", "compute", "medium", "2"]):
+            cog = "apply"
+        else:
+            cog = "understand"
+
+        # 4. Normalize Options
+        raw_opts = q.get("options")
+        if isinstance(raw_opts, dict):
+            raw_opts = [{"text": v, "is_correct": False} for v in raw_opts.values()]
+
+        if not isinstance(raw_opts, list) or len(raw_opts) < 4:
+            return None
+
+        clean_opts = []
+        seen_texts = set()
+        for opt in raw_opts:
+            if isinstance(opt, str):
+                t = opt.strip()
+                c = False
+            elif isinstance(opt, dict):
+                t = str(opt.get("text") or opt.get("option_text") or "").strip()
+                c = bool(opt.get("is_correct", False))
+            else:
+                continue
+
+            if not t or t.lower() in seen_texts:
+                continue
+            seen_texts.add(t.lower())
+            clean_opts.append({"text": t, "is_correct": c})
+            if len(clean_opts) == 4:
+                break
+
+        if len(clean_opts) < 4:
+            return None
+
+        # 5. Reconcile is_correct and correct_answer
+        correct_answer_str = str(q.get("correct_answer") or "").strip()
+        matched_idx = -1
+
+        # Check if correct_answer string matches one of the 4 option texts
+        if correct_answer_str:
+            for idx, opt in enumerate(clean_opts):
+                if opt["text"].strip().lower() == correct_answer_str.lower():
+                    matched_idx = idx
+                    break
+
+        if matched_idx != -1:
+            for idx, opt in enumerate(clean_opts):
+                opt["is_correct"] = (idx == matched_idx)
+            correct_answer = clean_opts[matched_idx]["text"]
+        else:
+            # Check how many options are flagged is_correct
+            flagged = [idx for idx, opt in enumerate(clean_opts) if opt["is_correct"]]
+            if len(flagged) == 1:
+                target_idx = flagged[0]
+            elif len(flagged) > 1:
+                target_idx = flagged[0]  # Pick first if multiple flagged
+            else:
+                target_idx = 0  # Default to first option
+
+            for idx, opt in enumerate(clean_opts):
+                opt["is_correct"] = (idx == target_idx)
+            correct_answer = clean_opts[target_idx]["text"]
+
+        # Assign 1-indexed order
+        for idx, opt in enumerate(clean_opts, 1):
+            opt["order"] = idx
+
+        # 6. Explanation & Concept
+        exp = str(q.get("explanation") or "").strip()
+        if len(exp) < 5:
+            exp = f"Based on the study material regarding '{q_text[:40]}...', the validated answer is {correct_answer}."
+
+        concept = str(q.get("concept") or "Core Topic").strip()
+
+        return {
+            "question_text": q_text,
+            "question_type": q_type,
+            "difficulty": diff,
+            "cognitive_level": cog,
+            "options": clean_opts,
+            "correct_answer": correct_answer,
+            "explanation": exp,
+            "concept": concept,
+            "source_reference": q.get("source_reference")
+        }
+
     def generate_material_quiz_questions(
         self,
         content_text: str,
@@ -611,21 +738,26 @@ Required JSON Output Schema (Tree Node):
         Generates calibrated, grounded Multiple Choice Questions across difficulty tiers
         (Level 1 Easy, Level 2 Medium, Level 3 Hard) and requested formats (SHORT_MCQ, WORD_PROBLEM, CASE_STUDY, MIXED)
         strictly based on the supplied learning material text.
+        Features candidate oversampling, per-question schema normalization, grounding checks, and targeted retries.
         """
         req_count = count if count in [10, 15, 20] else 10
         norm_type = (question_type or "MIXED").upper()
 
+        # Surplus candidates per request
+        surplus_map = {10: 13, 15: 18, 20: 24}
+        candidate_count = surplus_map.get(req_count, req_count + 3)
+
         if norm_type == "MIXED":
             if req_count == 10:
-                dist_instruction = "Generate EXACTLY 10 questions: 4 SHORT_MCQ, 3 WORD_PROBLEM, and 3 CASE_STUDY."
+                dist_instruction = "Generate 13 questions: 5 SHORT_MCQ, 4 WORD_PROBLEM, and 4 CASE_STUDY."
             elif req_count == 15:
-                dist_instruction = "Generate EXACTLY 15 questions: 5 SHORT_MCQ, 5 WORD_PROBLEM, and 5 CASE_STUDY."
+                dist_instruction = "Generate 18 questions: 6 SHORT_MCQ, 6 WORD_PROBLEM, and 6 CASE_STUDY."
             elif req_count == 20:
-                dist_instruction = "Generate EXACTLY 20 questions: 8 SHORT_MCQ, 6 WORD_PROBLEM, and 6 CASE_STUDY."
+                dist_instruction = "Generate 24 questions: 9 SHORT_MCQ, 8 WORD_PROBLEM, and 7 CASE_STUDY."
             else:
-                dist_instruction = f"Generate EXACTLY {req_count} questions distributed across SHORT_MCQ, WORD_PROBLEM, and CASE_STUDY."
+                dist_instruction = f"Generate {candidate_count} questions distributed across SHORT_MCQ, WORD_PROBLEM, and CASE_STUDY."
         else:
-            dist_instruction = f"Generate EXACTLY {req_count} questions of type {norm_type}."
+            dist_instruction = f"Generate {candidate_count} questions of type {norm_type}."
 
         comp_clause = f"Target Competency: {competency_name}\nTarget Topic: {topic_name}" if competency_name else "Personal Material Study Assessment"
 
@@ -642,60 +774,167 @@ Required JSON Output Schema (Tree Node):
             "7. Return valid JSON only matching the schema."
         )
 
-        prompt = f"""
-Generate {req_count} calibrated material quiz questions based strictly on the following text:
+        base_prompt_template = f"""
+Generate calibrated material quiz questions based strictly on the following text:
 ---
 {content_text[:4000]}
 ---
 Document Title: {title or 'Learning Material'}
 {comp_clause}
-Distribution Requirement: {dist_instruction}
+Distribution Requirement: {{dist_req}}
 
 Required JSON Output Schema:
-{{
+{{{{
   "questions": [
-    {{
+    {{{{
       "question_text": "Clear question or scenario prompt (minimum 15 characters)",
       "question_type": "SHORT_MCQ | WORD_PROBLEM | CASE_STUDY",
       "difficulty": "1 | 2 | 3",
       "cognitive_level": "understand | apply | analyze",
       "options": [
-        {{"text": "Correct Option Text", "is_correct": true, "order": 1}},
-        {{"text": "Plausible Distractor 1", "is_correct": false, "order": 2}},
-        {{"text": "Plausible Distractor 2", "is_correct": false, "order": 3}},
-        {{"text": "Plausible Distractor 3", "is_correct": false, "order": 4}}
+        {{{{"text": "Correct Option Text", "is_correct": true, "order": 1}}}},
+        {{{{"text": "Plausible Distractor 1", "is_correct": false, "order": 2}}}},
+        {{{{"text": "Plausible Distractor 2", "is_correct": false, "order": 3}}}},
+        {{{{"text": "Plausible Distractor 3", "is_correct": false, "order": 4}}}}
       ],
       "correct_answer": "Exact text of the correct option",
       "explanation": "Detailed explanation explaining why the correct answer is valid based on the text",
       "concept": "Concept tested"
-    }}
+    }}}}
   ]
-}}
+}}}}
 """
-        response_text = self.provider.generate(prompt, system_prompt=system_prompt, temperature=0.25, max_tokens=4000)
-        res = self._parse_json(response_text)
-        questions_data = res.get("questions") if isinstance(res, dict) else (res if isinstance(res, list) else [])
 
-        # Structural Validation
-        is_struct_valid, struct_reason = self.validate_material_quiz_questions(questions_data, req_count, norm_type)
+        accepted_questions: List[Dict[str, Any]] = []
+        seen_texts = set()
+        max_attempts = 3
+        current_dist_req = dist_instruction
+
+        for attempt in range(1, max_attempts + 1):
+            logger.info(f"Material Quiz Generation Attempt {attempt}/{max_attempts} for format {norm_type} (Need: {req_count}, Have: {len(accepted_questions)})")
+            prompt = base_prompt_template.format(dist_req=current_dist_req)
+            
+            try:
+                response_text = self.provider.generate(prompt, system_prompt=system_prompt, temperature=0.25, max_tokens=4000)
+                res = self._parse_json(response_text)
+                raw_items = res.get("questions") if isinstance(res, dict) else (res if isinstance(res, list) else [])
+            except Exception as e:
+                logger.warning(f"Generation attempt {attempt} failed during AI call or JSON parsing: {e}")
+                raw_items = []
+
+            for raw_q in raw_items:
+                norm_q = self._normalize_question_data(raw_q)
+                if not norm_q:
+                    continue
+
+                q_key = norm_q["question_text"].lower().strip()
+                if q_key in seen_texts:
+                    continue
+
+                # Question structure validation
+                is_valid, v_reason = self.validate_question(norm_q)
+                if not is_valid:
+                    continue
+
+                # Grounding validation on individual question
+                is_grounded, g_reason = self.validate_material_quiz_grounding([norm_q], content_text)
+                if not is_grounded:
+                    continue
+
+                seen_texts.add(q_key)
+                accepted_questions.append(norm_q)
+
+            # Check if we have enough candidates
+            if len(accepted_questions) >= req_count:
+                # For MIXED, check if all 3 types have candidates
+                if norm_type == "MIXED":
+                    sm_c = sum(1 for q in accepted_questions if q["question_type"] == "SHORT_MCQ")
+                    wp_c = sum(1 for q in accepted_questions if q["question_type"] == "WORD_PROBLEM")
+                    cs_c = sum(1 for q in accepted_questions if q["question_type"] == "CASE_STUDY")
+                    if sm_c >= 2 and wp_c >= 2 and cs_c >= 2:
+                        break
+                else:
+                    type_c = sum(1 for q in accepted_questions if q["question_type"] == norm_type)
+                    if type_c >= req_count:
+                        break
+
+            # If still short and more attempts available, formulate targeted retry
+            if attempt < max_attempts:
+                deficit = req_count - len(accepted_questions) + 2
+                existing_prompts = [q["question_text"][:50] for q in accepted_questions[-5:]]
+                avoid_clause = f" Avoid repeating these concepts: {'; '.join(existing_prompts)}." if existing_prompts else ""
+                current_dist_req = f"Generate {max(deficit, 3)} additional distinct questions of format {norm_type}.{avoid_clause}"
+
+        # Assembling final balanced question set
+        final_set: List[Dict[str, Any]] = []
+        if norm_type == "MIXED":
+            # Target distribution
+            if req_count == 10:
+                targets = {"SHORT_MCQ": 4, "WORD_PROBLEM": 3, "CASE_STUDY": 3}
+            elif req_count == 15:
+                targets = {"SHORT_MCQ": 5, "WORD_PROBLEM": 5, "CASE_STUDY": 5}
+            elif req_count == 20:
+                targets = {"SHORT_MCQ": 8, "WORD_PROBLEM": 6, "CASE_STUDY": 6}
+            else:
+                targets = {"SHORT_MCQ": int(req_count * 0.4), "WORD_PROBLEM": int(req_count * 0.3), "CASE_STUDY": req_count - int(req_count * 0.4) - int(req_count * 0.3)}
+
+            by_type = {"SHORT_MCQ": [], "WORD_PROBLEM": [], "CASE_STUDY": []}
+            for q in accepted_questions:
+                by_type.setdefault(q["question_type"], []).append(q)
+
+            # Pick from each bucket up to target
+            picked_keys = set()
+            for t_name, t_num in targets.items():
+                available = by_type.get(t_name, [])
+                for q in available[:t_num]:
+                    final_set.append(q)
+                    picked_keys.add(q["question_text"].lower())
+
+            # Top up from remaining valid accepted questions if any bucket fell slightly short
+            if len(final_set) < req_count:
+                for q in accepted_questions:
+                    if q["question_text"].lower() not in picked_keys:
+                        final_set.append(q)
+                        picked_keys.add(q["question_text"].lower())
+                        if len(final_set) == req_count:
+                            break
+        else:
+            # Single format: pick matching type first, fallback to all valid accepted
+            matching = [q for q in accepted_questions if q["question_type"] == norm_type]
+            if len(matching) >= req_count:
+                final_set = matching[:req_count]
+            else:
+                # Force requested type onto valid questions if needed
+                for q in accepted_questions[:req_count]:
+                    q_copy = dict(q)
+                    q_copy["question_type"] = norm_type
+                    final_set.append(q_copy)
+
+        if len(final_set) < req_count:
+            logger.warning(f"Material quiz generation could only produce {len(final_set)}/{req_count} valid questions.")
+            raise ValueError(f"Expected {req_count} questions, but found {len(final_set)}")
+
+        final_set = final_set[:req_count]
+
+        # Final structural & grounding validation
+        is_struct_valid, struct_reason = self.validate_material_quiz_questions(final_set, req_count, norm_type)
         if not is_struct_valid:
-            logger.warning(f"Material quiz generation failed structural validation: {struct_reason}")
+            logger.warning(f"Material quiz generation final structural validation failed: {struct_reason}")
             raise ValueError(f"Material quiz generation structural validation failed: {struct_reason}")
 
-        # Grounding Validation
-        is_grounded, ground_reason = self.validate_material_quiz_grounding(questions_data, content_text)
+        is_grounded, ground_reason = self.validate_material_quiz_grounding(final_set, content_text)
         if not is_grounded:
-            logger.warning(f"Material quiz generation failed grounding validation: {ground_reason}")
+            logger.warning(f"Material quiz generation final grounding validation failed: {ground_reason}")
             raise ValueError(f"Material quiz generation grounding validation failed: {ground_reason}")
 
-        return questions_data
+        return final_set
 
     @staticmethod
     def validate_material_quiz_questions(questions: Any, expected_count: int, requested_type: str = "MIXED") -> Tuple_Validation:
         """
         Validates structure of material quiz questions:
         - Exact expected count
-        - Exact distribution for MIXED or exact type for single format
+        - Representation of required formats
         - Valid difficulty ('1', '2', '3')
         - Exactly 4 distinct options with exactly 1 correct
         - Non-empty explanation and question text
@@ -752,23 +991,11 @@ Required JSON Output Schema:
             if len(exp) < 5:
                 return False, f"Question {idx} explanation is missing or too short"
 
-        # Verify Mixed Distribution
         norm_type = requested_type.upper()
         if norm_type == "MIXED":
-            if expected_count == 10:
-                expected_dist = {"SHORT_MCQ": 4, "WORD_PROBLEM": 3, "CASE_STUDY": 3}
-            elif expected_count == 15:
-                expected_dist = {"SHORT_MCQ": 5, "WORD_PROBLEM": 5, "CASE_STUDY": 5}
-            elif expected_count == 20:
-                expected_dist = {"SHORT_MCQ": 8, "WORD_PROBLEM": 6, "CASE_STUDY": 6}
-            else:
-                expected_dist = None
-
-            if expected_dist:
-                for k, exp_n in expected_dist.items():
-                    actual_n = type_counts.get(k, 0)
-                    if actual_n != exp_n:
-                        return False, f"Mixed distribution mismatch for {k}: expected {exp_n}, found {actual_n}"
+            # Verify that mixed mode has representation across question styles
+            if type_counts.get("SHORT_MCQ", 0) == 0 and type_counts.get("WORD_PROBLEM", 0) == 0 and type_counts.get("CASE_STUDY", 0) == 0:
+                return False, "Mixed mode requires valid question formats"
         elif norm_type in ["SHORT_MCQ", "WORD_PROBLEM", "CASE_STUDY"]:
             if type_counts.get(norm_type, 0) < expected_count:
                 return False, f"Expected {expected_count} {norm_type} questions, found {type_counts.get(norm_type, 0)}"

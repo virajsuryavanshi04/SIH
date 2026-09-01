@@ -27,7 +27,8 @@ class OpenRouterProvider(AIProvider):
                 "temperature": temperature,
                 "max_tokens": max_tokens
             }
-            response = httpx.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30.0)
+            timeout_cfg = httpx.Timeout(60.0, connect=15.0)
+            response = httpx.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=timeout_cfg)
             if response.status_code == 200:
                 return response.json()['choices'][0]['message']['content']
             else:

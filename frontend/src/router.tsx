@@ -20,6 +20,7 @@ import QuizResult from '@/pages/learner/QuizResult';
 import LearningPath from '@/pages/learner/LearningPath';
 import Courses from '@/pages/learner/Courses';
 import Materials from '@/pages/learner/Materials';
+import MaterialWorkspace from '@/pages/learner/MaterialWorkspace';
 import Progress from '@/pages/learner/Progress';
 import Profile from '@/pages/learner/Profile';
 
@@ -67,6 +68,7 @@ export default function AppRoutes() {
         <Route path="/learning-path" element={<ProtectedRoute role="learner"><LearningPath /></ProtectedRoute>} />
         <Route path="/courses" element={<ProtectedRoute role="learner"><Courses /></ProtectedRoute>} />
         <Route path="/materials" element={<ProtectedRoute role="learner"><Materials /></ProtectedRoute>} />
+        <Route path="/materials/:materialId" element={<ProtectedRoute role="learner"><MaterialWorkspace /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute role="learner"><Progress /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute role="learner"><Profile /></ProtectedRoute>} />
 

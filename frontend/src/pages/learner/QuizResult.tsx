@@ -836,15 +836,38 @@ export default function QuizResult() {
           </Button>
         </Link>
 
-        <Link to="/competencies" className="w-full sm:w-auto">
-          <Button 
-            size="default" 
-            className="w-full sm:w-auto font-semibold text-sm bg-[#2D3030] hover:bg-[#1A1C1C] text-[#FFFDF9] shadow-xs px-6 h-11 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>View Capability Landscape</span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </Link>
+        {/* Only show Capability Landscape for official competency-based assessments, not material quizzes */}
+        {result.assessment_type !== 'material_quiz' && result.type !== 'material_quiz' && (location.state?.assessmentType !== 'material_quiz') ? (
+          <Link to="/competencies" className="w-full sm:w-auto">
+            <Button 
+              size="default" 
+              className="w-full sm:w-auto font-semibold text-sm bg-[#2D3030] hover:bg-[#1A1C1C] text-[#FFFDF9] shadow-xs px-6 h-11 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>View Capability Landscape</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        ) : result.source_material_id ? (
+          <Link to={`/materials/${result.source_material_id}`} className="w-full sm:w-auto">
+            <Button 
+              size="default" 
+              className="w-full sm:w-auto font-semibold text-sm bg-[#2D3030] hover:bg-[#1A1C1C] text-[#FFFDF9] shadow-xs px-6 h-11 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Back to Material Workspace</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/materials" className="w-full sm:w-auto">
+            <Button 
+              size="default" 
+              className="w-full sm:w-auto font-semibold text-sm bg-[#2D3030] hover:bg-[#1A1C1C] text-[#FFFDF9] shadow-xs px-6 h-11 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Back to Materials</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        )}
       </div>
 
     </div>

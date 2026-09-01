@@ -48,6 +48,17 @@ class MockProvider(AIProvider):
             else:
                 counts = [(q_type, req_count)]
 
+            is_sampling = "sampling" in prompt_lower or "stratif" in prompt_lower or "neyman" in prompt_lower or "cluster" in prompt_lower
+            
+            # Extract material snippet if available
+            extracted_snippet = ""
+            if "---" in prompt:
+                parts = prompt.split("---")
+                if len(parts) >= 3:
+                    extracted_snippet = parts[1].strip()
+
+            sentences = [s.strip() for s in re.split(r'[\.\n;]+', extracted_snippet) if len(s.strip()) > 15] if extracted_snippet else []
+
             generated = []
             q_idx = 1
             for typ, n in counts:
@@ -75,7 +86,7 @@ class MockProvider(AIProvider):
                             d2 = "Connectionless multicast without sequence verification."
                             d3 = "Stateless datagram transmission bypassing transport sockets."
                             exp = "The replication service demands complete byte-level data integrity, which is guaranteed by TCP's connection orientation and flow control."
-                    else:
+                    elif is_sampling or not sentences:
                         if typ == "SHORT_MCQ":
                             qt = f"In statistical sampling methodology, what is the primary purpose of stratification when population variance varies across subgroups? (Item {q_idx})"
                             ans = "To partition heterogeneous population units into homogeneous strata, thereby reducing estimator variance."
@@ -97,6 +108,33 @@ class MockProvider(AIProvider):
                             d2 = "Replace non-responding households with arbitrary intercept interviews."
                             d3 = "Treat non-response as zero expenditure without bias estimation."
                             exp = "Official survey standards require systematic non-response weighting adjustments to prevent estimator bias."
+                    else:
+                        # Dynamic generation grounded directly in uploaded sentences
+                        s_target = sentences[(q_idx - 1) % len(sentences)]
+                        words = [w for w in re.findall(r'[a-zA-Z0-9_]{3,}', s_target)]
+                        key_term = words[0] if words else "the core concept"
+                        
+                        if typ == "SHORT_MCQ":
+                            qt = f"Based on the study material, which statement accurately reflects the principles regarding '{s_target[:60]}...'? (Item {q_idx})"
+                            ans = f"It aligns with: {s_target[:80]}."
+                            d1 = f"It explicitly contradicts the definition of {key_term}."
+                            d2 = f"It requires completely bypassing the standard {key_term} protocol."
+                            d3 = f"It is only applicable in deprecated legacy configurations."
+                            exp = f"Grounded directly in the provided material text: '{s_target[:120]}'."
+                        elif typ == "WORD_PROBLEM":
+                            qt = f"In an operational implementation where a practitioner works with {s_target[:50]}..., what outcome is expected based on the material? (Item {q_idx})"
+                            ans = f"The implementation must observe: {s_target[:80]}."
+                            d1 = f"The procedure ignores {key_term} parameters completely."
+                            d2 = f"All operational outputs for {key_term} default to zero without evaluation."
+                            d3 = f"The system overrides documented constraints arbitrarily."
+                            exp = f"According to the source documentation: '{s_target[:120]}'."
+                        else: # CASE_STUDY
+                            qt = f"Case Study: An engineering team is reviewing a system scenario involving '{s_target[:50]}...'. What standard best practice from the documentation should be applied? (Item {q_idx})"
+                            ans = f"Apply the validated guideline: {s_target[:80]}."
+                            d1 = f"Suspend all {key_term} monitoring indefinitely."
+                            d2 = f"Substitute random mock values in place of {key_term}."
+                            d3 = f"Enforce manual overrides that bypass the documented specification."
+                            exp = f"The case requirement is resolved by the principle: '{s_target[:120]}'."
 
                     generated.append({
                         "question_text": qt,
@@ -111,7 +149,7 @@ class MockProvider(AIProvider):
                         ],
                         "correct_answer": ans,
                         "explanation": exp,
-                        "concept": "Core Subject Topic"
+                        "concept": "Material Study Concept"
                     })
                     q_idx += 1
 

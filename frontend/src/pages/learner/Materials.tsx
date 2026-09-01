@@ -415,7 +415,6 @@ export default function Materials() {
                     <th className="p-3.5 sm:px-5">Scope & Purpose</th>
                     <th className="p-3.5 sm:px-5">Competency / Topic</th>
                     <th className="p-3.5 sm:px-5">Status</th>
-                    <th className="p-3.5 sm:px-5">Study Tools</th>
                     <th className="p-3.5 sm:px-5 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -426,10 +425,10 @@ export default function Materials() {
                     const isReady = mat.processing_status === 'completed';
 
                     return (
-                      <tr key={mat.id} className="hover:bg-[#EFEBE4]/40 transition-colors">
+                      <tr key={mat.id} className="hover:bg-[#EFEBE4]/40 transition-colors cursor-pointer" onClick={() => navigate(`/materials/${mat.id}`)}>
                         <td className="p-3.5 sm:px-5">
                           <div className="space-y-0.5">
-                            <span className="font-bold text-sm text-[#292B2B] block">
+                            <span className="font-bold text-sm text-[#A85D4C] hover:underline block">
                               {mat.title}
                             </span>
                             <span className="text-[11px] font-mono text-[#7A756E] block">
@@ -475,52 +474,22 @@ export default function Materials() {
                           </span>
                         </td>
 
-                        {/* Phase 5B: Study Tools Actions */}
-                        <td className="p-3.5 sm:px-5">
-                          {isReady ? (
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <button
-                                onClick={() => openStudyTool(mat, 'notes')}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-medium transition cursor-pointer"
-                                title="Study Notes"
-                              >
-                                <FileText className="w-3 h-3" /> Notes
-                              </button>
-                              <button
-                                onClick={() => openStudyTool(mat, 'flashcards')}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-medium transition cursor-pointer"
-                                title="Active Recall Flashcards"
-                              >
-                                <Layers className="w-3 h-3" /> Flashcards
-                              </button>
-                              <button
-                                onClick={() => openStudyTool(mat, 'mindmap')}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-xs font-medium transition cursor-pointer"
-                                title="Concept Mind Map"
-                              >
-                                <GitBranch className="w-3 h-3" /> Mind Map
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setQuizMaterial(mat);
-                                  setQuizError(null);
-                                }}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs"
-                                title="Start Adaptive Material Quiz"
-                              >
-                                <Zap className="w-3 h-3 text-amber-600" /> Quiz
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-slate-400 text-xs italic">Unavailable</span>
-                          )}
-                        </td>
-
                         <td className="p-3.5 sm:px-5 text-right">
                           <div className="inline-flex items-center gap-2">
+                            {isReady && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); navigate(`/materials/${mat.id}`); }}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#A85D4C]/10 hover:bg-[#A85D4C]/20 text-[#A85D4C] border border-[#A85D4C]/30 rounded-lg text-xs font-bold transition cursor-pointer"
+                                title="Open Material Workspace"
+                              >
+                                <ArrowRight className="w-3 h-3" />
+                                Workspace
+                              </button>
+                            )}
                             <button
                               type="button"
-                              onClick={() => openEditModal(mat)}
+                              onClick={(e) => { e.stopPropagation(); openEditModal(mat); }}
                               className="p-1.5 rounded-lg text-[#7A756E] hover:text-[#2D3030] hover:bg-[#EFEBE4] transition-colors cursor-pointer"
                               title="Edit Metadata"
                             >
@@ -528,7 +497,7 @@ export default function Materials() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleDeleteMaterial(mat.id)}
+                              onClick={(e) => { e.stopPropagation(); handleDeleteMaterial(mat.id); }}
                               className="p-1.5 rounded-lg text-[#7A756E] hover:text-[#A85D4C] hover:bg-[#A85D4C]/10 transition-colors cursor-pointer"
                               title="Delete Material"
                             >
