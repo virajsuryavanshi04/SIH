@@ -117,14 +117,87 @@ class TestPhase5EClosedLoop(unittest.TestCase):
         self.assertNotEqual(first_q_id, bad_q_id)
 
     def test_03_adaptive_difficulty_progression(self):
-        """4. Adaptive difficulty: 2 consecutive correct -> harder, 2 consecutive incorrect -> easier."""
-        next_diff, c_streak, i_streak = AdaptiveAssessmentService.compute_next_difficulty(2, True, 1, 0)
-        self.assertEqual(next_diff, 3)
-        self.assertEqual(c_streak, 0)  # Reset after level-up
+        """
+        4. Finalized adaptive difficulty algorithm:
+        - Medium (2) + Correct -> Hard (3) in same competency
+        - Medium (2) + Incorrect -> Easy (1) in same competency
+        - Next competency resets to Medium (2)
+        - Zero cross-competency question fallback
+        """
+        # Unit-level contract: 1-step direct adaptation
+        next_diff, _, _ = AdaptiveAssessmentService.compute_next_difficulty(2, True, 0, 0)
+        self.assertEqual(next_diff, 3, "Medium + Correct must adapt to Hard (3)")
 
-        next_diff, c_streak, i_streak = AdaptiveAssessmentService.compute_next_difficulty(2, False, 0, 1)
-        self.assertEqual(next_diff, 1)
-        self.assertEqual(i_streak, 0)  # Reset after level-down
+        next_diff, _, _ = AdaptiveAssessmentService.compute_next_difficulty(2, False, 0, 0)
+        self.assertEqual(next_diff, 1, "Medium + Incorrect must adapt to Easy (1)")
+
+        # Integration verification 1: Correct Medium -> Hard
+        comp_ids = [1, 2, 3, 4, 5]
+        res1 = self.client.post("/api/assessments/start", headers=self.headers1, json={
+            "assessment_type": "adaptive",
+            "competency_ids": comp_ids,
+            "question_count": 10,
+            "question_type": "MIXED"
+        })
+        self.assertEqual(res1.status_code, 200)
+        data1 = res1.json()
+        ass_id1 = data1["assessment_id"]
+        q1 = data1["questions"][0]
+        self.assertEqual(AdaptiveAssessmentService.normalize_difficulty_int(q1["difficulty"]), 2, "First question must be Medium (2)")
+
+        q1_obj = self.db.query(Question).filter(Question.id == q1["id"]).first()
+        correct_opt = next(o for o in q1_obj.options if o.is_correct)
+        step1_res = self.client.post(f"/api/assessments/{ass_id1}/adaptive-next", headers=self.headers1, json={
+            "question_id": q1["id"],
+            "selected_option_id": correct_opt.id,
+            "confidence_level": 3,
+            "time_taken_seconds": 15
+        })
+        self.assertEqual(step1_res.status_code, 200)
+        q2 = step1_res.json()["next_question"]
+        self.assertEqual(q2["competency_id"], q1["competency_id"], "Q2 must stay within SAME competency")
+        self.assertEqual(AdaptiveAssessmentService.normalize_difficulty_int(q2["difficulty"]), 3, "Medium + Correct must serve Hard (3)")
+
+        # Integration verification 2: Incorrect Medium -> Easy, and next competency resets to Medium
+        res2 = self.client.post("/api/assessments/start", headers=self.headers2, json={
+            "assessment_type": "adaptive",
+            "competency_ids": comp_ids,
+            "question_count": 10,
+            "question_type": "MIXED"
+        })
+        self.assertEqual(res2.status_code, 200)
+        data2 = res2.json()
+        ass_id2 = data2["assessment_id"]
+        q1_b = data2["questions"][0]
+        self.assertEqual(AdaptiveAssessmentService.normalize_difficulty_int(q1_b["difficulty"]), 2, "First question must be Medium (2)")
+
+        q1_b_obj = self.db.query(Question).filter(Question.id == q1_b["id"]).first()
+        incorrect_opt = next(o for o in q1_b_obj.options if not o.is_correct)
+        step2_res = self.client.post(f"/api/assessments/{ass_id2}/adaptive-next", headers=self.headers2, json={
+            "question_id": q1_b["id"],
+            "selected_option_id": incorrect_opt.id,
+            "confidence_level": 1,
+            "time_taken_seconds": 12
+        })
+        self.assertEqual(step2_res.status_code, 200)
+        q2_b = step2_res.json()["next_question"]
+        self.assertEqual(q2_b["competency_id"], q1_b["competency_id"], "Q2 must stay within SAME competency")
+        self.assertEqual(AdaptiveAssessmentService.normalize_difficulty_int(q2_b["difficulty"]), 1, "Medium + Incorrect must serve Easy (1)")
+
+        # Answer Q2 to advance to next scheduled competency
+        q2_b_obj = self.db.query(Question).filter(Question.id == q2_b["id"]).first()
+        q2_opt = q2_b_obj.options[0]
+        step3_res = self.client.post(f"/api/assessments/{ass_id2}/adaptive-next", headers=self.headers2, json={
+            "question_id": q2_b["id"],
+            "selected_option_id": q2_opt.id,
+            "confidence_level": 2,
+            "time_taken_seconds": 10
+        })
+        self.assertEqual(step3_res.status_code, 200)
+        q3_b = step3_res.json()["next_question"]
+        # Next competency must reset to difficulty 2 (Medium)
+        self.assertNotEqual(q3_b["competency_id"], q1_b["competency_id"], "Q3 must move to next scheduled competency")
+        self.assertEqual(AdaptiveAssessmentService.normalize_difficulty_int(q3_b["difficulty"]), 2, "New competency must reset to Medium (2)")
 
     def test_04_no_leakage_and_answer_confidence_requirement(self):
         """5 & 6. Active reassessment does not expose answer/explanation; requires answer+confidence."""
