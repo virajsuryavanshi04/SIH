@@ -8,6 +8,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 // Public pages
 import Landing from '@/pages/public/Landing';
 import Login from '@/pages/public/Login';
+import Register from '@/pages/public/Register';
 import About from '@/pages/public/About';
 
 // Learner pages
@@ -35,7 +36,17 @@ import AdminAnalytics from '@/pages/admin/AdminAnalytics';
 
 import React from 'react';
 
-const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 'learner' | 'admin' }) => {
+const ProtectedRoute = ({ 
+  children, 
+  role,
+  requireOnboarding = true,
+  requireBaseline = false
+}: { 
+  children: React.ReactNode, 
+  role?: 'learner' | 'admin',
+  requireOnboarding?: boolean,
+  requireBaseline?: boolean
+}) => {
   const { user, loading } = useAuth();
   
   if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
@@ -43,6 +54,16 @@ const ProtectedRoute = ({ children, role }: { children: React.ReactNode, role?: 
   
   if (role && user.role !== role) {
     return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  }
+
+  // Learner without selected role must complete onboarding first
+  if (user.role === 'learner' && requireOnboarding && !user.role_id && !user.designation) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // Learner with selected role but baseline incomplete cannot access gated learner areas
+  if (user.role === 'learner' && requireBaseline && !user.baseline_completed) {
+    return <Navigate to="/assessment" replace />;
   }
   
   return children;
@@ -54,24 +75,25 @@ export default function AppRoutes() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/about" element={<About />} />
-        <Route path="/onboarding" element={<ProtectedRoute role="learner"><Onboarding /></ProtectedRoute>} />
+        <Route path="/onboarding" element={<ProtectedRoute role="learner" requireOnboarding={false} requireBaseline={false}><Onboarding /></ProtectedRoute>} />
       </Route>
 
       <Route element={<DashboardLayout />}>
         {/* Learner Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute role="learner"><LearnerDashboard /></ProtectedRoute>} />
-        <Route path="/competencies" element={<ProtectedRoute role="learner"><Competencies /></ProtectedRoute>} />
-        <Route path="/assessment" element={<ProtectedRoute role="learner"><Assessment /></ProtectedRoute>} />
-        <Route path="/quiz/:id" element={<ProtectedRoute role="learner"><Quiz /></ProtectedRoute>} />
-        <Route path="/quiz/:id/result" element={<ProtectedRoute role="learner"><QuizResult /></ProtectedRoute>} />
-        <Route path="/learning-path" element={<ProtectedRoute role="learner"><LearningPath /></ProtectedRoute>} />
-        <Route path="/courses" element={<ProtectedRoute role="learner"><Courses /></ProtectedRoute>} />
-        <Route path="/igot-learning" element={<ProtectedRoute role="learner"><Courses /></ProtectedRoute>} />
-        <Route path="/materials" element={<ProtectedRoute role="learner"><Materials /></ProtectedRoute>} />
-        <Route path="/materials/:materialId" element={<ProtectedRoute role="learner"><MaterialWorkspace /></ProtectedRoute>} />
-        <Route path="/progress" element={<ProtectedRoute role="learner"><Progress /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute role="learner"><Profile /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute role="learner" requireBaseline={true}><LearnerDashboard /></ProtectedRoute>} />
+        <Route path="/competencies" element={<ProtectedRoute role="learner" requireBaseline={true}><Competencies /></ProtectedRoute>} />
+        <Route path="/assessment" element={<ProtectedRoute role="learner" requireBaseline={false}><Assessment /></ProtectedRoute>} />
+        <Route path="/quiz/:id" element={<ProtectedRoute role="learner" requireBaseline={false}><Quiz /></ProtectedRoute>} />
+        <Route path="/quiz/:id/result" element={<ProtectedRoute role="learner" requireBaseline={false}><QuizResult /></ProtectedRoute>} />
+        <Route path="/learning-path" element={<ProtectedRoute role="learner" requireBaseline={true}><LearningPath /></ProtectedRoute>} />
+        <Route path="/courses" element={<ProtectedRoute role="learner" requireBaseline={true}><Courses /></ProtectedRoute>} />
+        <Route path="/igot-learning" element={<ProtectedRoute role="learner" requireBaseline={true}><Courses /></ProtectedRoute>} />
+        <Route path="/materials" element={<ProtectedRoute role="learner" requireBaseline={true}><Materials /></ProtectedRoute>} />
+        <Route path="/materials/:materialId" element={<ProtectedRoute role="learner" requireBaseline={true}><MaterialWorkspace /></ProtectedRoute>} />
+        <Route path="/progress" element={<ProtectedRoute role="learner" requireBaseline={true}><Progress /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute role="learner" requireBaseline={true}><Profile /></ProtectedRoute>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />

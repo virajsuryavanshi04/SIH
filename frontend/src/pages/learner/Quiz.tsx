@@ -21,7 +21,7 @@ export default function Quiz() {
   const [questions, setQuestions] = useState<QuestionData[]>(location.state?.questions || []);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [stepOffset, setStepOffset] = useState<number>(0);
-  const [totalSteps, setTotalSteps] = useState<number>(location.state?.totalQuestions || 10);
+  const [totalSteps, setTotalSteps] = useState<number>(location.state?.totalQuestions || 16);
   const [loading, setLoading] = useState<boolean>(!location.state?.questions);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [adaptiveMessage, setAdaptiveMessage] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export default function Quiz() {
             setQuestions([res.data.current_question]);
             setCurrentIndex(0);
             setStepOffset(res.data.answered_count || 0);
-            setTotalSteps(res.data.total_steps || 10);
+            setTotalSteps(res.data.total_steps || res.data.target_question_count || 16);
           } catch (err) {
             console.error('Failed to resume quiz session:', err);
             navigate('/assessment');
@@ -111,7 +111,9 @@ export default function Quiz() {
       setSubmitting(true);
       const timeTaken = Math.max(5, Math.round((Date.now() - startTime) / 1000));
       
-      if (assessmentType === 'adaptive' || assessmentType === 'material_quiz') {
+      const isAdaptiveFlow = ['adaptive', 'baseline', 'adaptive_reassessment', 'material_quiz'].includes(assessmentType);
+
+      if (isAdaptiveFlow) {
         // Dynamic adaptive step progression
         const stepRes = await assessmentApi.adaptiveNext(assessmentId, {
           question_id: currentQuestion.id,
@@ -132,6 +134,10 @@ export default function Quiz() {
           return;
         }
 
+        if (stepRes.data.total_steps && stepRes.data.total_steps !== totalSteps) {
+          setTotalSteps(stepRes.data.total_steps);
+        }
+
         // Show subtle non-leaky transition prompt
         const wasCorrect = stepRes.data.feedback?.is_correct;
         if (wasCorrect) {
@@ -148,7 +154,7 @@ export default function Quiz() {
           setCurrentIndex(curr => curr + 1);
         }
       } else {
-        // Standard baseline flow
+        // Static flow fallback
         await assessmentApi.submitAnswer(assessmentId, {
           question_id: currentQuestion.id,
           selected_option_id: Number(currentAnswer.selectedOptionId),
@@ -172,8 +178,20 @@ export default function Quiz() {
       }
     } catch (err) {
       console.error('Failed to submit answer or advance adaptive step:', err);
-      if (currentIndex === questions.length - 1 && assessmentId) {
-        navigate(`/quiz/${assessmentId}/result`);
+      if (currentStepNumber >= totalSteps && assessmentId) {
+        try {
+          const res = await assessmentApi.getResult(assessmentId);
+          if (res.data) {
+            navigate(`/quiz/${assessmentId}/result`, {
+              state: {
+                result: res.data,
+                assessmentId
+              }
+            });
+          }
+        } catch (_) {
+          // Stay on quiz to allow user retry
+        }
       }
     } finally {
       setSubmitting(false);
@@ -298,7 +316,7 @@ export default function Quiz() {
           <span>
             {submitting 
               ? 'Calibrating Question...' 
-              : currentIndex >= questions.length - 1 && assessmentType !== 'adaptive'
+              : currentStepNumber >= totalSteps
               ? 'Finalize Assessment' 
               : 'Next Question'}
           </span>

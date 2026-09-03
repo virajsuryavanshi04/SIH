@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { roleApi, userApi } from '@/lib/api';
-import { Role, RoleCompetencyItem, Department } from '@/types';
+import { Role, RoleCompetencyItem } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   ShieldCheck, 
   Briefcase, 
-  Building2, 
   Sparkles, 
   ArrowRight, 
   CheckCircle2, 
@@ -21,13 +21,12 @@ import {
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   // Data states
   const [roles, setRoles] = useState<Role[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [roleCompetencies, setRoleCompetencies] = useState<RoleCompetencyItem[]>([]);
-  const [selectedDeptId, setSelectedDeptId] = useState<number | null>(null);
   const [experienceYears, setExperienceYears] = useState<number>(3);
   const [selectedWorkAreas, setSelectedWorkAreas] = useState<string[]>([]);
   
@@ -51,21 +50,14 @@ export default function Onboarding() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [rolesRes, deptsRes] = await Promise.all([
-          roleApi.getAll(),
-          userApi.getDepartments()
-        ]);
+        const rolesRes = await roleApi.getAll();
         setRoles(rolesRes.data);
-        setDepartments(deptsRes.data);
 
         // Select first role by default
         if (rolesRes.data && rolesRes.data.length > 0) {
           const first = rolesRes.data[0];
           setSelectedRole(first);
           fetchRoleCompetencies(first.id);
-        }
-        if (deptsRes.data && deptsRes.data.length > 0) {
-          setSelectedDeptId(deptsRes.data[0].id);
         }
       } catch (err) {
         console.error('Failed to load onboarding options:', err);
@@ -99,22 +91,17 @@ export default function Onboarding() {
     );
   };
 
-  const handleFinishOnboarding = async (startAssessment: boolean = true) => {
+  const handleFinishOnboarding = async () => {
     if (!selectedRole) return;
     try {
       setSubmitting(true);
       await userApi.completeOnboarding({
         role_id: selectedRole.id,
-        department_id: selectedDeptId || undefined,
         experience_years: experienceYears,
         work_areas: selectedWorkAreas
       });
-
-      if (startAssessment) {
-        navigate('/assessment');
-      } else {
-        navigate('/dashboard');
-      }
+      await refreshUser();
+      navigate('/assessment');
     } catch (err) {
       console.error('Failed to save onboarding data:', err);
     } finally {
@@ -156,7 +143,7 @@ export default function Onboarding() {
         <div className="flex items-center justify-center gap-2 sm:gap-4 max-w-md mx-auto">
           {[
             { num: 1, label: 'Official Role' },
-            { num: 2, label: 'Department & Experience' },
+            { num: 2, label: 'Experience & Context' },
             { num: 3, label: 'Capability Framework' }
           ].map(step => (
             <button
@@ -232,7 +219,7 @@ export default function Onboarding() {
                     onClick={() => setActiveStep(2)}
                     className="bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold px-6"
                   >
-                    Continue to Department <ArrowRight className="w-4 h-4 ml-2" />
+                    Continue to Experience <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
               </CardContent>
@@ -240,14 +227,14 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* STEP 2: Department & Experience */}
+        {/* STEP 2: Experience & Context */}
         {activeStep === 2 && (
           <div className="space-y-6">
             <Card className="bg-[#FFFDF9] border border-[#292B2B]/10 shadow-sm">
               <CardHeader className="border-b border-[#292B2B]/10 pb-4">
                 <div className="space-y-1">
                   <CardTitle className="text-lg font-bold text-[#2D3030] flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-[#A85D4C]" /> Step 2: Department & Experience
+                    <Briefcase className="w-5 h-5 text-[#A85D4C]" /> Step 2: Experience & Focus Areas
                   </CardTitle>
                   <CardDescription className="text-xs text-[#292B2B]">
                     Contextual information to tailor practice materials and operational workflows.
@@ -256,39 +243,8 @@ export default function Onboarding() {
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 
-                {/* Department Grid */}
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-[#2D3030] uppercase tracking-wider block">
-                    Organization Division / Department
-                  </label>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {departments.map(dept => {
-                      const isSelected = selectedDeptId === dept.id;
-                      return (
-                        <div
-                          key={dept.id}
-                          onClick={() => setSelectedDeptId(dept.id)}
-                          className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                            isSelected
-                              ? 'bg-[#A85D4C]/5 border-[#A85D4C] ring-1 ring-[#A85D4C]'
-                              : 'bg-[#FFFDF9] border-[#292B2B]/15 hover:border-[#A85D4C]/30'
-                          }`}
-                        >
-                          <div>
-                            <p className="text-xs font-bold text-[#2D3030]">{dept.name}</p>
-                            <span className="text-[10px] font-mono text-[#292B2B]/60 font-semibold uppercase">
-                              Code: {dept.code}
-                            </span>
-                          </div>
-                          {isSelected && <CheckCircle2 className="w-4 h-4 text-[#A85D4C]" />}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 {/* Experience Slider */}
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-[#2D3030] uppercase tracking-wider">
                       Years of Experience in Official Statistics
@@ -437,27 +393,18 @@ export default function Onboarding() {
                   <div className="space-y-1">
                     <h3 className="text-base font-bold text-[#FFFDF9]">Ready to establish your competency baseline?</h3>
                     <p className="text-xs text-[#FFFDF9]/80 leading-relaxed">
-                      The baseline assessment adapts to your role, evaluating your proficiency across the {roleCompetencies.length} required competencies.
+                      Complete your baseline assessment to unlock your personalized SmartLearn experience. The baseline assessment evaluates your proficiency across the {roleCompetencies.length} required competencies for your selected role.
                     </p>
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                  <div className="pt-2">
                     <Button
-                      onClick={() => handleFinishOnboarding(true)}
+                      onClick={handleFinishOnboarding}
                       disabled={submitting}
                       className="w-full sm:w-auto bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-bold px-8 shadow-xs"
                     >
                       {submitting ? 'Saving Profile...' : 'Start Baseline Assessment'}
                       <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      onClick={() => handleFinishOnboarding(false)}
-                      disabled={submitting}
-                      className="w-full sm:w-auto text-xs font-bold text-[#FFFDF9] border-[#FFFDF9]/20 hover:bg-[#FFFDF9]/10 hover:text-[#FFFDF9]"
-                    >
-                      Go to Dashboard First
                     </Button>
                   </div>
                 </div>
@@ -469,7 +416,7 @@ export default function Onboarding() {
                     onClick={() => setActiveStep(2)}
                     className="text-xs font-bold border-[#292B2B]/20"
                   >
-                    Back to Department & Experience
+                    Back to Experience
                   </Button>
                 </div>
 

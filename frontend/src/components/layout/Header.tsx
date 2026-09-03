@@ -267,22 +267,36 @@ export default function Header() {
 
               {/* Quick Links */}
               <div className="py-1">
-                <Link
-                  to="/profile"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] transition-colors"
-                >
-                  <UserIcon className="w-3.5 h-3.5 text-[#7A756E]" />
-                  <span>Profile & Official Evidence</span>
-                </Link>
-                <Link
-                  to="/competencies"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] transition-colors"
-                >
-                  <Brain className="w-3.5 h-3.5 text-[#7A756E]" />
-                  <span>Capability Map</span>
-                </Link>
+                {user?.role === 'learner' && !user?.baseline_completed ? (
+                  <div className="px-4 py-2 text-xs font-semibold text-[#7A756E] flex items-center justify-between opacity-60">
+                    <span className="flex items-center gap-2">
+                      <UserIcon className="w-3.5 h-3.5 text-[#7A756E]" />
+                      <span>Official Evidence</span>
+                    </span>
+                    <span className="text-[10px] font-mono bg-[#A85D4C]/10 text-[#A85D4C] px-1.5 py-0.5 rounded font-bold">
+                      Locked
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] transition-colors"
+                    >
+                      <UserIcon className="w-3.5 h-3.5 text-[#7A756E]" />
+                      <span>Profile & Official Evidence</span>
+                    </Link>
+                    <Link
+                      to="/competencies"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-[#292B2B] hover:bg-[#EFEBE4] transition-colors"
+                    >
+                      <Brain className="w-3.5 h-3.5 text-[#7A756E]" />
+                      <span>Capability Map</span>
+                    </Link>
+                  </>
+                )}
               </div>
 
               {/* Sign Out */}

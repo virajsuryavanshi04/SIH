@@ -32,6 +32,8 @@ class UserProfileResponse(BaseModel):
     designation: Optional[str] = None
     experience_years: Optional[int] = None
     is_onboarded: bool = False
+    baseline_completed: bool = False
+    active_assessment_id: Optional[int] = None
     is_active: bool
     created_at: Optional[datetime] = None
 

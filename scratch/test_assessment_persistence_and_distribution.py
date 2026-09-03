@@ -270,11 +270,11 @@ class TestAssessmentPersistenceAndDistribution(unittest.TestCase):
         must return None rather than crossing into other competencies.
         """
         from services.adaptive_assessment_service import AdaptiveAssessmentService
-        # Test with an unpopulated competency ID (e.g. 16 or 99999)
+        # Test with an unpopulated competency ID (99999)
         q, gen_req = AdaptiveAssessmentService.select_adaptive_question(
             db=self.db,
             user_id=self.learner.id,
-            competency_id=16,
+            competency_id=99999,
             topic_id=None,
             difficulty=2,
             excluded_ids=[]

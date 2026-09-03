@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, Brain, CheckSquare, Compass, 
   BookOpen, FileText, TrendingUp, User as UserIcon,
-  Users, BarChart3, LogOut, Database, ShieldCheck
+  Users, BarChart3, LogOut, Database, ShieldCheck, Lock
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -33,7 +33,7 @@ export default function Sidebar() {
       title: 'INSIGHTS',
       links: [
         { to: '/progress', label: 'Progress', icon: TrendingUp },
-        { to: '/profile', label: 'Evidence', icon: UserIcon },
+        { to: '/profile', label: 'Profile', icon: UserIcon },
       ]
     }
   ];
@@ -124,37 +124,50 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation Links */}
-            {group.links.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/admin' || link.to === '/dashboard'}
-                title={!isExpanded ? link.label : undefined}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center rounded-xl text-[14px] sm:text-[15px] transition-all duration-200 text-left h-9",
-                    isExpanded ? "px-3 space-x-3 w-full" : "px-0 justify-center w-10 mx-auto",
-                    isActive 
-                      ? "bg-[#A85D4C] text-[#FFFDF9] shadow-[0_1px_3px_rgba(168,93,76,0.3)] font-semibold" 
-                      : "text-[#FFFDF9]/80 hover:bg-[#FFFDF9]/10 hover:text-[#FFFDF9] font-medium"
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <link.icon className={cn("w-[18px] h-[18px] shrink-0 transition-colors", isActive ? "text-[#FFFDF9]" : "text-[#FFFDF9]/70")} />
-                    <span
-                      className={cn(
-                        "truncate whitespace-nowrap transition-opacity duration-200",
-                        isExpanded ? "opacity-100 inline-block" : "opacity-0 hidden"
+            {group.links.map((link) => {
+              const isLocked = user?.role === 'learner' && !user?.baseline_completed && link.to !== '/assessment';
+              return (
+                <NavLink
+                  key={link.to}
+                  to={isLocked ? '/assessment' : link.to}
+                  onClick={(e) => {
+                    if (isLocked) {
+                      e.preventDefault();
+                    }
+                  }}
+                  end={link.to === '/admin' || link.to === '/dashboard'}
+                  title={isLocked ? `Complete Baseline Assessment to unlock ${link.label}` : (!isExpanded ? link.label : undefined)}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center rounded-xl text-[14px] sm:text-[15px] transition-all duration-200 text-left h-9",
+                      isExpanded ? "px-3 space-x-3 w-full" : "px-0 justify-center w-10 mx-auto",
+                      isLocked
+                        ? "opacity-35 cursor-not-allowed hover:bg-transparent text-[#FFFDF9]/60"
+                        : isActive 
+                          ? "bg-[#A85D4C] text-[#FFFDF9] shadow-[0_1px_3px_rgba(168,93,76,0.3)] font-semibold" 
+                          : "text-[#FFFDF9]/80 hover:bg-[#FFFDF9]/10 hover:text-[#FFFDF9] font-medium"
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <link.icon className={cn("w-[18px] h-[18px] shrink-0 transition-colors", !isLocked && isActive ? "text-[#FFFDF9]" : "text-[#FFFDF9]/70")} />
+                      <span
+                        className={cn(
+                          "truncate whitespace-nowrap transition-opacity duration-200",
+                          isExpanded ? "opacity-100 inline-block" : "opacity-0 hidden"
+                        )}
+                      >
+                        {link.label}
+                      </span>
+                      {isLocked && isExpanded && (
+                        <Lock className="w-3 h-3 text-[#FFFDF9]/40 ml-auto shrink-0" />
                       )}
-                    >
-                      {link.label}
-                    </span>
-                  </>
-                )}
-              </NavLink>
-            ))}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
           </div>
         ))}
       </nav>

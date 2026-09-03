@@ -7,8 +7,9 @@ from models.role import Role
 from models.department import Department
 from models.competency import RoleCompetency, Competency
 from models.user_competency import UserCompetency, CompetencyScore
+from models.assessment import Assessment
 from schemas.user import UserProfileResponse, UserOnboardingRequest, UserRoleUpdateRequest, DepartmentResponse
-from services.competency_service import compute_user_gaps
+from services.competency_service import compute_user_gaps, check_user_baseline_completed
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -29,6 +30,16 @@ def get_current_user_profile(current_user: User = Depends(get_current_user), db:
 
     is_onboarded = bool(current_user.role_id or current_user.designation)
 
+    # Baseline completion check: Learner must have at least one completed assessment covering ALL required role competencies
+    baseline_completed = check_user_baseline_completed(db, current_user)
+
+    in_progress_ass = db.query(Assessment).filter(
+        Assessment.user_id == current_user.id,
+        Assessment.status == "in_progress",
+        Assessment.assessment_type.in_(["baseline", "adaptive", "adaptive_reassessment"])
+    ).order_by(Assessment.id.desc()).first()
+    active_assessment_id = in_progress_ass.id if in_progress_ass else None
+
     return UserProfileResponse(
         id=current_user.id,
         name=current_user.full_name or current_user.name,
@@ -42,6 +53,8 @@ def get_current_user_profile(current_user: User = Depends(get_current_user), db:
         designation=current_user.designation,
         experience_years=current_user.experience_years or 0,
         is_onboarded=is_onboarded,
+        baseline_completed=baseline_completed,
+        active_assessment_id=active_assessment_id,
         is_active=current_user.is_active,
         created_at=current_user.created_at
     )

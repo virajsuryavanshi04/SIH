@@ -85,14 +85,18 @@ export default function Assessment() {
       setLoading(true);
       setErrorMessage(null);
 
-      const compIds = selectedCompId !== 'all' ? [parseInt(selectedCompId)] : undefined;
+      const isBaseline = !user?.baseline_completed;
+      const compIds = (!isBaseline && selectedCompId !== 'all') ? [parseInt(selectedCompId)] : undefined;
+      const mCount = competencies.length > 0 ? competencies.length : 8;
+      const baselineCount = Math.min(20, Math.max(15, mCount * 2));
+      const finalQuestionCount = isBaseline ? baselineCount : questionCount;
 
       const res = await assessmentApi.start({
-        assessment_type: focusType,
-        competency_id: compIds && compIds.length === 1 ? compIds[0] : undefined,
-        competency_ids: compIds,
+        assessment_type: isBaseline ? 'baseline' : focusType,
+        competency_id: isBaseline ? undefined : (compIds && compIds.length === 1 ? compIds[0] : undefined),
+        competency_ids: isBaseline ? undefined : compIds,
         question_type: questionType,
-        question_count: questionCount,
+        question_count: finalQuestionCount,
         adaptive_mode: true
       });
 
@@ -105,7 +109,7 @@ export default function Assessment() {
           questions,
           assessmentType: res.data.assessment_type,
           competenciesCovered: res.data.competencies_covered,
-          totalQuestions: res.data.total_questions || questionCount
+          totalQuestions: res.data.total_questions || finalQuestionCount
         }
       });
     } catch (err: any) {
@@ -195,6 +199,43 @@ export default function Assessment() {
         </div>
       )}
 
+      {/* Mandatory Baseline Assessment Notice */}
+      {!user?.baseline_completed && (
+        <div className="p-4 rounded-xl bg-[#A85D4C]/10 border border-[#A85D4C]/25 text-[#292B2B] flex items-start gap-3 shadow-xs">
+          <Sparkles className="w-5 h-5 text-[#A85D4C] shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm space-y-1">
+            <p className="font-bold text-[#A85D4C]">Compulsory Baseline Assessment Required</p>
+            <p className="text-xs sm:text-sm text-[#7A756E] leading-relaxed">
+              Complete your baseline assessment to unlock your personalized SmartLearn experience. The baseline assessment evaluates your proficiency across the required competencies for your selected role.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Active In-Progress Assessment Resume Card */}
+      {user?.active_assessment_id && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#B38A3D]/10 border border-[#B38A3D]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="space-y-1">
+            <p className="text-xs font-mono font-bold uppercase tracking-wider text-[#B38A3D] flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Assessment In Progress</span>
+            </p>
+            <p className="text-sm font-bold text-[#292B2B]">
+              You have an active diagnostic session (#{user.active_assessment_id}).
+            </p>
+            <p className="text-xs text-[#7A756E]">
+              Resume where you left off to establish your competency scores.
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate(`/quiz/${user.active_assessment_id}`)}
+            className="bg-[#B38A3D] hover:bg-[#916E2E] text-[#FFFDF9] font-bold text-xs px-5 h-10 rounded-xl shadow-xs shrink-0 cursor-pointer"
+          >
+            Resume Assessment #{user.active_assessment_id} →
+          </Button>
+        </div>
+      )}
+
       {/* Configuration Card */}
       <Card className="border-t-4 border-t-[#A85D4C] bg-[#FFFDF9] shadow-xs border-[#E2DDD5] rounded-2xl">
         <CardHeader className="pb-4 border-b border-[#E2DDD5]">
@@ -210,25 +251,50 @@ export default function Assessment() {
         <CardContent className="p-6 space-y-6">
           
           {/* 1. Competency Focus */}
-          <div className="space-y-2">
-            <label className="text-xs font-mono uppercase font-bold tracking-wider text-[#292B2B] flex items-center gap-1.5">
-              <Target className="w-3.5 h-3.5 text-[#A85D4C]" />
-              <span>Competency</span>
-            </label>
-            <Select value={selectedCompId} onValueChange={(val) => { setSelectedCompId(val); setErrorMessage(null); }}>
-              <SelectTrigger className="w-full border-[#E2DDD5] focus:ring-[#A85D4C]/20 bg-[#FFFDF9] text-sm font-medium text-[#292B2B] h-11 rounded-xl">
-                <SelectValue placeholder="Select Competency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {activeRoleName} Framework ({competencies.length || 8} Competencies — Comprehensive)
-                </SelectItem>
+          {!user?.baseline_completed ? (
+            <div className="space-y-3 p-5 rounded-2xl bg-[#F7F4EE] border border-[#E2DDD5]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#E2DDD5] pb-3">
+                <div>
+                  <h4 className="text-sm font-bold text-[#292B2B]">Your Baseline Assessment</h4>
+                  <p className="text-xs font-semibold text-[#A85D4C]">Role: {activeRoleName}</p>
+                </div>
+                <span className="text-[11px] font-mono font-bold bg-[#A85D4C]/10 text-[#A85D4C] px-3 py-1 rounded-full w-fit">
+                  All {competencies.length || 8} Competencies Mandatory
+                </span>
+              </div>
+              <p className="text-xs text-[#7A756E] leading-relaxed">
+                This assessment covers all {competencies.length || 8} competencies required for your selected role. The competency set is determined strictly by your cadre.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 {competencies.map(c => (
-                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                  <div key={c.id} className="flex items-center gap-2 p-2.5 rounded-xl bg-[#FFFDF9] border border-[#E2DDD5] text-xs font-semibold text-[#292B2B]">
+                    <CheckCircle2 className="w-4 h-4 text-[#2E8B57] shrink-0" />
+                    <span className="truncate">{c.name}</span>
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-xs font-mono uppercase font-bold tracking-wider text-[#292B2B] flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-[#A85D4C]" />
+                <span>Competency Target</span>
+              </label>
+              <Select value={selectedCompId} onValueChange={(val) => { setSelectedCompId(val); setErrorMessage(null); }}>
+                <SelectTrigger className="w-full border-[#E2DDD5] focus:ring-[#A85D4C]/20 bg-[#FFFDF9] text-sm font-medium text-[#292B2B] h-11 rounded-xl">
+                  <SelectValue placeholder="Select Competency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {activeRoleName} Framework ({competencies.length || 8} Competencies — Comprehensive)
+                  </SelectItem>
+                  {competencies.map(c => (
+                    <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* 2. Question Type */}
           <div className="space-y-2">
@@ -278,25 +344,36 @@ export default function Assessment() {
                 <Layers className="w-3.5 h-3.5 text-[#A85D4C]" />
                 <span>Number of Questions</span>
               </label>
-              <div className="grid grid-cols-3 gap-2.5">
-                {questionCountOptions.map((count) => {
-                  const isSelected = questionCount === count;
-                  return (
-                    <button
-                      key={count}
-                      type="button"
-                      onClick={() => { setQuestionCount(count); setErrorMessage(null); }}
-                      className={`py-2.5 px-3 rounded-xl border text-center font-bold text-sm transition-all cursor-pointer ${
-                        isSelected
-                          ? 'border-[#A85D4C] bg-[#A85D4C] text-[#FFFDF9] shadow-xs'
-                          : 'border-[#E2DDD5] bg-[#FFFDF9] hover:bg-[#F7F4EE] hover:border-[#A85D4C]/40 text-[#292B2B]'
-                      }`}
-                    >
-                      {count} Questions
-                    </button>
-                  );
-                })}
-              </div>
+              {!user?.baseline_completed ? (
+                <div className="py-2.5 px-4 bg-[#EFEBE4]/70 border border-[#A85D4C]/30 rounded-xl flex items-center justify-between">
+                  <span className="text-sm font-bold text-[#292B2B]">
+                    {Math.min(20, Math.max(15, (competencies.length || 8) * 2))} Questions
+                  </span>
+                  <span className="text-[11px] font-mono text-[#A85D4C] font-semibold bg-[#A85D4C]/10 px-2 py-0.5 rounded">
+                    Min 2 per Cadre Competency (15–20 Total)
+                  </span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2.5">
+                  {questionCountOptions.map((count) => {
+                    const isSelected = questionCount === count;
+                    return (
+                      <button
+                        key={count}
+                        type="button"
+                        onClick={() => { setQuestionCount(count); setErrorMessage(null); }}
+                        className={`py-2.5 px-3 rounded-xl border text-center font-bold text-sm transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-[#A85D4C] bg-[#A85D4C] text-[#FFFDF9] shadow-xs'
+                            : 'border-[#E2DDD5] bg-[#FFFDF9] hover:bg-[#F7F4EE] hover:border-[#A85D4C]/40 text-[#292B2B]'
+                        }`}
+                      >
+                        {count} Questions
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Difficulty */}
@@ -334,7 +411,7 @@ export default function Assessment() {
               ) : (
                 <span className="flex items-center gap-2">
                   <Play className="w-4 h-4 fill-current" />
-                  <span>Start Assessment</span>
+                  <span>{!user?.baseline_completed ? 'Start Baseline Assessment' : 'Start Assessment'}</span>
                 </span>
               )}
             </Button>
@@ -343,26 +420,20 @@ export default function Assessment() {
       </Card>
 
       {/* Past Assessment History */}
-      <Card className="bg-[#FFFDF9] shadow-xs border border-[#E2DDD5] rounded-2xl">
-        <CardHeader className="border-b border-[#E2DDD5] p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base sm:text-lg font-semibold text-[#292B2B] flex items-center gap-2">
-              <History className="w-4.5 h-4.5 text-[#A85D4C]" />
-              <span>Recorded Diagnostic Telemetry</span>
-            </CardTitle>
-            <span className="text-xs font-mono text-[#7A756E]">
-              {pastAssessments.length} sessions logged
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          {pastAssessments.length === 0 ? (
-            <div className="text-center p-8 space-y-2">
-              <AlertCircle className="w-8 h-8 text-[#7A756E]/30 mx-auto" />
-              <p className="text-sm font-semibold text-[#292B2B]">No prior assessment sessions found.</p>
-              <p className="text-xs text-[#7A756E]">Complete your first assessment above to populate your capability telemetry.</p>
+      {user?.baseline_completed && pastAssessments.length > 0 && (
+        <Card className="bg-[#FFFDF9] shadow-xs border border-[#E2DDD5] rounded-2xl">
+          <CardHeader className="border-b border-[#E2DDD5] p-5 sm:p-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base sm:text-lg font-semibold text-[#292B2B] flex items-center gap-2">
+                <History className="w-4.5 h-4.5 text-[#A85D4C]" />
+                <span>Recorded Diagnostic Telemetry</span>
+              </CardTitle>
+              <span className="text-xs font-mono text-[#7A756E]">
+                {pastAssessments.length} sessions logged
+              </span>
             </div>
-          ) : (
+          </CardHeader>
+          <CardContent className="p-6">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#EFEBE4] border-b border-[#E2DDD5] text-[#292B2B] uppercase font-mono font-semibold text-[10px]">
@@ -417,9 +488,9 @@ export default function Assessment() {
                 </tbody>
               </table>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

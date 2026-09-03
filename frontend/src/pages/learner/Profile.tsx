@@ -90,7 +90,7 @@ export default function Profile() {
           <span>OFFICER CREDENTIALS & CAPABILITY EVIDENCE</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-[#292B2B] tracking-tight leading-tight">
-          Evidence & Profile Portfolio
+          Profile
         </h1>
         <p className="text-sm text-[#7A756E] mt-1.5 leading-relaxed">
           Official competency credentials, verified assessments, and continuous capability telemetry for {user?.full_name || 'Arjun Patel'}.

@@ -24,10 +24,16 @@ export default function Login() {
       toast({ title: 'Welcome to SmartLearn', description: 'Logged in successfully' });
       
       const meRes = await authApi.getMe();
-      if (meRes.data?.role === 'learner' && !meRes.data?.role_id && !meRes.data?.designation) {
-        navigate('/onboarding');
+      if (meRes.data?.role === 'learner') {
+        if (!meRes.data?.role_id && !meRes.data?.designation) {
+          navigate('/onboarding');
+        } else if (!meRes.data?.baseline_completed) {
+          navigate('/assessment');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
-        navigate('/dashboard');
+        navigate('/admin');
       }
     } catch (error) {
       toast({ title: 'Authentication Failed', description: 'Invalid email or password', variant: 'destructive' });
@@ -120,13 +126,16 @@ export default function Login() {
               </Button>
             </div>
 
-            <div className="pt-1 text-center">
+            <div className="pt-2 border-t border-[#E2DDD5] text-center space-y-1.5">
+              <p className="text-xs text-[#7A756E]">
+                New to the Statistical Cadre platform?
+              </p>
               <Link 
-                to="/onboarding" 
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#A85D4C] hover:text-[#7D4036] transition-colors"
+                to="/register" 
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#A85D4C] hover:text-[#7D4036] transition-colors"
               >
-                <UserPlus className="w-3 h-3" />
-                <span>Open Role & Framework Onboarding Wizard</span>
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Create New Official Account</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

@@ -9,6 +9,7 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
+    confirm_password: Optional[str] = None
     full_name: str
     department_id: Optional[int] = None
 
@@ -27,7 +28,9 @@ class UserResponse(BaseModel):
     department_name: Optional[str] = None
     designation: Optional[str] = None
     experience_years: Optional[int] = None
-    is_onboarded: Optional[bool] = True
+    is_onboarded: Optional[bool] = False
+    baseline_completed: Optional[bool] = False
+    active_assessment_id: Optional[int] = None
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)

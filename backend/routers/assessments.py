@@ -37,14 +37,8 @@ def start_assessment(
     """
     ass_type = req.assessment_type or "adaptive"
     
-    # 1. Validate Question Count (must be in {10, 15, 20})
-    raw_count = req.question_count if req.question_count is not None else 10
-    if raw_count not in [10, 15, 20]:
-        raise HTTPException(
-            status_code=422,
-            detail="Invalid question count. Supported question counts are 10, 15, or 20."
-        )
-    target_count = int(raw_count)
+    # 1. Determine if this is a baseline assessment
+    is_baseline = (ass_type == "baseline")
 
     # 2. Validate Question Type
     raw_type = (req.question_type or "MIXED").strip().upper()
@@ -56,31 +50,88 @@ def start_assessment(
         )
     q_type = raw_type
 
-    # 3. Resolve & Validate Competencies
-    target_comp_ids = []
-    if req.competency_id:
-        target_comp_ids = [req.competency_id]
-    elif req.competency_ids:
-        target_comp_ids = req.competency_ids
-    elif current_user and current_user.role_id:
-        role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == current_user.role_id).all()
-        target_comp_ids = [r.competency_id for r in role_reqs]
-    elif current_user and current_user.designation:
-        role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == current_user.designation).all()
-        target_comp_ids = [r.competency_id for r in role_reqs]
+    # 3. Resolve & Validate Competencies & Target Question Count
+    if is_baseline:
+        # AUTHORITATIVE SOURCE: Strict Role-Competency Coverage
+        # The baseline assessment MUST be generated strictly from ALL competencies assigned to the authenticated learner's role.
+        # Learner-supplied competency_id / competency_ids are completely ignored.
+        role_reqs = []
+        if current_user.role_id:
+            role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == current_user.role_id).all()
+        if not role_reqs and current_user.designation:
+            role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == current_user.designation).all()
+        if not role_reqs and current_user.role_id:
+            from models.role import Role
+            role_obj = db.query(Role).filter(Role.id == current_user.role_id).first()
+            if role_obj:
+                role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == role_obj.name).all()
 
-    if not target_comp_ids:
-        target_comp_ids = [c.id for c in db.query(Competency).all()]
+        target_comp_ids = [r.competency_id for r in role_reqs]
+        if not target_comp_ids:
+            raise HTTPException(
+                status_code=400,
+                detail="No required competencies are mapped to your selected cadre. Please complete onboarding with an official cadre."
+            )
+        # Strict Baseline Formula:
+        # minimum_required = M * 2
+        # total_questions = max(15, minimum_required) subject to total_questions <= 20
+        # Returns controlled configuration error if M * 2 > 20
+        m_count = len(target_comp_ids)
+        if m_count * 2 > 20:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Selected cadre requires {m_count} competencies which needs at least {m_count * 2} questions to satisfy minimum 2-per-competency coverage, exceeding the maximum allowed baseline total of 20 questions."
+            )
+        target_count = max(15, m_count * 2)
+    else:
+        # Validate Question Count for non-baseline assessments
+        raw_count = req.question_count if req.question_count is not None else 10
+        if raw_count not in [10, 15, 16, 20]:
+            raise HTTPException(
+                status_code=422,
+                detail="Invalid question count. Supported question counts are 10, 15, or 20."
+            )
+        target_count = int(raw_count)
 
-    if not target_comp_ids:
-        target_comp_ids = [1, 2, 3, 4, 5, 6, 7, 8]
+        target_comp_ids = []
+        if req.competency_id:
+            target_comp_ids = [req.competency_id]
+        elif req.competency_ids:
+            target_comp_ids = req.competency_ids
+        elif current_user and current_user.role_id:
+            role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == current_user.role_id).all()
+            target_comp_ids = [r.competency_id for r in role_reqs]
+        elif current_user and current_user.designation:
+            role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == current_user.designation).all()
+            target_comp_ids = [r.competency_id for r in role_reqs]
+
+        if not target_comp_ids:
+            target_comp_ids = [c.id for c in db.query(Competency).all()]
+
+        if not target_comp_ids:
+            target_comp_ids = [1, 2, 3, 4, 5, 6, 7, 8]
 
     # Verify competencies exist
     existing_comps = db.query(Competency).filter(Competency.id.in_(target_comp_ids)).all()
     if len(existing_comps) != len(set(target_comp_ids)):
         raise HTTPException(status_code=422, detail="One or more specified competencies do not exist.")
 
-    # 4. Check Approved Pool Sufficiency BEFORE Creating Assessment Record
+    # 5. Check Approved Pool Sufficiency BEFORE Creating Assessment Record
+    # For baseline assessment, every single required competency must have approved questions available
+    if is_baseline:
+        for cid in target_comp_ids:
+            comp_q_count = db.query(Question).filter(
+                Question.status == "approved",
+                Question.competency_id == cid
+            ).count()
+            if comp_q_count == 0:
+                comp_obj = db.query(Competency).filter(Competency.id == cid).first()
+                c_name = comp_obj.name if comp_obj else f"Competency {cid}"
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Required competency '{c_name}' does not have sufficient approved questions. Assessment cannot proceed without complete role coverage."
+                )
+
     from sqlalchemy import or_
     pool_query = db.query(Question).filter(
         Question.status == "approved",
@@ -133,12 +184,14 @@ def start_assessment(
     db.add(assessment)
     db.commit()
     db.refresh(assessment)
+    db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id == assessment.id).delete()
+    db.commit()
     
     # 7. Select Initial Question(s)
     q_list = []
     comp_names = set()
 
-    if ass_type == "adaptive":
+    if ass_type in ["adaptive", "baseline", "adaptive_reassessment"]:
         first_cid = adaptive_state["current_competency_id"]
         first_tid = adaptive_state["current_topic_id"]
         first_diff = adaptive_state["current_difficulty"]
@@ -205,11 +258,12 @@ def start_assessment(
                 options=opts
             ))
         
+    all_covered_names = [c.name for c in existing_comps] if existing_comps else list(comp_names)
     return AssessmentStartResponse(
         assessment_id=assessment.id,
         assessment_type=ass_type,
         total_questions=target_count,
-        competencies_covered=list(comp_names),
+        competencies_covered=all_covered_names,
         questions=q_list
     )
 

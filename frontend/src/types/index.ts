@@ -32,6 +32,8 @@ export interface User {
   designation?: string;
   experience_years?: number;
   is_onboarded?: boolean;
+  baseline_completed?: boolean;
+  active_assessment_id?: number | null;
   created_at: string;
 }
 

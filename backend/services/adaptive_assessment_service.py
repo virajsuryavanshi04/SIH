@@ -87,27 +87,27 @@ class AdaptiveAssessmentService:
         topics = db.query(CompetencyTopic).filter(CompetencyTopic.competency_id.in_(comp_ids)).all()
         per_topic_diff = {str(t.id): per_comp_diff.get(str(t.competency_id), 2) for t in topics}
 
-        # Filter to active competencies that have approved questions available
-        active_comps = []
-        for cid in comp_ids:
-            has_approved = db.query(Question.id).filter(
-                Question.competency_id == cid,
-                Question.status == "approved"
-            ).first() is not None
-            if has_approved:
-                active_comps.append(cid)
-
-        schedule_comps = active_comps if active_comps else comp_ids
-
+        # Strict Invariant: NEVER drop or substitute any required competency in the schedule
+        schedule_comps = list(comp_ids)
+        num_comps = len(schedule_comps)
+        
+        base_quota = target_question_count // num_comps if num_comps > 0 else 1
+        remainder = target_question_count % num_comps if num_comps > 0 else 0
+        
         # Build deterministic competency schedule for target_question_count
         # Consecutive grouping by competency: [C1, C1, C2, C2, C3, C3, ...]
-        quota = target_question_count // len(schedule_comps) if schedule_comps else target_question_count
         competency_schedule = []
-        if quota > 0:
+        competency_quotas = {}
+        for i, c in enumerate(schedule_comps):
+            count = base_quota + (1 if i < remainder else 0)
+            competency_quotas[str(c)] = count
+            competency_schedule.extend([c] * count)
+
+        # Guarantee that every required competency appears at least once
+        if len(competency_schedule) < num_comps:
             for c in schedule_comps:
-                competency_schedule.extend([c] * quota)
-        while len(competency_schedule) < target_question_count:
-            competency_schedule.append(schedule_comps[len(competency_schedule) % len(schedule_comps)])
+                if c not in competency_schedule:
+                    competency_schedule.append(c)
 
         first_cid = competency_schedule[0] if competency_schedule else comp_ids[0]
         first_topics = [t.id for t in topics if t.competency_id == first_cid]
@@ -118,6 +118,7 @@ class AdaptiveAssessmentService:
         state = {
             "competency_ids": comp_ids,
             "competency_schedule": competency_schedule,
+            "competency_quotas": competency_quotas,
             "competency_answers": {str(cid): [] for cid in comp_ids},
             "question_type": normalized_q_type,
             "per_competency_difficulty": {str(cid): 2 for cid in comp_ids},
@@ -135,6 +136,7 @@ class AdaptiveAssessmentService:
             "current_difficulty": 2,  # Strict Invariant: First question of every competency is ALWAYS Medium (2)
             "answered_count": 0,
             "target_question_count": target_question_count,
+            "total_steps": target_question_count,
             "seen_question_ids": [],
             "pending_question_id": None
         }
@@ -329,8 +331,8 @@ class AdaptiveAssessmentService:
         if len(comp_answers) == 0:
             # First question of every competency is ALWAYS Medium (2)
             next_diff = 2
-        else:
-            # Subsequent question for this competency:
+        elif len(comp_answers) == 1:
+            # Second question for this competency:
             # Medium + Correct -> Hard (3)
             # Medium + Incorrect -> Easy (1)
             last_ans = comp_answers[-1]
@@ -338,6 +340,15 @@ class AdaptiveAssessmentService:
                 next_diff = 3
             else:
                 next_diff = 1
+        else:
+            # Third (or subsequent) question for this competency:
+            # Determine difficulty using existing competency-local adaptive state
+            last_ans = comp_answers[-1]
+            last_diff = last_ans.get("difficulty", 2)
+            if last_ans.get("is_correct", False):
+                next_diff = min(3, last_diff + 1)
+            else:
+                next_diff = max(1, last_diff - 1)
 
         perf_topics = state.get("performance_by_topic", {})
 
@@ -677,6 +688,55 @@ class AdaptiveAssessmentService:
             reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == user.designation).all()
             role_targets = {r.competency_id: r.target_score for r in reqs}
 
+        # Strict Invariant: Completion Validation for Baseline Assessments
+        # The baseline assessment is valid ONLY if:
+        # 1. Total actual questions served is between 15 and 20.
+        # 2. Every required role competency has received at least 2 actual questions.
+        if assessment.assessment_type == "baseline":
+            role_reqs = []
+            if user and user.role_id:
+                role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == user.role_id).all()
+            elif user and user.designation:
+                role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == user.designation).all()
+            if not role_reqs and user and user.role_id:
+                from models.role import Role
+                r_obj = db.query(Role).filter(Role.id == user.role_id).first()
+                if r_obj:
+                    role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == r_obj.name).all()
+
+            required_comp_ids = {r.competency_id for r in role_reqs}
+            from collections import Counter
+            actual_comp_counts = Counter()
+            for a in answers:
+                cid = None
+                if a.question and a.question.competency_id:
+                    cid = a.question.competency_id
+                elif a.question_id:
+                    q = db.query(Question.competency_id).filter(Question.id == a.question_id).first()
+                    if q and q[0]:
+                        cid = q[0]
+                if cid is not None:
+                    actual_comp_counts[cid] += 1
+
+            total_actual = len(answers)
+            if not (15 <= total_actual <= 20):
+                assessment.status = "in_progress"
+                db.commit()
+                raise ValueError(
+                    f"Baseline assessment invalid: Total actual questions {total_actual} is not within required 15–20 range."
+                )
+
+            for cid in required_comp_ids:
+                count = actual_comp_counts.get(cid, 0)
+                if count < 2:
+                    assessment.status = "in_progress"
+                    db.commit()
+                    raise ValueError(
+                        f"Baseline assessment incomplete: Required competency ID {cid} only received {count} actual question(s). Minimum 2 questions required per competency."
+                    )
+
+            state["actual_questions_by_competency"] = {str(k): v for k, v in actual_comp_counts.items()}
+
         # 1. Competency Performance
         comp_groups = {}
         total_correct = 0
@@ -799,6 +859,9 @@ class AdaptiveAssessmentService:
         assessment.overall_score = overall
         assessment.status = "completed"
         assessment.completed_at = datetime.utcnow()
+        assessment.adaptive_state = state
+        from sqlalchemy.orm.attributes import flag_modified
+        flag_modified(assessment, "adaptive_state")
         db.commit()
 
         from services.assessment_service import get_assessment_result

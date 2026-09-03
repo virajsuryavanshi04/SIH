@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { assessmentApi, diagnosisApi } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,7 @@ interface QuestionReview {
 export default function QuizResult() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
+  const { refreshUser } = useAuth();
 
   const [result, setResult] = useState<any>(location.state?.result || null);
   const [loading, setLoading] = useState<boolean>(!location.state?.result);
@@ -70,6 +72,8 @@ export default function QuizResult() {
           setLoading(true);
           const res = await assessmentApi.getResult(assessmentId);
           setResult(res.data);
+          // Refresh user session state so baseline completion unlocks dashboard immediately
+          refreshUser();
         } catch (err) {
           console.error('Failed to load assessment result:', err);
         } finally {
@@ -81,6 +85,8 @@ export default function QuizResult() {
     // If result was passed in location.state but lacks responses review array, fetch complete result
     if (!result || !result.responses) {
       fetchResult();
+    } else {
+      refreshUser();
     }
     
     // Fetch Phase 5G Cognitive Diagnosis
