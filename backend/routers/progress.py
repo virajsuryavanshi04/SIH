@@ -12,6 +12,7 @@ from models.competency import Competency, RoleCompetency, CompetencyTopic
 from models.user_competency import CompetencyScore, UserCompetency
 from models.learning_path import LearningPath, LearningPathItem, LearningProgress
 from models.course import Course
+from models.role import Role
 from services.competency_service import (
     get_user_detailed_competencies,
     get_user_competency_insights,
@@ -70,19 +71,25 @@ def get_progress_overview(
 
     reassessments_count = db.query(Assessment).filter(
         Assessment.user_id == current_user.id,
-        Assessment.assessment_type == "adaptive_reassessment",
+        Assessment.assessment_type.in_(["adaptive_reassessment", "reassessment"]),
         Assessment.status == "completed"
     ).count()
 
-    role_name = current_user.designation or (
-        current_user.assigned_role.name if getattr(current_user, "assigned_role", None) else "Statistical Officer"
-    )
+    role_name = None
+    if current_user.role_id:
+        role_obj = getattr(current_user, "role_rel", None) or db.query(Role).filter(Role.id == current_user.role_id).first()
+        if role_obj:
+            role_name = role_obj.name
+    if not role_name:
+        role_name = current_user.designation or "Statistical Officer"
 
     return ProgressOverviewResponse(
         user_id=current_user.id,
         role_name=role_name,
         overall_readiness=insights["overall_readiness"],
         total_improvement_points=insights["total_improvement_points"],
+        has_baseline_history=insights.get("has_baseline_history", False),
+        assessed_competencies_count=insights.get("assessed_competencies_count", 0),
         benchmarks_met=benchmarks_met,
         total_competencies=total_competencies,
         critical_gaps_count=critical_gaps_count,
@@ -201,9 +208,9 @@ def get_progress_analytics(
         if ans.is_correct:
             diff_stats[diff]["correct"] += 1
 
-        # Confidence calibration (high >= 4, low <= 3)
-        c_lvl = ans.confidence_level or 3
-        if c_lvl >= 4:
+        # Confidence calibration: 3 on 3-point scale or >= 4 on 5-point scale is High
+        c_lvl = ans.confidence_level or 2
+        if c_lvl >= 3:
             if ans.is_correct:
                 conf_stats["high_corr"] += 1
             else:
@@ -336,7 +343,7 @@ def get_progress_timeline(
     ).all()
 
     for item in lp_items:
-        t_stamp = item.completed_at or datetime.utcnow()
+        t_stamp = getattr(item, 'completed_at', None) or (item.learning_path.created_at if getattr(item, 'learning_path', None) else None) or datetime.utcnow()
         events.append({
             "id": f"lp_item_{item.id}",
             "event_type": "learning_path",

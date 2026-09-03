@@ -15,6 +15,8 @@ class ProgressOverviewResponse(BaseModel):
     role_name: str
     overall_readiness: float
     total_improvement_points: float
+    has_baseline_history: bool = False
+    assessed_competencies_count: int = 0
     benchmarks_met: int
     total_competencies: int
     critical_gaps_count: int

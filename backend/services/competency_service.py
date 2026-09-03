@@ -283,6 +283,8 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
     for s in all_scores:
         comp_history.setdefault(s.competency_id, []).append(s.score)
 
+    has_multi_history = any(len(scores_list) >= 2 for scores_list in comp_history.values())
+
     for cid, scores_list in comp_history.items():
         if len(scores_list) >= 2:
             growth = round(scores_list[-1] - scores_list[0], 1)
@@ -307,6 +309,7 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
         "overall_readiness": overall_readiness,
         "total_assessments_taken": total_assessments,
         "total_improvement_points": round(total_points_gained, 1),
+        "has_baseline_history": has_multi_history,
         "assessed_competencies_count": assessed_count,
         "total_role_competencies_count": len(detailed),
         "targets_met_count": targets_met_count,
