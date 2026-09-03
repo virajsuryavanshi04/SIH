@@ -526,5 +526,6 @@ def seed_database(db: Session):
             db.add(diag_rec)
         db.commit()
 
-
-
+    # --- 13. Synchronize Official 12 Roles, 20 Competencies & 60 iGOT Courses ---
+    from seed.import_igot_catalogue import sync_igot_catalogue
+    sync_igot_catalogue(db)

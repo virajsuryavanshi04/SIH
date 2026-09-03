@@ -45,41 +45,41 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
   const diffTag = getDifficultyLabel(question.difficulty);
 
   return (
-    <div className="space-y-5 text-left">
+    <div className="space-y-3 text-left">
       
       {/* Classification Metadata Badges */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         {question.competency_name && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-mono font-bold bg-[#2D3030] text-[#FFFDF9]">
-            <Target className="w-3.5 h-3.5 text-[#B38A3D]" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-[#2D3030] text-[#FFFDF9]">
+            <Target className="w-3 h-3 text-[#B38A3D]" />
             <span>{question.competency_name}</span>
           </span>
         )}
 
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-mono font-semibold bg-[#EFEBE4] text-[#A85D4C] border border-[#E2DDD5]">
-          <BookOpen className="w-3.5 h-3.5" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-[#EFEBE4] text-[#A85D4C] border border-[#E2DDD5]">
+          <BookOpen className="w-3 h-3" />
           <span>{getTypeLabel(question.question_type)}</span>
         </span>
 
         {question.topic_name && (
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5]">
-            <Layers className="w-3.5 h-3.5 text-[#A85D4C]" />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5]">
+            <Layers className="w-3 h-3 text-[#A85D4C]" />
             <span>{question.topic_name}</span>
           </span>
         )}
 
-        <span className={cn("px-3 py-1 rounded-md text-xs font-mono font-bold border", diffTag.color)}>
+        <span className={cn("px-2.5 py-0.5 rounded-md text-xs font-mono font-bold border", diffTag.color)}>
           {diffTag.label}
         </span>
       </div>
 
       {/* Question Text */}
-      <h2 className="text-lg sm:text-xl font-bold text-[#292B2B] leading-snug pt-1">
+      <h2 className="text-sm sm:text-base md:text-lg font-bold text-[#292B2B] leading-snug">
         {question.question_text || question.text}
       </h2>
       
       {/* Options List */}
-      <div className="space-y-3 pt-2">
+      <div className="space-y-2 pt-0.5">
         {question.options.map((option) => {
           const isSelected = String(selectedOption) === String(option.id);
           
@@ -87,22 +87,22 @@ export default function QuestionCard({ question, selectedOption, onSelect }: Pro
             <Card 
               key={option.id}
               className={cn(
-                "cursor-pointer transition-all duration-200 ease-out border rounded-xl active:scale-[0.995]",
+                "cursor-pointer transition-all duration-150 ease-out border rounded-xl active:scale-[0.995]",
                 isSelected 
-                  ? "border-[#A85D4C] bg-[#A85D4C]/5 shadow-[0_1px_3px_rgba(168,93,76,0.15)] ring-2 ring-[#A85D4C]/25" 
-                  : "border-[#E2DDD5] hover:border-[#A85D4C]/50 hover:bg-[#F7F4EE] hover:shadow-xs bg-[#FFFDF9]"
+                  ? "border-[#A85D4C] bg-[#A85D4C]/5 shadow-[0_1px_3px_rgba(168,93,76,0.15)] ring-1.5 ring-[#A85D4C]/30" 
+                  : "border-[#E2DDD5] hover:border-[#A85D4C]/50 hover:bg-[#F7F4EE] bg-[#FFFDF9]"
               )}
               onClick={() => onSelect(option.id)}
             >
-              <div className="p-4 sm:p-4.5 flex items-center gap-3.5">
+              <div className="p-2.5 sm:p-3 flex items-center gap-3">
                 <div className={cn(
                   "flex-shrink-0 transition-colors",
                   isSelected ? "text-[#A85D4C]" : "text-[#7A756E]/40"
                 )}>
-                  {isSelected ? <CheckCircle2 className="w-5 h-5 text-[#A85D4C]" /> : <Circle className="w-5 h-5" />}
+                  {isSelected ? <CheckCircle2 className="w-4.5 h-4.5 text-[#A85D4C]" /> : <Circle className="w-4.5 h-4.5" />}
                 </div>
                 <span className={cn(
-                  "text-sm sm:text-[15px] leading-relaxed",
+                  "text-xs sm:text-sm leading-snug",
                   isSelected ? "font-semibold text-[#292B2B]" : "text-[#292B2B] font-normal"
                 )}>
                   {option.text}

@@ -71,6 +71,7 @@ export const competencyApi = {
 export const assessmentApi = {
   start: (data: any) => api.post('/assessments/start', data),
   get: (id: number) => api.get(`/assessments/${id}`),
+  resume: (id: number) => api.get(`/assessments/${id}/resume`),
   getResult: (id: number) => api.get(`/assessments/${id}/result`),
   submitAnswer: (id: number, data: any) => api.post(`/assessments/${id}/answer`, data),
   adaptiveNext: (id: number, data: any) => api.post(`/assessments/${id}/adaptive-next`, data),
@@ -80,7 +81,7 @@ export const assessmentApi = {
 
 // Courses  
 export const courseApi = {
-  getAll: () => api.get('/courses/'),
+  getAll: (params?: any) => api.get('/courses/', { params }),
   getRecommended: () => api.get('/courses/recommended'),
   get: (id: number) => api.get(`/courses/${id}`),
   enroll: (id: number) => api.post(`/courses/${id}/enroll`),

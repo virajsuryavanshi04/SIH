@@ -36,6 +36,15 @@ export default function DashboardPriorityGap({
   const courseDuration = recommendation?.duration_hours ? `${recommendation.duration_hours}h` : (item.recommendation?.duration || '25 min');
   const courseType = recommendation?.resource_type ? recommendation.resource_type.toUpperCase().replace('_', ' ') : (item.recommendation?.type || 'iGOT Micro-Learning');
 
+  // Target course and learning URL for priority gap
+  const targetCourseId = recommendation?.id || recommendation?.course_id;
+  const targetCompId = item.id || recommendation?.competency_id;
+  const learningUrl = !isAssessed
+    ? '/assessment'
+    : targetCourseId
+    ? `/igot-learning?course_id=${targetCourseId}${targetCompId ? `&competency_id=${targetCompId}` : ''}`
+    : '/igot-learning';
+
   return (
     <div className="bg-[#FFFDF9] rounded-2xl p-5 sm:p-6 border border-[#E2DDD5] shadow-[0_1px_4px_rgba(45, 48, 48, 0.04)] space-y-5 text-left h-full flex flex-col justify-between">
       
@@ -150,7 +159,7 @@ export default function DashboardPriorityGap({
           </span>
         </div>
 
-        <Link to={!isAssessed ? '/assessment' : '/courses'} className="block w-full">
+        <Link to={learningUrl} className="block w-full">
           <Button className="w-full bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] font-semibold text-xs sm:text-sm shadow-xs h-10 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 ease-out">
             <span>{!isAssessed ? 'Take Baseline Assessment' : 'Start Learning Module'}</span>
             <ArrowRight className="w-4 h-4" />

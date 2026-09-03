@@ -34,7 +34,7 @@ def get_user_detailed_competencies(db: Session, user: User) -> List[Dict[str, An
                 competency=c, 
                 target_score=70.0, 
                 weight=1.0, 
-                level=c.level
+                target_level=3
             ) for c in all_comps
         ]
 
@@ -257,7 +257,9 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
         if w_gap > max_weighted_gap and gap > 0:
             max_weighted_gap = w_gap
             bottleneck_item = {
+                "competency_id": item["competency_id"],
                 "competency_name": item["competency_name"],
+                "domain": item.get("domain", "Statistical Standard"),
                 "current_score": curr,
                 "target_score": target,
                 "gap": gap,

@@ -57,14 +57,42 @@ def get_my_competency_insights(db: Session = Depends(get_db), current_user: User
     return get_user_competency_insights(db, current_user)
 
 @router.get("/me/diagnosis")
-def get_my_diagnosis(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def get_my_diagnosis(
+    competency_id: Optional[int] = None,
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
     """
-    Returns cached AI diagnostic analysis of assessment telemetry.
-    Generates via AIService only when new assessment evidence exists.
+    Returns AI diagnostic analysis tied strictly to the authoritative competency gap.
+    Defaults to the user's highest priority deficit gap to guarantee consistency across dashboard.
     """
     from models.assessment import Assessment, AssessmentAnswer
     from models.recommendation import AIDiagnosis
     from ai.service import AIService
+
+    # Resolve target competency from deterministic service
+    gaps = get_user_ranked_gaps(db, current_user)
+    
+    target_gap = None
+    if competency_id is not None:
+        target_gap = next((g for g in gaps if g["competency_id"] == competency_id), None)
+        if not target_gap:
+            comp_obj = db.query(Competency).filter(Competency.id == competency_id).first()
+            if comp_obj:
+                target_gap = {
+                    "competency_id": comp_obj.id,
+                    "competency_name": comp_obj.name,
+                    "current_score": 50.0,
+                    "target_score": 70.0,
+                    "gap": 20.0,
+                    "weakest_subtopic": None
+                }
+    
+    if not target_gap:
+        target_gap = gaps[0] if gaps else None
+
+    target_comp_id = target_gap["competency_id"] if target_gap else 1
+    target_comp_name = target_gap["competency_name"] if target_gap else "Statistical Literacy & Reasoning"
 
     latest_ass = db.query(Assessment).filter(
         Assessment.user_id == current_user.id,
@@ -73,48 +101,49 @@ def get_my_diagnosis(db: Session = Depends(get_db), current_user: User = Depends
 
     ass_id = latest_ass.id if latest_ass else None
 
-    # Check Cache
-    if ass_id:
-        cached = db.query(AIDiagnosis).filter(
-            AIDiagnosis.user_id == current_user.id,
-            AIDiagnosis.assessment_id == ass_id
-        ).first()
-        if cached:
-            return {
-                "assessment_id": cached.assessment_id,
-                "competency_id": cached.competency_id,
-                "primary_gap": cached.primary_gap,
-                "root_cause": cached.root_cause,
-                "explanation": cached.explanation,
-                "confidence": cached.confidence,
-                "is_cached": True
-            }
+    # Check Cache for this specific competency
+    cached = db.query(AIDiagnosis).filter(
+        AIDiagnosis.user_id == current_user.id,
+        AIDiagnosis.competency_id == target_comp_id
+    ).order_by(AIDiagnosis.created_at.desc()).first()
 
-    # Identify primary deficit gap for diagnosis
-    gaps = get_user_ranked_gaps(db, current_user)
-    top_gap = gaps[0] if gaps else None
+    if cached:
+        return {
+            "assessment_id": cached.assessment_id,
+            "competency_id": cached.competency_id,
+            "competency_name": target_comp_name,
+            "primary_gap": cached.primary_gap or f"{target_comp_name} Deficit",
+            "root_cause": cached.root_cause,
+            "explanation": cached.explanation,
+            "confidence": cached.confidence,
+            "is_cached": True
+        }
 
+    # Generate fresh diagnosis grounded in deterministic evidence
     evidence = {
         "role": current_user.designation or (current_user.assigned_role.name if getattr(current_user, 'assigned_role', None) else "Statistical Officer"),
-        "competency_name": top_gap["competency_name"] if top_gap else "Sampling Techniques",
-        "current_score": top_gap["current_score"] if top_gap else 48.0,
-        "target_score": top_gap["target_score"] if top_gap else 70.0,
-        "gap": top_gap["gap"] if top_gap else 22.0,
-        "weak_topics": [top_gap["weakest_subtopic"]] if top_gap and top_gap.get("weakest_subtopic") else ["General Methodology"]
+        "competency_id": target_comp_id,
+        "competency_name": target_comp_name,
+        "current_score": target_gap["current_score"] if target_gap and target_gap["current_score"] is not None else 48.0,
+        "target_score": target_gap["target_score"] if target_gap else 70.0,
+        "gap": target_gap["gap"] if target_gap else 22.0,
+        "weak_topics": [target_gap["weakest_subtopic"]] if target_gap and target_gap.get("weakest_subtopic") else [f"{target_comp_name} Core Principles"]
     }
 
     ai = AIService()
     diagnosis_data = ai.diagnose_gap(evidence)
 
-    # Cache diagnosis
+    primary_gap_name = diagnosis_data.get("primary_gap") or f"{target_comp_name} Deficit"
+
+    # Cache diagnosis strictly associated with target_comp_id
     new_diag = AIDiagnosis(
         user_id=current_user.id,
         assessment_id=ass_id,
-        competency_id=top_gap["competency_id"] if top_gap else None,
-        primary_gap=diagnosis_data.get("primary_gap", "Competency Gap"),
-        root_cause=diagnosis_data.get("root_cause"),
-        explanation=diagnosis_data.get("explanation", ""),
-        confidence=float(diagnosis_data.get("confidence", 85.0))
+        competency_id=target_comp_id,
+        primary_gap=primary_gap_name,
+        root_cause=diagnosis_data.get("root_cause") or f"Needs reinforced practice in {target_comp_name}.",
+        explanation=diagnosis_data.get("explanation", f"Verified score on {target_comp_name} is below calibrated target benchmark."),
+        confidence=float(diagnosis_data.get("confidence", 88.0))
     )
     db.add(new_diag)
     db.commit()
@@ -123,6 +152,7 @@ def get_my_diagnosis(db: Session = Depends(get_db), current_user: User = Depends
     return {
         "assessment_id": new_diag.assessment_id,
         "competency_id": new_diag.competency_id,
+        "competency_name": target_comp_name,
         "primary_gap": new_diag.primary_gap,
         "root_cause": new_diag.root_cause,
         "explanation": new_diag.explanation,

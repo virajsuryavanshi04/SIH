@@ -25,7 +25,7 @@ class RecommendationService:
     - 5% Duration Suitability
     """
 
-    # Configurable Scoring Weights
+    # Configurable # Recommendation Scoring Weights (Total: 1.00)
     GAP_WEIGHT = 0.40
     ROLE_WEIGHT = 0.25
     TOPIC_MATCH_WEIGHT = 0.20
@@ -42,96 +42,118 @@ class RecommendationService:
     ) -> Dict[str, Any]:
         """
         Calculates a deterministic 0-100 match score and generates a transparent explanation.
+        Formula (all components normalized to 0-100):
+            final_score = (0.40 * gap_score) + (0.25 * role_score) + (0.20 * topic_score) + (0.10 * diff_score) + (0.05 * dur_score)
         """
         # Find user competency state matching the course's primary competency
         comp_state = next((c for c in user_competencies if c["competency_id"] == course.competency_id), None)
         
-        # 1. Competency Gap Relevance (Max 40 points)
+        # 1. Competency Gap Relevance (0-100 scale, Weight 40%)
         gap_score = 0.0
         gap_val = 0.0
-        comp_name = comp_state["competency_name"] if comp_state else "Official Competency"
+        comp_name = comp_state["competency_name"] if comp_state else (course.competency.name if course.competency else "Statistical Standard")
         weakest_topic_name = comp_state.get("weakest_subtopic") if comp_state else None
+        is_unassessed = False
         
         if comp_state:
             curr_score = comp_state.get("current_score")
             target_score = comp_state.get("target_score", 70.0)
             if curr_score is not None:
                 gap_val = max(0.0, target_score - curr_score)
+                if gap_val > 0:
+                    # Scaled by target deficit (or max standard benchmark 50)
+                    gap_score = min(100.0, (gap_val / max(target_score, 50.0)) * 100.0)
+                else:
+                    gap_score = 5.0  # Proficiency met - maintenance review
             else:
-                gap_val = target_score  # Unassessed has high priority gap
-            
-            # Scaled to 40 points (gap of 40+ points gets max 40)
-            gap_score = min(40.0, (gap_val / 40.0) * 40.0)
+                # UNASSESSED competency: No verified deficit, baseline exploration opportunity
+                is_unassessed = True
+                gap_score = 30.0
         else:
-            gap_score = 5.0  # General elective
+            gap_score = 0.0  # Elective / non-role competency
 
-        # 2. Role Relevance (Max 25 points)
+        # 2. Role Relevance (0-100 scale, Weight 25%)
         role_score = 0.0
         is_role_required = course.competency_id in role_comp_ids
         if is_role_required:
-            role_score = 25.0
+            role_score = 100.0
         elif comp_state:
-            role_score = 15.0
+            role_score = 50.0
         else:
-            role_score = 5.0
+            role_score = 10.0
 
-        # 3. Subtopic Direct Match (Max 20 points)
+        # 3. Subtopic Direct Match (0-100 scale, Weight 20%)
         topic_score = 0.0
         is_weak_topic_match = False
         
         if comp_state and course.topic_id:
-            # Check if course topic matches the user's weakest subtopic
-            course_topic = comp_state.get("subtopics", [])
-            matching_subtopic = next((st for st in course_topic if st["topic_id"] == course.topic_id), None)
+            course_subtopics = comp_state.get("subtopics", [])
+            matching_subtopic = next((st for st in course_subtopics if st["topic_id"] == course.topic_id), None)
             
             if matching_subtopic and matching_subtopic.get("status") == "weak":
-                topic_score = 20.0
+                topic_score = 100.0
                 is_weak_topic_match = True
+            elif matching_subtopic and matching_subtopic.get("status") in ("on_track", "strong"):
+                topic_score = 70.0
             elif matching_subtopic:
-                topic_score = 14.0
+                topic_score = 50.0
             else:
-                topic_score = 10.0
+                topic_score = 40.0
         elif comp_state:
-            topic_score = 12.0
+            topic_score = 45.0
         else:
-            topic_score = 4.0
+            topic_score = 15.0
 
-        # 4. Difficulty Suitability (Max 10 points)
-        diff_score = 0.0
+        # 4. Difficulty Suitability (0-100 scale, Weight 10%)
+        diff_score = 70.0  # Default neutral
         user_curr = comp_state.get("current_score") if comp_state else None
-        c_diff = (course.difficulty or "intermediate").lower()
+        c_diff = (course.difficulty or "intermediate").lower().strip()
         
-        if user_curr is None or user_curr < 50.0:
-            # Beginner / foundational is best match
-            diff_score = 10.0 if c_diff in ("beginner", "1", "easy", "foundational") else (6.0 if c_diff in ("intermediate", "2") else 2.0)
+        if user_curr is None:
+            # Unassessed: foundational / beginner is preferred
+            diff_score = 100.0 if c_diff in ("beginner", "1", "easy", "foundational") else (70.0 if c_diff in ("intermediate", "2", "applied") else 40.0)
+        elif user_curr < 50.0:
+            # Novice / foundational need
+            diff_score = 100.0 if c_diff in ("beginner", "1", "easy", "foundational") else (65.0 if c_diff in ("intermediate", "2", "applied") else 30.0)
         elif user_curr <= 75.0:
-            # Intermediate is best match
-            diff_score = 10.0 if c_diff in ("intermediate", "2", "applied") else (7.0 if c_diff in ("beginner", "1") else 6.0)
+            # Intermediate proficiency
+            diff_score = 100.0 if c_diff in ("intermediate", "2", "applied") else (70.0 if c_diff in ("beginner", "1", "easy", "foundational") else 60.0)
         else:
-            # Advanced is best match
-            diff_score = 10.0 if c_diff in ("advanced", "3", "policy") else (7.0 if c_diff in ("intermediate", "2") else 4.0)
+            # Advanced proficiency
+            diff_score = 100.0 if c_diff in ("advanced", "3", "policy") else (75.0 if c_diff in ("intermediate", "2", "applied") else 40.0)
 
-        # 5. Duration Suitability (Max 5 points)
-        dur_score = 0.0
-        hours = course.duration_hours or 2.0
-        if hours <= 3.0:
-            dur_score = 5.0  # Modular / microlearning preferred
-        elif hours <= 8.0:
-            dur_score = 4.0
+        # 5. Duration Suitability (0-100 scale, Weight 5%)
+        dur_score = 70.0
+        hours = course.duration_hours if course.duration_hours is not None else 2.0
+        if hours <= 2.0:
+            dur_score = 100.0  # Microlearning
+        elif hours <= 5.0:
+            dur_score = 80.0
+        elif hours <= 10.0:
+            dur_score = 60.0
         else:
-            dur_score = 3.0
+            dur_score = 40.0
 
-        total_match_percent = round(gap_score + role_score + topic_score + diff_score + dur_score, 1)
-        total_match_percent = min(99.0, max(15.0, total_match_percent))
+        # Compute normalized weighted final score
+        raw_final = (
+            (cls.GAP_WEIGHT * gap_score) +
+            (cls.ROLE_WEIGHT * role_score) +
+            (cls.TOPIC_MATCH_WEIGHT * topic_score) +
+            (cls.DIFFICULTY_WEIGHT * diff_score) +
+            (cls.DURATION_WEIGHT * dur_score)
+        )
+        total_match_percent = round(min(100.0, max(0.0, raw_final)), 1)
 
         # Generate Transparent Explanation
         explanation_parts = []
         if is_role_required and gap_val > 0:
-            explanation_parts.append(f"Recommended because {comp_name} is a required role competency with an active gap (-{round(gap_val, 1)}%)")
+            explanation_parts.append(f"Recommended because {comp_name} is a required role competency with an active verified gap (-{round(gap_val, 1)}%)")
+        elif is_role_required and is_unassessed:
+            explanation_parts.append(f"Recommended because {comp_name} is a core role competency pending initial evaluation")
         elif is_role_required:
             explanation_parts.append(f"Recommended for continuous reinforcement of official {comp_name} benchmarks")
         else:
-            explanation_parts.append(f"Recommended for broadening statistical capability in {comp_name}")
+            explanation_parts.append(f"Recommended for broadening inter-disciplinary capabilities in {comp_name}")
 
         if is_weak_topic_match and weakest_topic_name:
             explanation_parts.append(f"and this module directly addresses your identified weak subtopic ({weakest_topic_name})")
@@ -148,6 +170,13 @@ class RecommendationService:
                 "role_relevance": round(role_score, 1),
                 "subtopic_match": round(topic_score, 1),
                 "difficulty_suitability": round(diff_score, 1),
+                "duration_suitability": round(dur_score, 1)
+            },
+            "score_breakdown": {
+                "competency_gap": round(gap_score, 1),
+                "role_relevance": round(role_score, 1),
+                "topic_match": round(topic_score, 1),
+                "difficulty_match": round(diff_score, 1),
                 "duration_suitability": round(dur_score, 1)
             }
         }
@@ -181,26 +210,47 @@ class RecommendationService:
                 next((c["competency_name"] for c in user_competencies if c["competency_id"] == course.competency_id), "Official Statistical Standard")
             )
 
+            c_confidence = "High"
+            if course.competencies and len(course.competencies) > 0:
+                c_confidence = course.competencies[0].confidence or "High"
+
             recommendations.append({
                 "id": course.id,
+                "course_id": course.id,
                 "title": course.title,
+                "name": course.title,
                 "description": course.description,
                 "provider": course.provider or "iGOT Karmayogi",
                 "resource_type": course.resource_type or "igot_course",
+                "igot_identifier": course.igot_identifier or course.external_id,
+                "external_id": course.external_id or course.igot_identifier,
+                "external_url": course.external_url or "https://igotkarmayogi.gov.in/",
                 "difficulty": course.difficulty,
                 "duration_hours": course.duration_hours,
+                "duration_seconds": course.duration_seconds,
+                "duration_display": course.duration_display or f"{course.duration_hours}h",
+                "duration": course.duration_display or f"{course.duration_hours}h",
                 "language": course.language or "English",
-                "thumbnail_url": course.thumbnail_url,
-                "content_url": course.content_url or course.url,
+                "category": course.category or "Course",
+                "poster_image": course.poster_image or course.thumbnail_url,
+                "app_icon": course.app_icon,
+                "thumbnail_url": course.thumbnail_url or course.poster_image,
+                "content_url": course.content_url or course.external_url or course.url,
                 "competency_id": course.competency_id,
                 "competency_name": c_comp_name,
+                "competency": c_comp_name,
                 "topic_id": course.topic_id,
                 "topic_name": course.topic.name if course.topic else None,
+                "confidence": c_confidence,
+                "mapping_source": course.mapping_source or "smartlearn_inferred",
+                "is_igot": course.is_igot if course.is_igot is not None else True,
                 "match_percent": score_data["match_percent"],
                 "match_score": score_data["match_percent"],
                 "explanation": score_data["explanation"],
+                "reason": score_data["explanation"],
                 "recommendation_reasons": [score_data["explanation"]],
                 "score_components": score_data["components"],
+                "score_breakdown": score_data.get("score_breakdown", score_data["components"]),
                 "progress_status": status,
                 "progress_percent": progress_pct,
                 "is_enrolled": prog is not None
@@ -508,8 +558,14 @@ class RecommendationService:
                         "metadata": {
                             "provider": matching_course.get("provider", "iGOT Karmayogi"),
                             "duration_hours": matching_course.get("duration_hours", 2.0),
+                            "duration_display": matching_course.get("duration_display", "2h"),
                             "difficulty": matching_course.get("difficulty", "intermediate"),
-                            "match_percent": matching_course.get("match_percent", 85.0)
+                            "match_percent": matching_course.get("match_percent", 85.0),
+                            "igot_identifier": matching_course.get("igot_identifier"),
+                            "external_url": matching_course.get("external_url", "https://igotkarmayogi.gov.in/"),
+                            "mapping_source": matching_course.get("mapping_source", "smartlearn_inferred"),
+                            "confidence": matching_course.get("confidence", "High"),
+                            "is_igot": matching_course.get("is_igot", True)
                         }
                     },
                     "next_step": {

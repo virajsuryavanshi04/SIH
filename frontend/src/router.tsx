@@ -67,6 +67,7 @@ export default function AppRoutes() {
         <Route path="/quiz/:id/result" element={<ProtectedRoute role="learner"><QuizResult /></ProtectedRoute>} />
         <Route path="/learning-path" element={<ProtectedRoute role="learner"><LearningPath /></ProtectedRoute>} />
         <Route path="/courses" element={<ProtectedRoute role="learner"><Courses /></ProtectedRoute>} />
+        <Route path="/igot-learning" element={<ProtectedRoute role="learner"><Courses /></ProtectedRoute>} />
         <Route path="/materials" element={<ProtectedRoute role="learner"><Materials /></ProtectedRoute>} />
         <Route path="/materials/:materialId" element={<ProtectedRoute role="learner"><MaterialWorkspace /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute role="learner"><Progress /></ProtectedRoute>} />

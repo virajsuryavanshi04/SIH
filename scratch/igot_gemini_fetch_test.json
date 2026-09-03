@@ -1,0 +1,17 @@
+{
+  "test_status": "FAIL",
+  "website_accessible": true,
+  "catalogue_discoverable": false,
+  "individual_course_pages_accessible": false,
+  "structured_metadata_extractable": false,
+  "courses_retrieved": 0,
+  "courses": [],
+  "limitations": [
+    "No Web Browsing Tooling: The existing GeminiProvider (backend/ai/gemini_provider.py) invokes client.models.generate_content without Google Search grounding or web retrieval tools.",
+    "LLM Architecture Constraint: Pure LLM text generation cannot make autonomous outbound HTTP requests to crawl third-party websites without an explicit tool/crawler pipeline.",
+    "Dynamic Client-Side SPA: iGOT Karmayogi (https://www.igotkarmayogi.gov.in/) is an Angular Single Page Application; its course catalogue is loaded asynchronously via Sunbird client-side JavaScript APIs rather than pre-rendered HTML.",
+    "Authentication & Access Controls: Comprehensive course enrollment and internal competency frameworks on iGOT are protected by Parichay SSO / government portal authentication.",
+    "Current Configuration: GEMINI_API_KEY is not set in the default environment, and default AI_PROVIDER in SmartLearn is configured for offline mock/openrouter workflows."
+  ],
+  "recommendation": "Do NOT rely on direct Gemini prompt-based crawling for iGOT catalogue synchronization. Instead, implement a dedicated backend Ingestion Service / REST API client (or periodic Sunbird search API scraper) that fetches public catalogue JSON, stores/caches the metadata locally, and provides grounded course documents to Gemini for intelligent semantic matching and gap-based recommendations."
+}

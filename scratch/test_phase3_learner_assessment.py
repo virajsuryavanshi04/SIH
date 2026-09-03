@@ -25,8 +25,10 @@ class TestPhase3LearnerAssessment(unittest.TestCase):
     def setUpClass(cls):
         cls.db: Session = next(get_db())
 
-        # Ensure learner user exists
-        cls.learner = cls.db.query(User).filter(User.role == "learner").first()
+        # Ensure learner user exists with Statistical Officer role (role_id=1)
+        cls.learner = cls.db.query(User).filter(User.email == "phase3_learner@smartlearn.gov.in").first()
+        if not cls.learner:
+            cls.learner = cls.db.query(User).filter(User.role == "learner", User.role_id == 1).first()
         if not cls.learner:
             cls.learner = User(
                 email="phase3_learner@smartlearn.gov.in",
@@ -124,8 +126,8 @@ class TestPhase3LearnerAssessment(unittest.TestCase):
 
     def test_05_word_problem_filter_strictly_enforced_with_approved_questions(self):
         """When WORD_PROBLEM is approved and requested, all served questions must be WORD_PROBLEM and approved."""
-        # Temporarily approve 15 Word Problem questions for this test
-        wp_questions = self.db.query(Question).filter(Question.question_type == "WORD_PROBLEM").limit(15).all()
+        # Temporarily approve Word Problem questions for this test
+        wp_questions = self.db.query(Question).filter(Question.question_type == "WORD_PROBLEM").all()
         for q in wp_questions:
             q.status = "approved"
         self.db.commit()
@@ -146,8 +148,8 @@ class TestPhase3LearnerAssessment(unittest.TestCase):
 
     def test_06_case_study_filter_strictly_enforced_with_approved_questions(self):
         """When CASE_STUDY is approved and requested, all served questions must be CASE_STUDY and approved."""
-        # Temporarily approve 15 Case Study questions for this test
-        cs_questions = self.db.query(Question).filter(Question.question_type == "CASE_STUDY").limit(15).all()
+        # Temporarily approve Case Study questions for this test
+        cs_questions = self.db.query(Question).filter(Question.question_type == "CASE_STUDY").all()
         for q in cs_questions:
             q.status = "approved"
         self.db.commit()

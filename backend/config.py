@@ -29,6 +29,11 @@ class Settings(BaseSettings):
         url = self.DATABASE_URL
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
+        elif url == "sqlite:///./smartlearn.db":
+            from pathlib import Path
+            backend_db = Path(__file__).resolve().parent / "smartlearn.db"
+            if backend_db.exists():
+                return f"sqlite:///{backend_db.as_posix()}"
         return url
 
     def validate_production_secrets(self) -> None:

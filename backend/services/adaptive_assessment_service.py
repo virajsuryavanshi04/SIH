@@ -87,7 +87,29 @@ class AdaptiveAssessmentService:
         topics = db.query(CompetencyTopic).filter(CompetencyTopic.competency_id.in_(comp_ids)).all()
         per_topic_diff = {str(t.id): per_comp_diff.get(str(t.competency_id), 2) for t in topics}
 
-        first_cid = comp_ids[0]
+        # Filter to active competencies that have approved questions available
+        active_comps = []
+        for cid in comp_ids:
+            has_approved = db.query(Question.id).filter(
+                Question.competency_id == cid,
+                Question.status == "approved"
+            ).first() is not None
+            if has_approved:
+                active_comps.append(cid)
+
+        schedule_comps = active_comps if active_comps else comp_ids
+
+        # Build deterministic competency schedule for target_question_count
+        # Consecutive grouping by competency: [C1, C1, C2, C2, C3, C3, ...]
+        quota = target_question_count // len(schedule_comps) if schedule_comps else target_question_count
+        competency_schedule = []
+        if quota > 0:
+            for c in schedule_comps:
+                competency_schedule.extend([c] * quota)
+        while len(competency_schedule) < target_question_count:
+            competency_schedule.append(schedule_comps[len(competency_schedule) % len(schedule_comps)])
+
+        first_cid = competency_schedule[0] if competency_schedule else comp_ids[0]
         first_topics = [t.id for t in topics if t.competency_id == first_cid]
         first_tid = first_topics[0] if first_topics else None
 
@@ -95,9 +117,11 @@ class AdaptiveAssessmentService:
 
         state = {
             "competency_ids": comp_ids,
+            "competency_schedule": competency_schedule,
+            "competency_answers": {str(cid): [] for cid in comp_ids},
             "question_type": normalized_q_type,
-            "per_competency_difficulty": per_comp_diff,
-            "per_topic_difficulty": per_topic_diff,
+            "per_competency_difficulty": {str(cid): 2 for cid in comp_ids},
+            "per_topic_difficulty": {str(t.id): 2 for t in topics},
             "streaks": {str(cid): {"correct": 0, "incorrect": 0} for cid in comp_ids},
             "topic_streaks": {str(t.id): {"correct": 0, "incorrect": 0} for t in topics},
             "performance_by_topic": {},
@@ -108,10 +132,11 @@ class AdaptiveAssessmentService:
             },
             "current_competency_id": first_cid,
             "current_topic_id": first_tid,
-            "current_difficulty": per_comp_diff.get(str(first_cid), 2),
+            "current_difficulty": 2,  # Strict Invariant: First question of every competency is ALWAYS Medium (2)
             "answered_count": 0,
             "target_question_count": target_question_count,
-            "seen_question_ids": []
+            "seen_question_ids": [],
+            "pending_question_id": None
         }
         return state
 
@@ -124,31 +149,18 @@ class AdaptiveAssessmentService:
         incorrect_streak: int
     ) -> Tuple[int, int, int]:
         """
-        Calculates adapted difficulty following the graduated streak rules:
-        - 2 consecutive correct answers: difficulty + 1 (capped at 3/Hard)
-        - 2 consecutive incorrect answers: difficulty - 1 (floored at 1/Easy)
-        - Never jumps directly Easy <-> Hard.
-        Returns: (new_difficulty, new_correct_streak, new_incorrect_streak)
+        Calculates adapted difficulty following competency-local rules:
+        - Medium (2) + Correct -> Hard (3)
+        - Medium (2) + Incorrect -> Easy (1)
         """
-        new_diff = current_diff
-
         if is_correct:
+            new_diff = 3
             c_streak = correct_streak + 1
             i_streak = 0
-            if c_streak >= 2:
-                if new_diff < 3:
-                    new_diff = new_diff + 1
-                c_streak = 0  # Reset streak after promotion
         else:
+            new_diff = 1
             i_streak = incorrect_streak + 1
             c_streak = 0
-            if i_streak >= 2:
-                if new_diff > 1:
-                    new_diff = new_diff - 1
-                i_streak = 0  # Reset streak after demotion
-
-        # Bounds safety
-        new_diff = max(1, min(3, new_diff))
         return new_diff, c_streak, i_streak
 
     @classmethod
@@ -163,8 +175,17 @@ class AdaptiveAssessmentService:
         question_type: Optional[str] = None
     ) -> Tuple[Optional[Question], bool]:
         """
-        Finds an approved question matching competency, question_type, and difficulty.
-        Strictly restricts selection to approved questions.
+        Finds an approved question matching the scheduled competency, question_type, and adapted difficulty.
+        Strictly restricts candidate search within the assigned competency (NEVER crosses competency boundaries).
+        Relaxation hierarchy within SAME competency:
+        1. Exact topic + target difficulty + question_type
+        2. Competency + target difficulty + question_type
+        3. Competency + relaxed difficulties within same competency:
+           - If target is Hard (3): try Medium (2), then Easy (1)
+           - If target is Easy (1): try Medium (2), then Hard (3)
+           - If target is Medium (2): try Hard (3), then Easy (1)
+        4. Session-only fallback (excluded_ids only)
+        5. Format relaxation (excluded_ids only)
         Returns: (Question | None, question_generation_required: bool)
         """
         # Fetch user's persistent seen questions history
@@ -186,7 +207,7 @@ class AdaptiveAssessmentService:
                 return q_query.filter(or_(Question.question_type.in_(["SHORT_MCQ", "WORD_PROBLEM", "CASE_STUDY"]), Question.question_type.is_(None)))
             return q_query
 
-        # 1. Exact Topic + Difficulty Match
+        # 1. Exact Topic + Target Difficulty Match (unseen across history)
         if topic_id:
             query = db.query(Question).filter(
                 Question.competency_id == competency_id,
@@ -201,7 +222,7 @@ class AdaptiveAssessmentService:
             if candidate:
                 return candidate, False
 
-        # 2. Competency + Difficulty Match (across other subtopics in same competency)
+        # 2. Competency + Target Difficulty Match (unseen across history)
         query = db.query(Question).filter(
             Question.competency_id == competency_id,
             Question.difficulty.in_(diff_aliases),
@@ -214,60 +235,68 @@ class AdaptiveAssessmentService:
         if candidate:
             return candidate, False
 
-        # 3. Adjacent Difficulty Match (Tolerance fallback within competency & question type)
-        adjacent_diffs = [difficulty - 1, difficulty + 1]
-        for adj_d in adjacent_diffs:
-            if 1 <= adj_d <= 3:
-                adj_aliases = cls.difficulty_str_list(adj_d)
-                query = db.query(Question).filter(
-                    Question.competency_id == competency_id,
-                    Question.difficulty.in_(adj_aliases),
-                    Question.status == "approved"
-                )
-                query = apply_type_filter(query)
-                if all_excluded:
-                    query = query.filter(Question.id.not_in(all_excluded))
-                candidate = query.first()
-                if candidate:
-                    return candidate, False
-
-        # 4. Fallback: Any unseen approved question in competency matching question_type
+        # 3. Competency + Target Difficulty Match (session-only fallback for repeat test takers)
         query = db.query(Question).filter(
             Question.competency_id == competency_id,
+            Question.difficulty.in_(diff_aliases),
             Question.status == "approved"
         )
         query = apply_type_filter(query)
-        if all_excluded:
-            query = query.filter(Question.id.not_in(all_excluded))
+        if excluded_ids:
+            query = query.filter(Question.id.not_in(excluded_ids))
         candidate = query.first()
         if candidate:
             return candidate, False
 
-        # 5. Session-only fallback: If all approved questions were seen previously by user,
-        # fallback to approved questions not yet seen in the current session (excluded_ids only)
-        fallback_query = db.query(Question).filter(
+        # 4. Difficulty Relaxation within SAME competency (unseen across history)
+        if difficulty == 3:
+            fallback_diffs = [2, 1]
+        elif difficulty == 1:
+            fallback_diffs = [2, 3]
+        else:
+            fallback_diffs = [3, 1]
+
+        for alt_d in fallback_diffs:
+            alt_aliases = cls.difficulty_str_list(alt_d)
+            query = db.query(Question).filter(
+                Question.competency_id == competency_id,
+                Question.difficulty.in_(alt_aliases),
+                Question.status == "approved"
+            )
+            query = apply_type_filter(query)
+            if all_excluded:
+                query = query.filter(Question.id.not_in(all_excluded))
+            candidate = query.first()
+            if candidate:
+                return candidate, False
+
+        # 5. Difficulty Relaxation within SAME competency (session-only fallback)
+        for alt_d in fallback_diffs:
+            alt_aliases = cls.difficulty_str_list(alt_d)
+            query = db.query(Question).filter(
+                Question.competency_id == competency_id,
+                Question.difficulty.in_(alt_aliases),
+                Question.status == "approved"
+            )
+            query = apply_type_filter(query)
+            if excluded_ids:
+                query = query.filter(Question.id.not_in(excluded_ids))
+            candidate = query.first()
+            if candidate:
+                return candidate, False
+
+        # 6. Format relaxation within SAME competency (session-only fallback)
+        relax_format_query = db.query(Question).filter(
             Question.competency_id == competency_id,
             Question.status == "approved"
         )
-        fallback_query = apply_type_filter(fallback_query)
         if excluded_ids:
-            fallback_query = fallback_query.filter(Question.id.not_in(excluded_ids))
-        candidate = fallback_query.first()
+            relax_format_query = relax_format_query.filter(Question.id.not_in(excluded_ids))
+        candidate = relax_format_query.first()
         if candidate:
             return candidate, False
 
-        # 6. Framework fallback: If current competency pool is exhausted in current session,
-        # select an approved question from any competency matching question_type not in excluded_ids
-        framework_query = db.query(Question).filter(
-            Question.status == "approved"
-        )
-        framework_query = apply_type_filter(framework_query)
-        if excluded_ids:
-            framework_query = framework_query.filter(Question.id.not_in(excluded_ids))
-        candidate = framework_query.first()
-        if candidate:
-            return candidate, False
-
+        # Strict Invariant: Never cross competency boundary. Return None if competency pool is truly exhausted.
         return None, True
 
     @classmethod
@@ -277,41 +306,52 @@ class AdaptiveAssessmentService:
         state: Dict[str, Any]
     ) -> Tuple[int, Optional[int], int]:
         """
-        Determines next competency and subtopic to evaluate.
-        Prioritizes weak subtopics (accuracy < 60%) or cycles evenly across role competencies.
+        Determines next competency, subtopic, and difficulty strictly following the rules:
+        1. Next competency is chosen strictly from the persisted competency_schedule.
+        2. First question of EVERY competency is ALWAYS Medium (2).
+        3. If previous answer in THIS SAME competency was Correct -> Hard (3).
+        4. If previous answer in THIS SAME competency was Incorrect -> Easy (1).
+        5. Global streaks or other competencies NEVER override this competency-local rule.
         Returns: (next_competency_id, next_topic_id, next_difficulty)
         """
-        comp_ids = state["competency_ids"]
+        comp_ids = state.get("competency_ids", [1])
+        schedule = state.get("competency_schedule", [])
+        answered = state.get("answered_count", 0)
+
+        # 1. Determine scheduled competency strictly from immutable schedule
+        if schedule and answered < len(schedule):
+            next_cid = schedule[answered]
+        else:
+            next_cid = comp_ids[answered % len(comp_ids)]
+
+        # 2. Determine target difficulty strictly based on competency-local answers
+        comp_answers = state.get("competency_answers", {}).get(str(next_cid), [])
+        if len(comp_answers) == 0:
+            # First question of every competency is ALWAYS Medium (2)
+            next_diff = 2
+        else:
+            # Subsequent question for this competency:
+            # Medium + Correct -> Hard (3)
+            # Medium + Incorrect -> Easy (1)
+            last_ans = comp_answers[-1]
+            if last_ans.get("is_correct", False):
+                next_diff = 3
+            else:
+                next_diff = 1
+
         perf_topics = state.get("performance_by_topic", {})
 
-        # 1. Check if any tested subtopic has low performance (< 60%) and needs further probing
-        weak_topics = []
-        for tid_str, p in perf_topics.items():
-            tot = p.get("total", 0)
-            corr = p.get("correct", 0)
-            if tot > 0:
-                acc = (corr / tot) * 100.0
-                if acc < 60.0:
-                    weak_topics.append((int(tid_str), p.get("competency_id"), acc))
-
-        # Sort weak topics by lowest accuracy first
-        if weak_topics:
-            weak_topics.sort(key=lambda x: x[2])
-            target_tid, target_cid, _ = weak_topics[0]
-            target_diff = state["per_topic_difficulty"].get(str(target_tid), state["per_competency_difficulty"].get(str(target_cid), 2))
-            return target_cid, target_tid, target_diff
-
-        # 2. Cycle to next competency
-        answered = state.get("answered_count", 0)
-        next_cid = comp_ids[answered % len(comp_ids)]
-        
-        # Pick an unprobed topic in this competency if available
-        topics = db.query(CompetencyTopic).filter(CompetencyTopic.competency_id == next_cid).all()
+        # 3. Subtopic selection WITHIN the assigned competency
+        comp_topics = db.query(CompetencyTopic).filter(CompetencyTopic.competency_id == next_cid).all()
         tested_tids = {int(k) for k in perf_topics.keys()}
-        untested = [t.id for t in topics if t.id not in tested_tids]
+        untested = [t.id for t in comp_topics if t.id not in tested_tids]
 
-        next_tid = untested[0] if untested else (topics[0].id if topics else None)
-        next_diff = state["per_competency_difficulty"].get(str(next_cid), 2)
+        if untested:
+            next_tid = untested[0]
+        elif comp_topics:
+            next_tid = comp_topics[0].id
+        else:
+            next_tid = None
 
         return next_cid, next_tid, next_diff
 
@@ -333,6 +373,15 @@ class AdaptiveAssessmentService:
         assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
         if not assessment:
             raise ValueError("Assessment session not found")
+
+        # Invariant 5: Completed Assessment Immutability
+        if assessment.status == "completed":
+            from services.assessment_service import get_assessment_result
+            return {
+                "is_completed": True,
+                "assessment_id": assessment_id,
+                "result": get_assessment_result(db, assessment_id, user_id)
+            }
 
         state = assessment.adaptive_state or cls.initialize_adaptive_state(db, assessment.user)
 
@@ -382,10 +431,20 @@ class AdaptiveAssessmentService:
                 last_seen=datetime.utcnow()
             ))
 
-        # 3. Update Adaptive State Streaks & Per-Topic Performance
+        # Update competency-local answers history
         cid_str = str(question.competency_id)
         tid_str = str(question.topic_id) if question.topic_id else None
         q_diff_int = cls.normalize_difficulty_int(question.difficulty)
+
+        if "competency_answers" not in state:
+            state["competency_answers"] = {}
+        if cid_str not in state["competency_answers"]:
+            state["competency_answers"][cid_str] = []
+        state["competency_answers"][cid_str].append({
+            "question_id": question_id,
+            "is_correct": is_correct,
+            "difficulty": q_diff_int
+        })
 
         # Update difficulty performance tally
         diff_key = str(q_diff_int)
@@ -428,8 +487,9 @@ class AdaptiveAssessmentService:
             state["topic_streaks"][tid_str] = {"correct": new_tc_streak, "incorrect": new_ti_streak}
             state["per_topic_difficulty"][tid_str] = new_top_diff
 
-        # Update progress counters
+        # Update progress counters and clear previous pending question
         state["answered_count"] += 1
+        state["pending_question_id"] = None
         if question_id not in state["seen_question_ids"]:
             state["seen_question_ids"].append(question_id)
 
@@ -437,6 +497,8 @@ class AdaptiveAssessmentService:
         from sqlalchemy.orm.attributes import flag_modified
         target_count = state.get("target_question_count", 10)
         if state["answered_count"] >= target_count:
+            assessment.status = "completed"
+            assessment.completed_at = datetime.utcnow()
             assessment.adaptive_state = state
             flag_modified(assessment, "adaptive_state")
             db.commit()
@@ -447,7 +509,7 @@ class AdaptiveAssessmentService:
                 "result": final_result
             }
 
-        # 5. Determine Next Question Target
+        # 5. Determine Next Question Target strictly according to persistent competency_schedule
         next_cid, next_tid, next_diff = cls.choose_next_target(db, state)
         q_type_constraint = state.get("question_type", "MIXED")
         next_q, gen_required = cls.select_adaptive_question(
@@ -457,6 +519,7 @@ class AdaptiveAssessmentService:
         state["current_competency_id"] = next_cid
         state["current_topic_id"] = next_tid
         state["current_difficulty"] = next_diff
+        state["pending_question_id"] = next_q.id if next_q else None
         assessment.adaptive_state = state
         flag_modified(assessment, "adaptive_state")
         db.commit()
@@ -492,6 +555,99 @@ class AdaptiveAssessmentService:
                 "topic_id": next_q.topic_id,
                 "topic_name": next_q.topic.name if next_q.topic else None,
                 "cognitive_level": next_q.cognitive_level or "understand",
+                "options": opts
+            }
+        }
+
+    @classmethod
+    def get_resumable_assessment_session(
+        cls,
+        db: Session,
+        assessment_id: int,
+        user_id: int
+    ) -> Dict[str, Any]:
+        """
+        Reconstructs the exact existing assessment session without creating new records
+        or altering historical telemetry.
+        """
+        assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
+        if not assessment:
+            raise ValueError("Assessment session not found")
+        if assessment.user_id != user_id:
+            raise PermissionError("Access denied to this assessment session")
+
+        # If completed, return completion status
+        if assessment.status == "completed":
+            from services.assessment_service import get_assessment_result
+            res = get_assessment_result(db, assessment_id, user_id)
+            return {
+                "assessment_id": assessment_id,
+                "is_completed": True,
+                "status": "completed",
+                "result": res
+            }
+
+        state = assessment.adaptive_state or {}
+        target_count = state.get("target_question_count", 10)
+        answered_count = state.get("answered_count", 0)
+
+        # Check if there is an active pending question
+        pending_qid = state.get("pending_question_id")
+        pending_q = None
+        if pending_qid:
+            pending_q = db.query(Question).filter(Question.id == pending_qid).first()
+
+        # If not present, determine target strictly from immutable competency_schedule
+        if not pending_q:
+            next_cid, next_tid, next_diff = cls.choose_next_target(db, state)
+            q_type_constraint = state.get("question_type", "MIXED")
+            pending_q, _ = cls.select_adaptive_question(
+                db, user_id, next_cid, next_tid, next_diff, state.get("seen_question_ids", []), question_type=q_type_constraint
+            )
+            if pending_q:
+                state["pending_question_id"] = pending_q.id
+                state["current_competency_id"] = next_cid
+                state["current_topic_id"] = next_tid
+                state["current_difficulty"] = next_diff
+                assessment.adaptive_state = state
+                from sqlalchemy.orm.attributes import flag_modified
+                flag_modified(assessment, "adaptive_state")
+                db.commit()
+
+        if not pending_q:
+            raise ValueError("Insufficient approved questions available to resume session")
+
+        opts = [
+            {"id": o.id, "text": o.text, "order": o.order}
+            for o in sorted(pending_q.options, key=lambda x: x.order)
+        ]
+
+        comp_names = []
+        for cid in state.get("competency_ids", []):
+            c_name = db.query(Competency.name).filter(Competency.id == cid).scalar()
+            if c_name:
+                comp_names.append(c_name)
+
+        return {
+            "assessment_id": assessment.id,
+            "assessment_type": assessment.assessment_type or "adaptive",
+            "status": "in_progress",
+            "is_completed": False,
+            "step": answered_count + 1,
+            "total_steps": target_count,
+            "answered_count": answered_count,
+            "competencies_covered": comp_names or ["Official Competency"],
+            "current_question": {
+                "id": pending_q.id,
+                "text": pending_q.question_text or pending_q.text,
+                "question_text": pending_q.question_text or pending_q.text,
+                "question_type": pending_q.question_type or "SHORT_MCQ",
+                "difficulty": str(pending_q.difficulty),
+                "competency_id": pending_q.competency_id,
+                "competency_name": pending_q.competency.name if pending_q.competency else "Competency",
+                "topic_id": pending_q.topic_id,
+                "topic_name": pending_q.topic.name if pending_q.topic else None,
+                "cognitive_level": pending_q.cognitive_level or "understand",
                 "options": opts
             }
         }

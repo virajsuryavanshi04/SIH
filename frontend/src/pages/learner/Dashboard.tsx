@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, CheckCircle2, TrendingUp, Clock, BookOpen, Route,
 import RadialCapabilityOverview, { RadialCompetencyNode } from '@/components/dashboard/RadialCapabilityOverview';
 import { CompetencyScorecardItem } from '@/components/dashboard/CompetencyScorecard';
 import DashboardPriorityGap from '@/components/dashboard/DashboardPriorityGap';
+import AIDiagnosticCard from '@/components/dashboard/AIDiagnosticCard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { competencyApi, courseApi, learningPathApi, recommendationApi } from '@/lib/api';
@@ -177,17 +178,24 @@ export default function Dashboard() {
   const topRecommendation = recommendations.length > 0 ? recommendations[0] : null;
   const pathItems = learningPath?.items || [];
 
-  // Stepper milestones from live learning path or defaults
-  const journeySteps = pathItems.length > 0 ? pathItems.slice(0, 5).map((it: any) => ({
+  // Stepper milestones from live learning path or active recommendations
+  const activeSequence = pathItems.length > 0
+    ? pathItems.slice(0, 5)
+    : recommendations.slice(0, 5).map((r: any, i: number) => ({
+        title: r.title,
+        status: i === 0 ? 'current' : 'recommended',
+        order: i + 1,
+        competency_name: r.competency_name,
+        external_url: r.external_url
+      }));
+
+  const journeySteps = activeSequence.map((it: any, idx: number) => ({
     label: it.title,
-    status: it.status,
-    number: it.status === 'completed' ? '✓' : String(it.order)
-  })) : [
-    { label: 'Baseline Diagnostic', status: assessmentsCount > 0 ? 'completed' : 'current', number: assessmentsCount > 0 ? '✓' : '1' },
-    { label: 'Priority Gap Learning', status: assessmentsCount > 0 ? 'current' : 'upcoming', number: '2' },
-    { label: 'Adaptive Reassessment', status: 'upcoming', number: '3' },
-    { label: 'Benchmark Verification', status: 'upcoming', number: '◎' }
-  ];
+    status: it.status || (idx === 0 ? 'current' : 'recommended'),
+    number: it.status === 'completed' ? '✓' : String(it.order || idx + 1),
+    external_url: it.external_url,
+    competency_name: it.competency_name
+  }));
 
   // Handler to inspect and focus primary gap
   const handleInspectPrimaryGap = () => {
@@ -440,7 +448,11 @@ export default function Dashboard() {
 
           <div className="space-y-3">
             {recommendations.slice(0, 3).map((course: any) => (
-              <div key={course.id} className="p-3 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] flex items-center justify-between gap-3">
+              <Link 
+                key={course.id} 
+                to={`/igot-learning?course_id=${course.id}${course.competency_id ? `&competency_id=${course.competency_id}` : ''}`}
+                className="p-3 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] hover:border-[#A85D4C]/40 hover:bg-[#EAE4DC] flex items-center justify-between gap-3 transition-all cursor-pointer block"
+              >
                 <div className="space-y-0.5">
                   <h4 className="text-xs font-bold text-[#292B2B] line-clamp-1">{course.title}</h4>
                   <div className="flex items-center gap-2 text-[10px] font-mono text-[#7A756E]">
@@ -452,7 +464,7 @@ export default function Dashboard() {
                 <span className="shrink-0 px-2 py-0.5 rounded-full bg-[#A85D4C]/10 text-[#A85D4C] border border-[#A85D4C]/20 text-[10px] font-mono font-bold">
                   {Math.round(course.match_percent)}% Match
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -464,40 +476,12 @@ export default function Dashboard() {
         </div>
 
         {/* Right: AI Diagnosis & Root Cause Insight */}
-        <div className="lg:col-span-7 bg-[#FFFDF9] rounded-2xl p-6 border border-[#E2DDD5] shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-3">
-            <div className="space-y-0.5">
-              <span className="text-[10px] font-mono font-bold uppercase text-[#A85D4C]">
-                DIAGNOSTIC EVIDENCE INSIGHT
-              </span>
-              <h3 className="text-sm font-bold text-[#292B2B]">
-                {diagnosis?.primary_gap || 'Role Benchmark Calibration'}
-              </h3>
-            </div>
-            <span className="text-xs font-mono font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2.5 py-1 rounded-full border border-[#A85D4C]/20">
-              Confidence: {Math.round(diagnosis?.confidence || 88)}%
-            </span>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#EFEBE4] border border-[#E2DDD5] text-xs space-y-2">
-            <span className="text-[10px] font-mono font-bold text-[#A85D4C] uppercase block">
-              AI Root-Cause Explanation
-            </span>
-            <p className="text-[#292B2B] leading-relaxed">
-              {diagnosis?.explanation || insights?.diagnostic_summary || 'Your competency scores are calculated deterministically from assessment answers. Recommended modules target your diagnosed weak areas.'}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between pt-1 text-xs">
-            <span className="font-mono text-[#7A756E]">
-              Deterministic scoring verified • Zero self-rating bias
-            </span>
-            <Link to="/assessment">
-              <Button size="sm" variant="ghost" className="text-xs font-bold text-[#A85D4C] hover:bg-[#A85D4C]/10 h-8">
-                Take Reassessment <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </Button>
-            </Link>
-          </div>
+        <div className="lg:col-span-7">
+          <AIDiagnosticCard
+            diagnosis={diagnosis}
+            competencyName={selectedScorecardItem?.name || bottleneckGap?.competency_name || diagnosis?.competency_name}
+            fallbackSummary={insights?.diagnostic_summary}
+          />
         </div>
       </div>
     </div>

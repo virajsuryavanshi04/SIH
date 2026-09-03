@@ -153,6 +153,12 @@ def start_assessment(
             question_type=q_type
         )
         if first_q:
+            adaptive_state["pending_question_id"] = first_q.id
+            assessment.adaptive_state = adaptive_state
+            from sqlalchemy.orm.attributes import flag_modified
+            flag_modified(assessment, "adaptive_state")
+            db.commit()
+
             c_name = first_q.competency.name if first_q.competency else "Official Competency"
             comp_names.add(c_name)
             t_name = first_q.topic.name if first_q.topic else "General Concept"
@@ -277,6 +283,23 @@ def get_assessment(id: int, db: Session = Depends(get_db), current_user: User = 
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment session not found")
     return assessment
+
+@router.get("/{id}/resume")
+def resume_assessment(
+    id: int, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Reconstructs the exact existing assessment session without creating duplicate records
+    or altering completed history.
+    """
+    try:
+        return AdaptiveAssessmentService.get_resumable_assessment_session(db, id, current_user.id)
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="Access denied to this assessment session")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.post("/{id}/answer")
 @router.post("/{id}/submit-answer")

@@ -16,10 +16,12 @@ export default function Quiz() {
     id ? parseInt(id) : location.state?.assessmentId || null
   );
   const [assessmentType, setAssessmentType] = useState<string>(
-    location.state?.assessmentType || 'baseline'
+    location.state?.assessmentType || 'adaptive'
   );
   const [questions, setQuestions] = useState<QuestionData[]>(location.state?.questions || []);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [stepOffset, setStepOffset] = useState<number>(0);
+  const [totalSteps, setTotalSteps] = useState<number>(location.state?.totalQuestions || 10);
   const [loading, setLoading] = useState<boolean>(!location.state?.questions);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [adaptiveMessage, setAdaptiveMessage] = useState<string | null>(null);
@@ -37,25 +39,38 @@ export default function Quiz() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch or initialize session if not present in location state
+  // Fetch or resume session if questions not present in location state
   useEffect(() => {
-    const initQuiz = async () => {
+    const resumeOrInitQuiz = async () => {
       if (questions.length === 0) {
-        try {
-          setLoading(true);
-          const res = await assessmentApi.start({ assessment_type: 'adaptive' });
-          setAssessmentId(res.data.assessment_id);
-          setAssessmentType(res.data.assessment_type || 'adaptive');
-          setQuestions(res.data.questions);
-        } catch (err) {
-          console.error('Failed to start quiz session:', err);
-        } finally {
-          setLoading(false);
+        const targetId = id ? parseInt(id) : assessmentId;
+        if (targetId) {
+          try {
+            setLoading(true);
+            const res = await assessmentApi.resume(targetId);
+            if (res.data.is_completed) {
+              navigate(`/quiz/${targetId}/result`, { replace: true });
+              return;
+            }
+            setAssessmentId(res.data.assessment_id);
+            setAssessmentType(res.data.assessment_type || 'adaptive');
+            setQuestions([res.data.current_question]);
+            setCurrentIndex(0);
+            setStepOffset(res.data.answered_count || 0);
+            setTotalSteps(res.data.total_steps || 10);
+          } catch (err) {
+            console.error('Failed to resume quiz session:', err);
+            navigate('/assessment');
+          } finally {
+            setLoading(false);
+          }
+        } else {
+          navigate('/assessment');
         }
       }
     };
-    initQuiz();
-  }, [questions.length]);
+    resumeOrInitQuiz();
+  }, [id, questions.length]);
 
   const currentQuestion = questions[currentIndex];
   const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
@@ -173,7 +188,7 @@ export default function Quiz() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#EFEBE4] flex items-center justify-center">
+      <div className="h-full flex-1 flex items-center justify-center p-6">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-3 border-[#A85D4C] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-xs font-semibold text-[#2D3030]">Calibrating questions across official role competencies...</p>
@@ -184,7 +199,7 @@ export default function Quiz() {
 
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen bg-[#EFEBE4] flex items-center justify-center p-4">
+      <div className="h-full flex-1 flex items-center justify-center p-4">
         <div className="bg-[#FFFDF9] p-8 rounded-2xl border border-[#292B2B]/10 text-center space-y-4 max-w-md">
           <AlertCircle className="w-8 h-8 text-[#B38A3D] mx-auto" />
           <h2 className="text-lg font-bold text-[#2D3030]">Assessment Ready</h2>
@@ -197,102 +212,98 @@ export default function Quiz() {
     );
   }
 
-  const targetTotalQuestions = location.state?.totalQuestions || 10;
-  const progressPercent = targetTotalQuestions > 0 ? ((currentIndex + 1) / targetTotalQuestions) * 100 : 0;
+  const currentStepNumber = stepOffset + currentIndex + 1;
+  const progressPercent = totalSteps > 0 ? (currentStepNumber / totalSteps) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-[#F7F4EE] flex flex-col selection:bg-[#A85D4C]/20 selection:text-[#2D3030]">
-      {/* Quiz Top Fixed Header */}
-      <header className="h-16 border-b border-[#2D3030] flex items-center justify-between px-4 sm:px-8 bg-[#2D3030] text-[#FFFDF9] fixed top-0 w-full z-20 shadow-md">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#A85D4C] text-[#FFFDF9] flex items-center justify-center font-bold text-xs">
-            <Brain className="w-4 h-4" />
+    <div className="h-full flex-1 flex flex-col min-h-0 max-w-4xl mx-auto w-full justify-between gap-2.5 selection:bg-[#A85D4C]/20 selection:text-[#2D3030]">
+      {/* Top Header & Progress Area */}
+      <div className="shrink-0 space-y-1.5">
+        {/* Top Info Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-[#A85D4C] text-[#FFFDF9] flex items-center justify-center font-bold text-xs">
+              <Brain className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-bold text-xs sm:text-sm text-[#2D3030]">
+              {assessmentType === 'adaptive' ? 'Adaptive Capability Assessment' : 'Baseline Competency Diagnostic'}
+            </span>
           </div>
-          <span className="font-semibold text-sm text-[#FFFDF9] hidden sm:inline">
-            {assessmentType === 'adaptive' ? 'Adaptive Capability Assessment' : 'Baseline Competency Diagnostic'}
-          </span>
-          <span className="font-semibold text-xs text-[#FFFDF9] sm:hidden">Diagnostic Session</span>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <span className="text-xs font-semibold text-[#FFFDF9] flex items-center gap-1.5 bg-[#FFFDF9]/10 border border-[#FFFDF9]/20 px-3 py-1 rounded-lg font-mono">
-            <Clock className="w-3.5 h-3.5 text-[#B38A3D]" />
-            <span>{formatTimer(elapsedSeconds)}</span>
-          </span>
-        </div>
-      </header>
 
-      {/* Main Content Area */}
-      <div className="pt-20 flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pb-28">
-        
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-[#2D3030] flex items-center gap-1.5 bg-[#FFFDF9] border border-[#E2DDD5] px-2.5 py-1 rounded-lg font-mono shadow-2xs">
+              <Clock className="w-3.5 h-3.5 text-[#B38A3D]" />
+              <span>{formatTimer(elapsedSeconds)}</span>
+            </span>
+          </div>
+        </div>
+
         {/* Subtle Adaptive Transition Feedback Alert */}
         {adaptiveMessage && (
-          <div className="mb-3 p-3.5 rounded-xl bg-[#EFEBE4] border border-[#A85D4C]/30 text-xs font-mono font-semibold text-[#292B2B] flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="p-2 rounded-lg bg-[#EFEBE4] border border-[#A85D4C]/30 text-xs font-mono font-semibold text-[#292B2B] flex items-center justify-between gap-2 shadow-2xs animate-in fade-in slide-in-from-top-1 duration-200">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#A85D4C] shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-[#A85D4C] shrink-0" />
               <span>{adaptiveMessage}</span>
             </div>
-            <span className="text-[10px] uppercase font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2 py-0.5 rounded">
+            <span className="text-[10px] uppercase font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-1.5 py-0.5 rounded">
               Adaptive Engine
             </span>
           </div>
         )}
 
         {/* Progress Bar & Header */}
-        <div className="py-4 space-y-2 text-left">
+        <div className="space-y-1 text-left">
           <div className="flex justify-between text-xs font-semibold text-[#292B2B]">
-            <span>Question {currentIndex + 1} of {targetTotalQuestions}</span>
-            <span className="font-mono flex items-center gap-1 text-[#A85D4C]">
+            <span>Question {currentStepNumber} of {totalSteps}</span>
+            <span className="font-mono flex items-center gap-1 text-[#A85D4C] text-[11px]">
               <Sparkles className="w-3 h-3" />
               <span>Real-Time Difficulty Calibration</span>
             </span>
           </div>
-          <Progress value={Math.min(100, Math.max(5, progressPercent))} indicatorColor="bg-[#A85D4C]" className="h-2 bg-[#E2DDD5]" />
-        </div>
-
-        {/* Question Card Arena */}
-        <div className="bg-[#FFFDF9] p-6 sm:p-8 rounded-2xl border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] space-y-6">
-          <QuestionCard 
-            question={currentQuestion} 
-            selectedOption={currentAnswer?.selectedOptionId}
-            onSelect={handleOptionSelect}
-          />
-
-          {currentAnswer?.selectedOptionId && (
-            <div className="animate-in fade-in slide-in-from-bottom-3 duration-200">
-              <ConfidenceSelector 
-                selectedLevel={currentAnswer?.confidence}
-                onSelect={handleConfidenceSelect}
-              />
-            </div>
-          )}
+          <Progress value={Math.min(100, Math.max(5, progressPercent))} indicatorColor="bg-[#A85D4C]" className="h-1.5 bg-[#E2DDD5]" />
         </div>
       </div>
 
-      {/* Footer Navigation Bar */}
-      <div className="fixed bottom-0 w-full border-t border-[#E2DDD5] bg-[#FFFDF9] p-4 shadow-lg z-20">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <span className="text-xs text-[#7A756E] font-medium">
-            {!canProceed 
-              ? 'Select an option & confidence level to proceed' 
-              : 'Confidence recorded • Ready to advance'}
+      {/* Question Card Arena */}
+      <div className="flex-1 min-h-0 overflow-y-auto bg-[#FFFDF9] p-3.5 sm:p-5 rounded-2xl border border-[#E2DDD5] shadow-[0_1px_3px_rgba(45,48,48,0.04)] flex flex-col justify-between">
+        <QuestionCard 
+          question={currentQuestion} 
+          selectedOption={currentAnswer?.selectedOptionId}
+          onSelect={handleOptionSelect}
+        />
+
+        {currentAnswer?.selectedOptionId && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-150 pt-2.5 mt-2.5 border-t border-[#E2DDD5]">
+            <ConfidenceSelector 
+              selectedLevel={currentAnswer?.confidence}
+              onSelect={handleConfidenceSelect}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Footer Navigation Bar (Natural Layout Flow, NOT Fixed Overlay!) */}
+      <div className="shrink-0 rounded-xl border border-[#E2DDD5] bg-[#FFFDF9] px-4 py-2 shadow-xs flex items-center justify-between">
+        <span className="text-xs text-[#7A756E] font-medium">
+          {!canProceed 
+            ? 'Select an option & confidence level to proceed' 
+            : 'Confidence recorded • Ready to advance'}
+        </span>
+        <Button 
+          size="sm" 
+          onClick={handleNext} 
+          disabled={!canProceed || submitting}
+          className="px-5 h-9 rounded-lg font-semibold bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] shadow-xs flex items-center gap-2 cursor-pointer transition-all"
+        >
+          <span>
+            {submitting 
+              ? 'Calibrating Question...' 
+              : currentIndex >= questions.length - 1 && assessmentType !== 'adaptive'
+              ? 'Finalize Assessment' 
+              : 'Next Question'}
           </span>
-          <Button 
-            size="default" 
-            onClick={handleNext} 
-            disabled={!canProceed || submitting}
-            className="px-6 h-10 rounded-xl font-semibold bg-[#A85D4C] hover:bg-[#7D4036] text-[#FFFDF9] shadow-xs flex items-center gap-2 cursor-pointer"
-          >
-            <span>
-              {submitting 
-                ? 'Calibrating Question...' 
-                : currentIndex >= questions.length - 1 && assessmentType !== 'adaptive'
-                ? 'Finalize Assessment' 
-                : 'Next Question'}
-            </span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );

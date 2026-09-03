@@ -14,12 +14,11 @@ export default function ConfidenceSelector({ selectedLevel, onSelect }: Props) {
   ];
 
   return (
-    <div className="space-y-3 pt-6 border-t border-[#E2DDD5]">
+    <div className="space-y-1.5">
       <div className="text-center space-y-0.5">
-        <span className="text-xs sm:text-sm font-semibold text-[#292B2B] uppercase tracking-wider">Metacognition: How confident are you?</span>
-        <p className="text-xs text-[#7A756E]">Helps AI distinguish genuine mastery from lucky guessing</p>
+        <span className="text-[11px] sm:text-xs font-semibold text-[#292B2B] uppercase tracking-wider">Metacognition: How confident are you in this answer?</span>
       </div>
-      <div className="flex gap-3 sm:gap-4">
+      <div className="flex gap-2 sm:gap-3">
         {levels.map((level) => {
           const isSelected = selectedLevel === level.id;
           
@@ -28,13 +27,13 @@ export default function ConfidenceSelector({ selectedLevel, onSelect }: Props) {
               key={level.id}
               onClick={() => onSelect(level.id)}
               className={cn(
-                "flex-1 py-3 px-2 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer",
+                "flex-1 py-1.5 sm:py-2 px-2.5 rounded-lg border flex flex-row items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer",
                 isSelected 
-                  ? `${level.activeBg} ${level.color} shadow-xs font-semibold` 
+                  ? `${level.activeBg} ${level.color} shadow-2xs font-semibold` 
                   : `border-[#E2DDD5] ${level.bg} text-[#292B2B] hover:border-[#A85D4C] font-medium`
               )}
             >
-              <level.icon className="w-5 h-5" />
+              <level.icon className="w-4 h-4" />
               <span className="text-xs sm:text-sm font-semibold">{level.label}</span>
             </button>
           );

@@ -403,7 +403,13 @@ export default function Assessment() {
                             <span>Review Diagnostic</span>
                           </button>
                         ) : (
-                          <span className="text-[#7A756E] font-mono text-[11px]">—</span>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/quiz/${item.id}`)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#B38A3D] hover:text-[#916E2E] bg-[#B38A3D]/10 hover:bg-[#B38A3D]/20 px-2.5 py-1 rounded-lg transition-colors cursor-pointer border border-[#B38A3D]/30"
+                          >
+                            <span>Resume Assessment</span>
+                          </button>
                         )}
                       </td>
                     </tr>
