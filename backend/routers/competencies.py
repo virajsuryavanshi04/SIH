@@ -78,29 +78,34 @@ def get_my_diagnosis(
     from models.recommendation import AIDiagnosis
     from ai.service import AIService
 
-    # Resolve target competency from deterministic service
-    gaps = get_user_ranked_gaps(db, current_user)
-    
-    target_gap = None
-    if competency_id is not None:
-        target_gap = next((g for g in gaps if g["competency_id"] == competency_id), None)
-        if not target_gap:
-            comp_obj = db.query(Competency).filter(Competency.id == competency_id).first()
-            if comp_obj:
-                target_gap = {
-                    "competency_id": comp_obj.id,
-                    "competency_name": comp_obj.name,
-                    "current_score": 50.0,
-                    "target_score": 70.0,
-                    "gap": 20.0,
-                    "weakest_subtopic": None
-                }
-    
-    if not target_gap:
-        target_gap = gaps[0] if gaps else None
+    from services.competency_service import get_canonical_learner_gap_state
+    canonical_state = get_canonical_learner_gap_state(db, current_user)
+    primary_gap = canonical_state.get("primary_gap")
+    pri_cid = primary_gap.get("competency_id") if primary_gap else None
 
-    target_comp_id = target_gap["competency_id"] if target_gap else 1
-    target_comp_name = target_gap["competency_name"] if target_gap else "Statistical Literacy & Reasoning"
+    if competency_id is None or competency_id == pri_cid:
+        return canonical_state["canonical_diagnosis"]
+
+    # If specific competency_id requested that differs from primary gap:
+    gaps = canonical_state["ranked_gaps"]
+    target_gap = next((g for g in gaps if g["competency_id"] == competency_id), None)
+    if not target_gap:
+        comp_obj = db.query(Competency).filter(Competency.id == competency_id).first()
+        if comp_obj:
+            target_gap = {
+                "competency_id": comp_obj.id,
+                "competency_name": comp_obj.name,
+                "domain": comp_obj.domain or "Core Theory",
+                "current_score": 50.0,
+                "target_score": 70.0,
+                "gap": 20.0,
+                "weakest_subtopic": None
+            }
+    if not target_gap:
+        return canonical_state["canonical_diagnosis"]
+
+    target_comp_id = target_gap["competency_id"]
+    target_comp_name = target_gap["competency_name"]
 
     latest_ass = db.query(Assessment).filter(
         Assessment.user_id == current_user.id,

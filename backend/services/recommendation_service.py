@@ -257,7 +257,26 @@ class RecommendationService:
             })
 
         # Rank by match_percent descending (putting in_progress on high visibility)
-        return sorted(recommendations, key=lambda x: (x["progress_status"] == "in_progress", x["match_percent"]), reverse=True)[:limit]
+        ranked = sorted(recommendations, key=lambda x: (x["progress_status"] == "in_progress", x["match_percent"]), reverse=True)
+
+        # Enforce canonical primary gap alignment:
+        # The #1 recommended course must target the user's canonical primary gap
+        try:
+            from services.competency_service import get_canonical_learner_gap_state
+            state = get_canonical_learner_gap_state(db, user)
+            pri_gap = state.get("primary_gap")
+            if pri_gap:
+                pri_cid = pri_gap.get("competency_id")
+                pri_match_idx = next((i for i, r in enumerate(ranked) if r.get("competency_id") == pri_cid), None)
+                if pri_match_idx is not None and pri_match_idx > 0:
+                    pri_course = ranked.pop(pri_match_idx)
+                    ranked.insert(0, pri_course)
+                elif pri_match_idx is None and state.get("canonical_recommendation"):
+                    ranked.insert(0, state["canonical_recommendation"])
+        except Exception as e:
+            logger.warning(f"Error aligning top recommendation with canonical gap: {e}")
+
+        return ranked[:limit]
 
 
     @classmethod

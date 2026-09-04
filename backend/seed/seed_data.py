@@ -36,58 +36,56 @@ def seed_database(db: Session):
     db.add_all(deps)
     db.commit()
     
-    # --- 3. Competencies ---
+    # --- 3. Competencies (Aligned with Official iGOT Catalogue) ---
     comps = [
-        Competency(id=1, name="Statistical Methods", category="statistics", domain="Core Theory", level="advanced", description="Advanced statistical methods, central limit theorem, and inference."),
-        Competency(id=2, name="Survey Methodology", category="survey", domain="Operations", level="intermediate", description="Design, non-response weighting, and execution of national surveys."),
-        Competency(id=3, name="Sampling Techniques", category="survey", domain="Operations", level="intermediate", description="Stratified, cluster, and multi-stage sampling formulas."),
-        Competency(id=4, name="Data Analysis", category="analytics", domain="Analytics", level="advanced", description="Analyzing socioeconomic datasets and regression synthesis."),
-        Competency(id=5, name="Data Quality", category="quality", domain="Governance", level="intermediate", description="Ensuring registry accuracy, anomaly detection, and validation rules."),
-        Competency(id=6, name="Data Visualization", category="analytics", domain="Analytics", level="intermediate", description="Visual representation and thematic demographic dashboards."),
-        Competency(id=7, name="Statistical Programming", category="technology", domain="Technology", level="advanced", description="Python and R script automation for official data pipelines."),
-        Competency(id=8, name="Data Interpretation", category="analytics", domain="Core Theory", level="foundational", description="National accounting, CPI, GDP, and economic index interpretation.")
+        Competency(id=1, name="Statistical Literacy & Reasoning", category="statistics", domain="Core Theory", level="foundational", description="Foundational statistical concepts, probability intuition, and data literacy for civil servants."),
+        Competency(id=2, name="Statistical & Data Analysis", category="analytics", domain="Analytics", level="advanced", description="Inferential statistics, regression modeling, hypothesis testing, and quantitative problem solving."),
+        Competency(id=3, name="Data Visualization", category="analytics", domain="Analytics", level="intermediate", description="Statistical charts, interactive thematic dashboards, and visual data storytelling."),
+        Competency(id=4, name="R Programming", category="technology", domain="Technology", level="advanced", description="Statistical computing, reproducible scripts, and survey data processing in R."),
+        Competency(id=5, name="Spreadsheet Analytics", category="analytics", domain="Analytics", level="intermediate", description="Data modeling, pivot tables, lookup formulas, and automated spreadsheet reporting in Excel."),
+        Competency(id=6, name="Survey Operations & Data Collection", category="survey", domain="Operations", level="intermediate", description="Field enumeration, sampling frame verification, questionnaire execution, and survey logistics."),
+        Competency(id=7, name="Research Methods", category="research", domain="Core Theory", level="advanced", description="Public policy research design, qualitative/quantitative synthesis, and academic literature analysis."),
+        Competency(id=8, name="Policy Analytics & Evidence Use", category="policy", domain="Governance", level="advanced", description="Translating empirical statistical evidence into sound public policy interventions.")
     ]
     db.add_all(comps)
     db.commit()
 
-    # --- 4. Competency Topics (Hierarchical Structure) ---
+    # --- 4. Competency Topics (Hierarchical Structure Grounded in iGOT Competencies) ---
     topics = [
-        # Competency 1: Statistical Methods
-        CompetencyTopic(competency_id=1, name="Probability Distributions", description="Normal, binomial, and Poisson distributions"),
-        CompetencyTopic(competency_id=1, name="Hypothesis Testing", description="Null hypothesis, p-values, t-tests, and ANOVA"),
-        CompetencyTopic(competency_id=1, name="Statistical Inference", description="Confidence intervals and parameter estimation"),
+        # Competency 1: Statistical Literacy & Reasoning
+        CompetencyTopic(id=1, competency_id=1, name="Probability Distributions", description="Normal, binomial, and Poisson distributions"),
+        CompetencyTopic(id=2, competency_id=1, name="Hypothesis Testing", description="Null hypothesis, p-values, t-tests, and ANOVA"),
+        CompetencyTopic(id=3, competency_id=1, name="Statistical Inference", description="Confidence intervals and parameter estimation"),
         
-        # Competency 2: Survey Methodology
-        CompetencyTopic(competency_id=2, name="Questionnaire Design", description="Formulating unbiased survey items"),
-        CompetencyTopic(competency_id=2, name="Non-Response Adjustment", description="Weighting adjustments and imputation methods"),
-        CompetencyTopic(competency_id=2, name="Field Operations & Audits", description="Survey protocol compliance in field inspections"),
+        # Competency 2: Statistical & Data Analysis
+        CompetencyTopic(id=10, competency_id=2, name="Descriptive Statistics", description="Measures of central tendency and dispersion"),
+        CompetencyTopic(id=11, competency_id=2, name="Linear & Logistic Regression", description="Multivariate regression and assumption testing"),
+        CompetencyTopic(id=12, competency_id=2, name="Time Series & Forecasting", description="Trend analysis and seasonal adjustment"),
 
-        # Competency 3: Sampling Techniques
-        CompetencyTopic(competency_id=3, name="Sampling Fundamentals", description="Sampling frames, sampling error, and variance"),
-        CompetencyTopic(competency_id=3, name="Stratified Random Sampling", description="Neyman optimal allocation and stratum weighting"),
-        CompetencyTopic(competency_id=3, name="Cluster & Multi-Stage Sampling", description="Primary sampling units and design effects"),
+        # Competency 3: Data Visualization
+        CompetencyTopic(id=16, competency_id=3, name="Statistical Charts", description="Histograms, scatter plots, and box plots"),
+        CompetencyTopic(id=17, competency_id=3, name="Choropleth Mapping", description="Spatial demographic visualization"),
 
-        # Competency 4: Data Analysis
-        CompetencyTopic(competency_id=4, name="Descriptive Statistics", description="Measures of central tendency and dispersion"),
-        CompetencyTopic(competency_id=4, name="Linear & Logistic Regression", description="Multivariate regression and assumption testing"),
-        CompetencyTopic(competency_id=4, name="Time Series & Forecasting", description="Trend analysis and seasonal adjustment"),
+        # Competency 4: R Programming
+        CompetencyTopic(id=18, competency_id=4, name="Python for Data Manipulation", description="Pandas, NumPy, and data wrangling"),
+        CompetencyTopic(id=19, competency_id=4, name="R for Official Statistics", description="Survey packages and tabulations in R"),
 
-        # Competency 5: Data Quality
-        CompetencyTopic(competency_id=5, name="Rule-Based Validation", description="Range, consistency, and format validation"),
-        CompetencyTopic(competency_id=5, name="Anomaly & Outlier Scoring", description="Statistical detection of erroneous values"),
-        CompetencyTopic(competency_id=5, name="Record Linkage", description="Probabilistic matching of administrative records"),
+        # Competency 6: Survey Operations & Data Collection
+        CompetencyTopic(id=4, competency_id=6, name="Questionnaire Design", description="Formulating unbiased survey items"),
+        CompetencyTopic(id=5, competency_id=6, name="Non-Response Adjustment", description="Weighting adjustments and imputation methods"),
+        CompetencyTopic(id=6, competency_id=6, name="Field Operations & Audits", description="Survey protocol compliance in field inspections"),
+        CompetencyTopic(id=7, competency_id=6, name="Sampling Fundamentals", description="Sampling frames, sampling error, and variance"),
+        CompetencyTopic(id=8, competency_id=6, name="Stratified Random Sampling", description="Neyman optimal allocation and stratum weighting"),
+        CompetencyTopic(id=9, competency_id=6, name="Cluster & Multi-Stage Sampling", description="Primary sampling units and design effects"),
 
-        # Competency 6: Data Visualization
-        CompetencyTopic(competency_id=6, name="Statistical Charts", description="Histograms, scatter plots, and box plots"),
-        CompetencyTopic(competency_id=6, name="Choropleth Mapping", description="Spatial demographic visualization"),
+        # Competency 5: Spreadsheet Analytics / Data Quality
+        CompetencyTopic(id=13, competency_id=5, name="Rule-Based Validation", description="Range, consistency, and format validation"),
+        CompetencyTopic(id=14, competency_id=5, name="Anomaly & Outlier Scoring", description="Statistical detection of erroneous values"),
+        CompetencyTopic(id=15, competency_id=5, name="Record Linkage", description="Probabilistic matching of administrative records"),
 
-        # Competency 7: Statistical Programming
-        CompetencyTopic(competency_id=7, name="Python for Data Manipulation", description="Pandas, NumPy, and data wrangling"),
-        CompetencyTopic(competency_id=7, name="R for Official Statistics", description="Survey packages and tabulations in R"),
-
-        # Competency 8: Data Interpretation
-        CompetencyTopic(competency_id=8, name="National Accounts", description="GDP, GVA, and macroeconomic indicators"),
-        CompetencyTopic(competency_id=8, name="Price Indices", description="CPI, WPI, and IIP index tabulation")
+        # Competency 8: Policy Analytics & Evidence Use / National Accounts
+        CompetencyTopic(id=20, competency_id=8, name="National Accounts", description="GDP, GVA, and macroeconomic indicators"),
+        CompetencyTopic(id=21, competency_id=8, name="Price Indices", description="CPI, WPI, and IIP index tabulation")
     ]
     db.add_all(topics)
     db.commit()
@@ -200,13 +198,13 @@ def seed_database(db: Session):
 
     # --- 9. Courses / Learning Resources (iGOT & Official Systems) ---
     course_list = [
-        ("Survey Sampling Fundamentals & Design", 3, "beginner", 12.0, "Master stratified, cluster, and multi-stage sampling techniques configured for official statistical surveys.", "iGOT"),
-        ("Python for Statistical Analysis & Automation", 7, "beginner", 10.0, "Data manipulation with Pandas, statistical hypothesis testing, and automated reporting pipelines.", "iGOT"),
-        ("Data Quality Validation & Audit Frameworks", 5, "intermediate", 8.0, "Comprehensive error detection, anomaly scoring, and automated validation rules for census registries.", "SmartLearn"),
-        ("Applied Regression Analysis & Modeling", 4, "intermediate", 14.0, "Linear, logistic, and multivariate regression techniques applied to socioeconomic datasets.", "iGOT"),
-        ("Official Statistics Framework & National Accounts", 8, "foundational", 6.0, "Understanding GDP computation, CPI/IIP indexes, and international statistical standards.", "National Statistical Training Institute"),
-        ("NSS Stratification Lab", 3, "intermediate", 0.4, "Practical 25-minute lab on Neyman optimal allocation for national sample surveys.", "iGOT"),
-        ("Survey Sampling Methods", 2, "intermediate", 0.3, "18-minute micro-module on sampling frame maintenance and design effect reduction.", "iGOT"),
+        ("Survey Sampling Fundamentals & Design", 6, "beginner", 12.0, "Master stratified, cluster, and multi-stage sampling techniques configured for official statistical surveys.", "iGOT"),
+        ("Python for Statistical Analysis & Automation", 4, "beginner", 10.0, "Data manipulation with Pandas, statistical hypothesis testing, and automated reporting pipelines.", "iGOT"),
+        ("Data Quality Validation & Audit Frameworks", 13, "intermediate", 8.0, "Comprehensive error detection, anomaly scoring, and automated validation rules for census registries.", "SmartLearn"),
+        ("Applied Regression Analysis & Modeling", 2, "intermediate", 14.0, "Linear, logistic, and multivariate regression techniques applied to socioeconomic datasets.", "iGOT"),
+        ("Official Statistics Framework & National Accounts", 16, "foundational", 6.0, "Understanding GDP computation, CPI/IIP indexes, and international statistical standards.", "National Statistical Training Institute"),
+        ("NSS Stratification Lab", 6, "intermediate", 0.4, "Practical 25-minute lab on Neyman optimal allocation for national sample surveys.", "iGOT"),
+        ("Survey Sampling Methods", 6, "intermediate", 0.3, "18-minute micro-module on sampling frame maintenance and design effect reduction.", "iGOT"),
         ("Variance Estimation Basics", 1, "intermediate", 0.35, "20-minute primer on Taylor series linearization and jackknife variance estimation.", "iGOT")
     ]
     

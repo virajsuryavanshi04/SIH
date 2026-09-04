@@ -64,6 +64,14 @@ export default function Courses() {
   const providers = Array.from(new Set(courses.map(c => c.provider).filter(Boolean))).sort();
 
   const filteredCourses = courses.filter(c => {
+    const isTargetCourse = Boolean(
+      focusedCourseId && 
+      (String(c.id) === String(focusedCourseId) || 
+       String(c.course_id) === String(focusedCourseId) ||
+       String(c.igot_identifier) === String(focusedCourseId) ||
+       String(c.external_id) === String(focusedCourseId))
+    );
+
     const compName = c.competency_name || c.competency || '';
     const matchesSearch = !search || 
       c.title?.toLowerCase().includes(search.toLowerCase()) || 
@@ -75,7 +83,7 @@ export default function Courses() {
     const matchesComp = compFilter === 'all' || compName.toLowerCase().includes(compFilter.toLowerCase()) || (c.competency_id === Number(compFilter));
     const matchesProvider = providerFilter === 'all' || c.provider === providerFilter;
 
-    return matchesSearch && matchesComp && matchesProvider;
+    return (matchesSearch && matchesComp && matchesProvider) || isTargetCourse;
   });
 
   if (loading) {

@@ -500,37 +500,202 @@ class ExternalLearningResourceService:
                     "reason": "Coding challenges implementing socket listeners and stream verification."
                 }
             },
-            "general": {
-                "topic": "Computer Networking Foundations",
+            "subnetting": {
+                "topic": "IPv4 Subnetting & CIDR Addressing",
                 "youtube": {
-                    "title": "Computer Networking Course",
+                    "title": "IP Addressing and Subnetting - Full Course",
                     "provider": "freeCodeCamp",
-                    "url": "https://www.youtube.com/watch?v=IPvYjXCsTg8",
-                    "reason": "Complete walkthrough of networking concepts."
+                    "url": "https://www.youtube.com/watch?v=5Wk8FpPZ9_I",
+                    "reason": "Comprehensive visual walkthrough of binary subnet masks, network vs host bits, CIDR notation, and IP range calculations."
                 },
                 "course": {
-                    "title": "Computer Networking Fundamentals",
-                    "provider": "Coursera",
+                    "title": "IP Addressing and Subnetting Fundamentals",
+                    "provider": "Coursera (Google / Cisco)",
                     "url": "https://www.coursera.org/learn/computer-networking",
-                    "reason": "University and industry principles of computer networks."
+                    "reason": "Structured curriculum covering IPv4 address allocation, subnet boundary design, and VLSM."
+                },
+                "article": {
+                    "title": "Introduction to Subnetting & CIDR Calculation",
+                    "provider": "GeeksforGeeks",
+                    "url": "https://www.geeksforgeeks.org/introduction-to-subnetting-and-cidr-in-computer-network/",
+                    "reason": "Step-by-step formula reference and worked examples for calculating valid subnets, broadcast addresses, and host ranges."
+                },
+                "open_textbook": {
+                    "title": "Computer Networks: Internet Protocol Addressing and Subnetting",
+                    "provider": "Systems Approach (Open Access)",
+                    "url": "https://book.systemsapproach.org/internetworking/ip.html",
+                    "reason": "Rigorous open textbook chapter on IP addressing architecture, address classes, and classless inter-domain routing."
+                },
+                "practice": {
+                    "title": "Interactive Subnetting Practice Drills & Exercises",
+                    "provider": "Subnetting.net",
+                    "url": "https://www.subnetting.net/Subneting.aspx",
+                    "reason": "Timed drills and interactive calculation exercises to test subnet masks, host allocations, and CIDR ranges."
+                }
+            },
+            "routing": {
+                "topic": "Routing Protocols & Forwarding Algorithms",
+                "youtube": {
+                    "title": "Routing Protocols & Forwarding Algorithms Explained",
+                    "provider": "freeCodeCamp",
+                    "url": "https://www.youtube.com/watch?v=IPvYjXCsTg8",
+                    "reason": "Visual breakdown of link-state vs distance-vector routing, Dijkstra's algorithm, and packet forwarding."
+                },
+                "course": {
+                    "title": "Routing in Computer Networks",
+                    "provider": "Coursera (Univ. of Colorado)",
+                    "url": "https://www.coursera.org/learn/computer-communications",
+                    "reason": "Structured exploration of RIP, OSPF, BGP, and autonomous system routing policies."
+                },
+                "article": {
+                    "title": "Routing in Computer Networks & Routing Table Mechanics",
+                    "provider": "GeeksforGeeks",
+                    "url": "https://www.geeksforgeeks.org/routing-in-computer-networks/",
+                    "reason": "Concise technical guide on packet routing tables, next-hop lookups, and routing protocols."
+                },
+                "open_textbook": {
+                    "title": "Computer Networks: Routing and Packet Forwarding",
+                    "provider": "Systems Approach (Open Access)",
+                    "url": "https://book.systemsapproach.org/internetworking/routing.html",
+                    "reason": "Open textbook chapters on global routing architecture and graph-based routing algorithms."
+                },
+                "practice": {
+                    "title": "Interactive Network Routing Challenges",
+                    "provider": "HackerRank",
+                    "url": "https://www.hackerrank.com/domains/tutorials",
+                    "reason": "Algorithmic practice solving network topology graphs and shortest path routing challenges."
+                }
+            },
+            "dns": {
+                "topic": "Domain Name System (DNS) & Name Resolution",
+                "youtube": {
+                    "title": "How DNS Works - Complete Visual Guide",
+                    "provider": "PowerCert Animated Videos",
+                    "url": "https://www.youtube.com/watch?v=mpQZVYPuDGU",
+                    "reason": "Clear animated step-by-step resolution of recursive queries, authoritative nameservers, and DNS caching."
+                },
+                "course": {
+                    "title": "Network Services: DNS, DHCP, and HTTP",
+                    "provider": "Coursera (Google)",
+                    "url": "https://www.coursera.org/learn/network-services",
+                    "reason": "Structured modules covering domain hierarchy, record types (A, AAAA, CNAME, MX), and zone transfers."
+                },
+                "article": {
+                    "title": "Domain Name System (DNS) in Computer Networking",
+                    "provider": "GeeksforGeeks",
+                    "url": "https://www.geeksforgeeks.org/domain-name-system-dns-in-application-layer/",
+                    "reason": "Quick-reference diagrams detailing query flows, root servers, and DNS record formats."
+                },
+                "open_textbook": {
+                    "title": "Computer Networks: Domain Name System",
+                    "provider": "Systems Approach (Open Access)",
+                    "url": "https://book.systemsapproach.org/applications/dns.html",
+                    "reason": "Authoritative open chapter detailing decentralized name resolution and query protocols."
+                },
+                "practice": {
+                    "title": "DNS Protocol & Query Drills",
+                    "provider": "Exercism",
+                    "url": "https://exercism.org/tracks",
+                    "reason": "Hands-on exercises querying DNS servers, parsing responses, and configuring DNS records."
+                }
+            },
+            "osi": {
+                "topic": "OSI 7-Layer & TCP/IP Protocol Stack",
+                "youtube": {
+                    "title": "The 7 Layers of the OSI Model Explained",
+                    "provider": "freeCodeCamp",
+                    "url": "https://www.youtube.com/watch?v=LANW3m7Bgkw",
+                    "reason": "Visual animation demonstrating data encapsulation and de-encapsulation across all seven layers."
+                },
+                "course": {
+                    "title": "Networking Protocols & The OSI Stack",
+                    "provider": "edX",
+                    "url": "https://www.edx.org/learn/computer-networking",
+                    "reason": "Structured foundation in layer responsibilities, protocol data units (PDU), and interfaces."
+                },
+                "article": {
+                    "title": "Layers of OSI Model With Real-World Examples",
+                    "provider": "GeeksforGeeks",
+                    "url": "https://www.geeksforgeeks.org/layers-of-osi-model/",
+                    "reason": "Direct reference table comparing OSI 7 layers and TCP/IP 4 layers with standard protocols."
+                },
+                "open_textbook": {
+                    "title": "Computer Networks: Layering and Protocols",
+                    "provider": "Systems Approach (Open Access)",
+                    "url": "https://book.systemsapproach.org/foundation/layering.html",
+                    "reason": "Conceptual open textbook chapter on architectural layering principles and modular protocols."
+                },
+                "practice": {
+                    "title": "OSI Protocol Stack Review & Drills",
+                    "provider": "Khan Academy",
+                    "url": "https://www.khanacademy.org/computing/computers-and-internet-code-org",
+                    "reason": "Self-paced quizzes and interactive layer mapping exercises."
+                }
+            },
+            "wireshark": {
+                "topic": "Wireshark Packet Capture & Protocol Analysis",
+                "youtube": {
+                    "title": "Wireshark Tutorial for Beginners - Full Course",
+                    "provider": "freeCodeCamp",
+                    "url": "https://www.youtube.com/watch?v=lb1Dw0elw0Q",
+                    "reason": "Hands-on visual guide to packet inspection, display filters, and dissecting network protocols."
+                },
+                "course": {
+                    "title": "Network Security & Packet Analysis",
+                    "provider": "Coursera",
+                    "url": "https://www.coursera.org/learn/network-security-basics",
+                    "reason": "Structured packet inspection workflows for traffic analysis and network troubleshooting."
+                },
+                "article": {
+                    "title": "Wireshark Packet Sniffer Tutorial & Filter Guide",
+                    "provider": "GeeksforGeeks",
+                    "url": "https://www.geeksforgeeks.org/packet-sniffing-using-wireshark/",
+                    "reason": "Technical syntax reference for display filters, follow TCP stream, and packet dissecting."
+                },
+                "open_textbook": {
+                    "title": "Practical Packet Analysis (Open Reference)",
+                    "provider": "Wireshark User Guide (Open Access)",
+                    "url": "https://www.wireshark.org/docs/wsug_html_chunked/",
+                    "reason": "Official open-access documentation on network troubleshooting with packet captures."
+                },
+                "practice": {
+                    "title": "Wireshark Packet Captures & Protocol Tracing",
+                    "provider": "Wireshark Foundation",
+                    "url": "https://wiki.wireshark.org/SampleCaptures",
+                    "reason": "Hands-on sample packet captures to inspect live protocol handshakes and headers."
+                }
+            },
+            "general": {
+                "topic": "Computer Networking Architecture & Fundamentals",
+                "youtube": {
+                    "title": "Computer Networking Course - Full Course",
+                    "provider": "freeCodeCamp",
+                    "url": "https://www.youtube.com/watch?v=IPvYjXCsTg8",
+                    "reason": "Comprehensive walkthrough of network architectures, protocol stacks, and internet principles."
+                },
+                "course": {
+                    "title": "The Bits and Bytes of Computer Networking",
+                    "provider": "Coursera (Google)",
+                    "url": "https://www.coursera.org/learn/computer-networking",
+                    "reason": "Structured industry curriculum covering networking models and troubleshooting."
                 },
                 "article": {
                     "title": "Computer Network Architecture Guide",
                     "provider": "GeeksforGeeks",
                     "url": "https://www.geeksforgeeks.org/basics-computer-networking/",
-                    "reason": "Reference summaries and diagrams."
+                    "reason": "Comprehensive diagrams and protocol stack summaries."
                 },
                 "open_textbook": {
                     "title": "Computer Networks: A Systems Approach",
-                    "provider": "Systems Approach",
+                    "provider": "Systems Approach (Open Access)",
                     "url": "https://book.systemsapproach.org/",
-                    "reason": "Open textbook on system networking."
+                    "reason": "Authoritative open textbook on computer networking systems."
                 },
                 "practice": {
-                    "title": "Wireshark Packet Captures",
-                    "provider": "Wireshark Foundation",
-                    "url": "https://wiki.wireshark.org/SampleCaptures",
-                    "reason": "Packet inspection practice."
+                    "title": "Interactive Computer Networking Practice Problems",
+                    "provider": "HackerRank / Coursera",
+                    "url": "https://www.hackerrank.com/domains/tutorials",
+                    "reason": "Hands-on exercises and simulated scenarios to test foundational networking comprehension."
                 }
             }
         }
@@ -549,7 +714,7 @@ class ExternalLearningResourceService:
             return "statistics"
         if any(k in comb for k in ["python", "def ", "pandas", "numpy", "dataframe", "dict", "tuple"]):
             return "python"
-        if any(k in comb for k in ["tcp", "udp", "network", "telemetry", "packet", "wireshark", "osi"]):
+        if any(re.search(rf"\b{re.escape(k)}\b", comb) for k in ["tcp", "udp", "network", "telemetry", "packet", "wireshark", "osi", "subnet", "cidr", "ip address", "routing", "router", "dns"]):
             return "networking"
         return None
 
@@ -743,81 +908,123 @@ class ExternalLearningResourceService:
         topic_scores: Dict[str, float] = {}
         topic_error_counts: Dict[str, int] = {}
         topic_high_conf_counts: Dict[str, int] = {}
-        topic_sample_questions: Dict[str, str] = {}
+        topic_display_names: Dict[str, str] = {}
+        topic_curated_keys: Dict[str, Tuple[str, str]] = {}
 
         for ans in incorrect_answers:
-            q = ans.material_quiz_question or ans.question
+            q = getattr(ans, "material_quiz_question", None) or getattr(ans, "question", None)
             q_text = ""
             q_exp = ""
+            q_concept = None
+            q_topic = None
             q_diff = 2
             if q:
                 q_text = getattr(q, "question_text", None) or getattr(q, "text", "") or ""
                 q_exp = getattr(q, "explanation", "") or ""
+                q_concept = getattr(q, "concept", None)
+                q_topic = getattr(q, "topic_name", None)
                 diff_val = getattr(q, "difficulty", "2")
                 if str(diff_val).isdigit():
                     q_diff = int(diff_val)
 
-            combined_q_text = (q_text + " " + q_exp).lower()
             conf = ans.confidence_level or 3
             is_high_conf = conf >= 4
+            weight = 1.0 + (1.5 if is_high_conf else 0.0) + (0.5 if q_diff >= 3 else 0.0)
 
-            # Resolve topic key based on domain
-            detected_key = "general"
+            # Combined context for keyword/topic matching
+            combined_q_text = f"{q_concept or ''} {q_text} {q_exp}".lower()
+
+            curated_subtopic: Optional[str] = None
+            custom_concept: Optional[str] = None
+
             if domain == "c++":
-                if any(w in combined_q_text for w in ["pointer", "delete", "dynamic memory", "allocation", "heap", "stack", "address", "reference", "malloc", "free", "nullptr"]):
-                    detected_key = "pointers"
-                elif any(w in combined_q_text for w in ["class", "object", "inheritance", "polymorphism", "virtual", "encapsulation", "constructor", "destructor", "override"]):
-                    detected_key = "oop"
-                elif any(w in combined_q_text for w in ["stl", "vector", "iterator", "template", "map", "container", "set", "algorithm", "pair"]):
-                    detected_key = "stl"
+                if any(re.search(rf"\b{re.escape(w)}\b", combined_q_text) for w in ["class", "classes", "object", "objects", "inheritance", "polymorphism", "polymorphic", "virtual", "encapsulation", "constructor", "destructor", "override", "oop"]):
+                    curated_subtopic = "oop"
+                elif any(re.search(rf"\b{re.escape(w)}\b", combined_q_text) for w in ["pointer", "pointers", "delete", "delete[]", "dynamic memory", "allocation", "heap", "stack", "address", "reference", "malloc", "free", "nullptr"]):
+                    curated_subtopic = "pointers"
+                elif any(re.search(rf"\b{re.escape(w)}\b", combined_q_text) for w in ["stl", "vector", "iterator", "template", "map", "container", "set", "algorithm", "pair"]):
+                    curated_subtopic = "stl"
+                elif q_concept and len(q_concept.strip()) > 0:
+                    custom_concept = q_concept.strip()
                 else:
-                    detected_key = "general"
+                    curated_subtopic = "general"
+
             elif domain == "statistics":
                 if any(w in combined_q_text for w in ["stratified", "cluster", "sampling", "neyman", "sample", "bias", "strata", "multistage", "quota"]):
-                    detected_key = "sampling"
+                    curated_subtopic = "sampling"
                 elif any(w in combined_q_text for w in ["probability", "distribution", "normal", "poisson", "variance", "density", "binomial", "expected value", "cdf", "pdf"]):
-                    detected_key = "probability"
+                    curated_subtopic = "probability"
+                elif q_concept and len(q_concept.strip()) > 0:
+                    custom_concept = q_concept.strip()
                 else:
-                    detected_key = "general"
+                    curated_subtopic = "general"
+
             elif domain == "python":
-                if any(w in combined_q_text for w in ["list", "dict", "tree", "node", "hash", "array", "stack", "queue", "graph", "linked list", "search"]):
-                    detected_key = "data_structures"
+                if any(w in combined_q_text for w in ["list", "dict", "tree", "node", "hash", "array", "stack", "queue", "graph", "linked list", "search", "data structure"]):
+                    curated_subtopic = "data_structures"
+                elif q_concept and len(q_concept.strip()) > 0:
+                    custom_concept = q_concept.strip()
                 else:
-                    detected_key = "general"
+                    curated_subtopic = "general"
+
             elif domain == "networking":
-                if any(w in combined_q_text for w in ["tcp", "udp", "handshake", "port", "socket", "syn", "ack", "reliable", "connectionless"]):
-                    detected_key = "tcp_udp"
+                if any(w in combined_q_text for w in ["subnet", "cidr", "mask", "vlsm", "prefix length", "slash notation", "ip address", "host range", "broadcast address"]):
+                    curated_subtopic = "subnetting"
+                elif any(w in combined_q_text for w in ["tcp", "udp", "handshake", "port", "socket", "syn", "ack", "reliable", "connectionless", "segment"]):
+                    curated_subtopic = "tcp_udp"
+                elif any(w in combined_q_text for w in ["route", "routing", "router", "ospf", "rip", "bgp", "forwarding", "next hop", "dijkstra"]):
+                    curated_subtopic = "routing"
+                elif any(w in combined_q_text for w in ["dns", "domain name", "nameserver", "cname", "authoritative", "resolver"]):
+                    curated_subtopic = "dns"
+                elif any(w in combined_q_text for w in ["osi", "seven layer", "physical layer", "data link", "presentation layer", "session layer", "encapsulation", "pdu"]):
+                    curated_subtopic = "osi"
+                elif "wireshark" in combined_q_text:
+                    curated_subtopic = "wireshark"
+                elif q_concept and len(q_concept.strip()) > 0:
+                    custom_concept = q_concept.strip()
                 else:
-                    detected_key = "general"
+                    curated_subtopic = "general"
+
             else:
-                detected_key = (getattr(q, "topic_name", None) or title or "Core Concept").strip()
+                if q_concept and len(q_concept.strip()) > 0:
+                    custom_concept = q_concept.strip()
+                elif q_topic and len(q_topic.strip()) > 0:
+                    custom_concept = q_topic.strip()
+                else:
+                    custom_concept = title.strip()
 
-            weight = 1.0 + (1.5 if is_high_conf else 0.0) + (0.5 if q_diff >= 3 else 0.0)
-            topic_scores[detected_key] = topic_scores.get(detected_key, 0.0) + weight
-            topic_error_counts[detected_key] = topic_error_counts.get(detected_key, 0) + 1
+            if curated_subtopic and domain and domain in cls.CURATED_DOMAINS and curated_subtopic in cls.CURATED_DOMAINS[domain]:
+                topic_id = f"curated:{domain}:{curated_subtopic}"
+                topic_title = cls.CURATED_DOMAINS[domain][curated_subtopic]["topic"]
+                topic_curated_keys[topic_id] = (domain, curated_subtopic)
+            else:
+                topic_title = custom_concept or (q_concept or q_topic or title or "Core Concept").strip()
+                topic_id = f"custom:{topic_title}"
+
+            topic_scores[topic_id] = topic_scores.get(topic_id, 0.0) + weight
+            topic_error_counts[topic_id] = topic_error_counts.get(topic_id, 0) + 1
             if is_high_conf:
-                topic_high_conf_counts[detected_key] = topic_high_conf_counts.get(detected_key, 0) + 1
-            if detected_key not in topic_sample_questions and q_text:
-                topic_sample_questions[detected_key] = q_text
+                topic_high_conf_counts[topic_id] = topic_high_conf_counts.get(topic_id, 0) + 1
+            topic_display_names[topic_id] = topic_title
 
-        # Pick the highest penalty subtopic
+        # Pick the highest penalty bottleneck topic
         primary_key = max(topic_scores.items(), key=lambda x: x[1])[0]
+        bottleneck_topic = topic_display_names[primary_key]
         err_count = topic_error_counts.get(primary_key, 1)
         hi_conf_count = topic_high_conf_counts.get(primary_key, 0)
 
-        # Retrieve topic details
-        resources = []
-        if domain and domain in cls.CURATED_DOMAINS and primary_key in cls.CURATED_DOMAINS[domain]:
-            sub_data = cls.CURATED_DOMAINS[domain][primary_key]
-            bottleneck_topic = sub_data["topic"]
+        # Formulate explicit diagnostic explanation
+        high_conf_phrase = f" (including {hi_conf_count} high-confidence error{'s' if hi_conf_count != 1 else ''})" if hi_conf_count > 0 else ""
+        bottleneck_reason = (
+            f"Identified as your primary learning bottleneck due to {err_count} incorrect answer{'s' if err_count != 1 else ''}{high_conf_phrase} "
+            f"in {bottleneck_topic}. Focused review on underlying mechanics is recommended."
+        )
 
-            # Formulate explicit diagnostic explanation
-            high_conf_phrase = f" (including {hi_conf_count} high-confidence error{'s' if hi_conf_count != 1 else ''})" if hi_conf_count > 0 else ""
-            bottleneck_reason = (
-                f"Identified as your primary learning bottleneck due to {err_count} incorrect answer{'s' if err_count != 1 else ''}{high_conf_phrase} "
-                f"in {bottleneck_topic}. Focused review on underlying mechanics is recommended."
-            )
+        resources: List[Dict[str, Any]] = []
 
+        if primary_key in topic_curated_keys:
+            dom, sub = topic_curated_keys[primary_key]
+            sub_data = cls.CURATED_DOMAINS[dom][sub]
             context_prefix = f"Targeted to remediate your bottleneck in {bottleneck_topic}. "
 
             resources.append({
@@ -881,24 +1088,18 @@ class ExternalLearningResourceService:
             })
 
         else:
-            bottleneck_topic = ai_primary_bottleneck or primary_key or title
-            high_conf_phrase = f" (including {hi_conf_count} high-confidence error{'s' if hi_conf_count != 1 else ''})" if hi_conf_count > 0 else ""
-            bottleneck_reason = (
-                f"Identified as your primary learning bottleneck due to {err_count} incorrect answer{'s' if err_count != 1 else ''}{high_conf_phrase} "
-                f"in {bottleneck_topic}."
-            )
-
-            encoded_topic = urllib.parse.quote(f"{title} {bottleneck_topic}".strip())
+            # Dynamically synthesized canonical educational resources targeted strictly to the bottleneck
+            encoded_topic = urllib.parse.quote(f"{bottleneck_topic}".strip())
             resources = [
                 {
                     "category": "YOUTUBE",
                     "category_display": "YouTube Video",
                     "icon": "Video",
                     "purpose": "Visual explanation",
-                    "title": f"{bottleneck_topic} Conceptual Breakdown",
+                    "title": f"{bottleneck_topic} Conceptual Breakdown & Tutorial",
                     "provider": "YouTube Education",
                     "deficient_topic": bottleneck_topic,
-                    "reason": f"Step-by-step visual explanations targeted to remediate your bottleneck in {bottleneck_topic}.",
+                    "reason": f"Visual demonstrations and step-by-step problem-solving tutorials targeted to resolve misconceptions in {bottleneck_topic}.",
                     "url": f"https://www.youtube.com/results?search_query={encoded_topic}+tutorial"
                 },
                 {
@@ -906,10 +1107,10 @@ class ExternalLearningResourceService:
                     "category_display": "Structured Course",
                     "icon": "GraduationCap",
                     "purpose": "Structured learning",
-                    "title": f"{bottleneck_topic} Remediation Modules",
+                    "title": f"{bottleneck_topic} Structured Learning Curriculum",
                     "provider": "Coursera / MIT OpenCourseWare",
                     "deficient_topic": bottleneck_topic,
-                    "reason": f"Structured university learning modules focused on {bottleneck_topic}.",
+                    "reason": f"Structured university curriculum and learning modules focused on foundational principles of {bottleneck_topic}.",
                     "url": f"https://www.coursera.org/search?query={encoded_topic}"
                 },
                 {
@@ -917,10 +1118,10 @@ class ExternalLearningResourceService:
                     "category_display": "Article / Guide",
                     "icon": "Globe",
                     "purpose": "Quick conceptual revision",
-                    "title": f"{bottleneck_topic} Revision Guide",
+                    "title": f"{bottleneck_topic} Technical Reference & Guide",
                     "provider": "GeeksforGeeks / Technical Documentation",
                     "deficient_topic": bottleneck_topic,
-                    "reason": f"Concise conceptual definitions and syntax guides to resolve misconceptions in {bottleneck_topic}.",
+                    "reason": f"Concise conceptual definitions, architectural formulas, and syntax guides for rapid review of {bottleneck_topic}.",
                     "url": f"https://www.geeksforgeeks.org/search/?q={encoded_topic}"
                 },
                 {
@@ -928,10 +1129,10 @@ class ExternalLearningResourceService:
                     "category_display": "Open Textbook",
                     "icon": "BookOpen",
                     "purpose": "Deep study",
-                    "title": f"{bottleneck_topic} Deep-Dive Chapter",
+                    "title": f"{bottleneck_topic} Open Educational Textbook Chapter",
                     "provider": "OpenStax / LibreTexts",
                     "deficient_topic": bottleneck_topic,
-                    "reason": f"Open educational textbook chapter with step-by-step worked solutions for {bottleneck_topic}.",
+                    "reason": f"Open-access peer-reviewed textbook chapter with comprehensive worked examples explaining {bottleneck_topic}.",
                     "url": f"https://openstax.org/search?q={encoded_topic}"
                 },
                 {
@@ -939,18 +1140,42 @@ class ExternalLearningResourceService:
                     "category_display": "Practice Resource",
                     "icon": "FlaskConical",
                     "purpose": "Additional practice",
-                    "title": f"{bottleneck_topic} Interactive Drills",
-                    "provider": "Exercism / LeetCode",
+                    "title": f"{bottleneck_topic} Interactive Drills & Problem Sets",
+                    "provider": "Exercism / HackerRank",
                     "deficient_topic": bottleneck_topic,
-                    "reason": f"Interactive practice drills to solidify your understanding of {bottleneck_topic}.",
-                    "url": f"https://exercism.org/tracks"
+                    "reason": f"Interactive hands-on drills and test problems designed to verify applied understanding of {bottleneck_topic}.",
+                    "url": f"https://www.hackerrank.com/search?query={encoded_topic}"
                 }
             ]
+
+        # Strict Relevance Validation:
+        # 1. Never recommend Wireshark unless Wireshark was explicitly tested or present in the bottleneck topic!
+        is_wireshark_tested = any(
+            "wireshark" in (getattr(getattr(ans, "material_quiz_question", None) or getattr(ans, "question", None), "concept", "") or "").lower()
+            for ans in incorrect_answers
+        ) or any(
+            "wireshark" in (getattr(getattr(ans, "material_quiz_question", None) or getattr(ans, "question", None), "question_text", "") or "").lower()
+            for ans in incorrect_answers
+        ) or "wireshark" in bottleneck_topic.lower()
+
+        sanitized_resources: List[Dict[str, Any]] = []
+        for res in resources:
+            r_title = res.get("title", "")
+            r_url = res.get("url", "")
+            if ("wireshark" in r_title.lower() or "wireshark" in r_url.lower()) and not is_wireshark_tested:
+                encoded_b = urllib.parse.quote(bottleneck_topic)
+                res["title"] = f"{bottleneck_topic} Applied Practice & Exercises"
+                res["provider"] = "HackerRank / Exercism"
+                res["url"] = f"https://www.hackerrank.com/search?query={encoded_b}"
+                res["reason"] = f"Interactive exercises and problem sets targeted specifically to master {bottleneck_topic}."
+            
+            res["deficient_topic"] = bottleneck_topic
+            sanitized_resources.append(res)
 
         return {
             "primary_bottleneck_topic": bottleneck_topic,
             "primary_bottleneck_reason": bottleneck_reason,
-            "resources": resources
+            "resources": sanitized_resources
         }
 
     @classmethod

@@ -140,14 +140,21 @@ export default function Dashboard() {
         setRadialNodes(builtRadialNodes);
         setScorecardItems(builtScorecardItems);
 
-        // Select the biggest gap node by default, or the first node
+        // Select the canonical primary gap node by default, or biggest gap node, or first node
         if (builtRadialNodes.length > 0) {
-          const bottleneck = builtRadialNodes.find(i => i.status === 'critical') 
+          const priCompId = rawInsights?.priority_bottleneck_gap?.competency_id;
+          const canonicalRadial = priCompId ? builtRadialNodes.find(i => i.id === priCompId) : null;
+          const canonicalScorecard = priCompId ? builtScorecardItems.find(s => s.id === priCompId) : null;
+
+          const bottleneck = canonicalRadial
+            || builtRadialNodes.find(i => i.status === 'critical') 
             || builtRadialNodes.find(i => i.status === 'needs_attention')
             || builtRadialNodes[0];
           setSelectedRadialNode(bottleneck);
 
-          const matchingScorecard = builtScorecardItems.find(s => s.id === bottleneck.id) || builtScorecardItems[0];
+          const matchingScorecard = canonicalScorecard
+            || builtScorecardItems.find(s => s.id === bottleneck.id) 
+            || builtScorecardItems[0];
           setSelectedScorecardItem(matchingScorecard);
         }
       } catch (err) {
@@ -186,6 +193,8 @@ export default function Dashboard() {
         status: i === 0 ? 'current' : 'recommended',
         order: i + 1,
         competency_name: r.competency_name,
+        competency_id: r.competency_id,
+        course_id: r.id || r.course_id,
         external_url: r.external_url
       }));
 
@@ -194,7 +203,9 @@ export default function Dashboard() {
     status: it.status || (idx === 0 ? 'current' : 'recommended'),
     number: it.status === 'completed' ? '✓' : String(it.order || idx + 1),
     external_url: it.external_url,
-    competency_name: it.competency_name
+    competency_name: it.competency_name,
+    competency_id: it.competency_id,
+    course_id: it.course_id || it.reference_id
   }));
 
   // Handler to inspect and focus primary gap
@@ -373,8 +384,17 @@ export default function Dashboard() {
         >
           <DashboardPriorityGap
             item={selectedScorecardItem}
-            diagnosis={diagnosis}
-            recommendation={recommendations.find(r => r.competency_id === selectedScorecardItem?.id) || recommendations[0]}
+            diagnosis={
+              selectedScorecardItem?.id === bottleneckGap?.competency_id
+                ? (insights?.canonical_diagnosis || diagnosis)
+                : diagnosis
+            }
+            recommendation={
+              recommendations.find(r => r.competency_id === selectedScorecardItem?.id)
+              || (selectedScorecardItem?.id === bottleneckGap?.competency_id ? insights?.canonical_recommendation : null)
+              || selectedScorecardItem?.recommendation
+              || recommendations[0]
+            }
           />
         </div>
       </div>
@@ -400,12 +420,16 @@ export default function Dashboard() {
           {journeySteps.map((step: any, idx: number) => {
             const isCompleted = step.status === 'completed';
             const isCurrent = step.status === 'current';
+            const stepUrl = step.course_id
+              ? `/courses?course_id=${step.course_id}${step.competency_id ? `&competency_id=${step.competency_id}` : ''}`
+              : '/learning-path';
 
             return (
-              <div
+              <Link
                 key={idx}
+                to={stepUrl}
                 className={cn(
-                  "p-3 rounded-xl border flex flex-col justify-between space-y-2 transition-all text-left",
+                  "p-3 rounded-xl border flex flex-col justify-between space-y-2 transition-all text-left group hover:shadow-xs",
                   isCompleted 
                     ? "bg-[#2E8B57]/5 border-[#2E8B57]/30 text-[#2E8B57]"
                     : isCurrent
@@ -424,10 +448,10 @@ export default function Dashboard() {
                     {isCompleted ? 'Done' : isCurrent ? 'Active' : `0${idx + 1}`}
                   </span>
                 </div>
-                <h4 className="text-xs font-bold leading-tight line-clamp-2">
+                <h4 className="text-xs font-bold leading-tight line-clamp-2 group-hover:text-[#A85D4C] transition-colors">
                   {step.label}
                 </h4>
-              </div>
+              </Link>
             );
           })}
         </div>

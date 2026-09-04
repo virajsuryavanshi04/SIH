@@ -235,11 +235,182 @@ def get_user_ranked_gaps(db: Session, user: User) -> List[Dict[str, Any]]:
     def sort_key(x):
         if x["is_assessed"]:
             if (x["gap"] or 0.0) > 0:
-                return (2, x["priority_weight"])
-            return (0, x["current_score"] or 0.0)
-        return (1, 0.0)
+                return (2, x["priority_weight"], -x["competency_id"])
+            return (0, -(x["current_score"] or 0.0), -x["competency_id"])
+        return (1, 0.0, -x["competency_id"])
 
     return sorted(gaps, key=sort_key, reverse=True)
+
+
+def get_canonical_learner_gap_state(db: Session, user: User) -> Dict[str, Any]:
+    """
+    SINGLE SOURCE OF TRUTH for the learner's current competency gap and intervention state.
+    Used across:
+    - Dashboard Priority Gap & Scorecard
+    - Diagnostic Evidence (/api/competencies/me/diagnosis)
+    - Recommended Intervention (/api/courses/recommended)
+    - Learning Journey Stepper
+    - Learning Path (/api/learning-path/)
+    - iGOT Learning / Courses Deep Linking
+    - Progress Scorecards
+    """
+    from models.course import Course, CourseCompetency
+    from models.recommendation import AIDiagnosis
+    from models.role import Role
+
+    detailed = get_user_detailed_competencies(db, user)
+    ranked_gaps = get_user_ranked_gaps(db, user)
+
+    # 1. Identify Canonical Primary Gap
+    assessed_deficits = [g for g in ranked_gaps if g["is_assessed"] and (g["gap"] or 0.0) > 0]
+    
+    if assessed_deficits:
+        primary_gap = assessed_deficits[0]
+    elif any(g["is_assessed"] for g in ranked_gaps):
+        assessed_all = [g for g in ranked_gaps if g["is_assessed"]]
+        primary_gap = sorted(assessed_all, key=lambda x: (x["current_score"] - x["target_score"], x["competency_id"]))[0]
+    elif ranked_gaps:
+        primary_gap = ranked_gaps[0]
+    else:
+        primary_gap = None
+
+    target_cid = primary_gap["competency_id"] if primary_gap else 1
+    target_cname = primary_gap["competency_name"] if primary_gap else "Statistical Literacy & Reasoning"
+    target_domain = primary_gap.get("domain", "Core Theory") if primary_gap else "Core Theory"
+
+    # 2. Identify Canonical Recommendation targeting target_cid
+    candidate_courses = db.query(Course).join(CourseCompetency).filter(
+        CourseCompetency.competency_id == target_cid,
+        Course.is_active == True
+    ).all()
+    if not candidate_courses:
+        candidate_courses = db.query(Course).filter(
+            Course.competency_id == target_cid,
+            Course.is_active == True
+        ).all()
+
+    from services.recommendation_service import RecommendationService
+    role_comp_ids = [d["competency_id"] for d in detailed]
+    
+    scored_candidates = []
+    for c in candidate_courses:
+        score_data = RecommendationService.calculate_recommendation_score(c, user, detailed, role_comp_ids)
+        scored_candidates.append({
+            "course": c,
+            "match_percent": score_data["match_percent"],
+            "score_data": score_data
+        })
+
+    scored_candidates.sort(key=lambda x: (x["match_percent"], -(x["course"].duration_hours or 2.0)), reverse=True)
+
+    canonical_rec = None
+    if scored_candidates:
+        best = scored_candidates[0]
+        c = best["course"]
+        sd = best["score_data"]
+        canonical_rec = {
+            "id": c.id,
+            "course_id": c.id,
+            "title": c.title,
+            "name": c.title,
+            "description": c.description,
+            "provider": c.provider or "iGOT Karmayogi",
+            "resource_type": c.resource_type or "igot_course",
+            "igot_identifier": c.igot_identifier or c.external_id,
+            "external_id": c.external_id or c.igot_identifier,
+            "external_url": c.external_url or "https://igotkarmayogi.gov.in/",
+            "difficulty": c.difficulty or "intermediate",
+            "duration_hours": c.duration_hours or 2.0,
+            "duration_display": c.duration_display or f"{c.duration_hours}h",
+            "competency_id": target_cid,
+            "competency_name": target_cname,
+            "topic_id": c.topic_id,
+            "topic_name": c.topic.name if c.topic else None,
+            "match_percent": sd["match_percent"],
+            "explanation": sd["explanation"],
+            "is_igot": c.is_igot if c.is_igot is not None else True,
+            "confidence": "High"
+        }
+    else:
+        all_recs = RecommendationService.get_personalized_recommendations(db, user, limit=1)
+        canonical_rec = all_recs[0] if all_recs else None
+
+    # 3. Identify Canonical Diagnosis strictly for target_cid
+    cached_diag = db.query(AIDiagnosis).filter(
+        AIDiagnosis.user_id == user.id,
+        AIDiagnosis.competency_id == target_cid
+    ).order_by(AIDiagnosis.created_at.desc()).first()
+
+    weak_sub = primary_gap.get("weakest_subtopic") if primary_gap else None
+
+    if cached_diag:
+        canonical_diag = {
+            "assessment_id": cached_diag.assessment_id,
+            "competency_id": target_cid,
+            "competency_name": target_cname,
+            "domain": target_domain,
+            "primary_gap": cached_diag.primary_gap or f"{target_cname} Deficit",
+            "root_cause": cached_diag.root_cause,
+            "explanation": cached_diag.explanation,
+            "confidence": cached_diag.confidence or 88.0,
+            "weakest_subtopic_name": weak_sub,
+            "is_cached": True
+        }
+    else:
+        is_assessed = primary_gap.get("is_assessed", False) if primary_gap else False
+        gap_val = primary_gap.get("gap") if primary_gap else 0.0
+        target_score = primary_gap.get("target_score", 70.0) if primary_gap else 70.0
+        curr_score = primary_gap.get("current_score") if primary_gap else None
+
+        if is_assessed and gap_val and gap_val > 0:
+            explanation = (
+                f"Assessment telemetry indicates an active {gap_val} point deficit against the "
+                f"national {target_score}% benchmark. Dedicated intervention in {target_cname} is recommended."
+            )
+            root_cause = (
+                f"Subtopic mastery deficit observed in {weak_sub}."
+                if weak_sub
+                else f"Foundational application gaps identified in {target_cname}."
+            )
+        elif is_assessed:
+            explanation = f"Proficiency verified at {curr_score}% against the {target_score}% role benchmark."
+            root_cause = "Core competencies benchmark satisfied."
+        else:
+            explanation = f"Diagnostic assessment pending to establish verified baseline for {target_cname}."
+            root_cause = "Initial role-specific baseline evaluation required."
+
+        canonical_diag = {
+            "assessment_id": None,
+            "competency_id": target_cid,
+            "competency_name": target_cname,
+            "domain": target_domain,
+            "primary_gap": f"{target_cname} Deficit" if (is_assessed and gap_val and gap_val > 0) else f"{target_cname} Evaluation",
+            "root_cause": root_cause,
+            "explanation": explanation,
+            "confidence": 88.0,
+            "weakest_subtopic_name": weak_sub,
+            "is_cached": False
+        }
+
+    role_name = None
+    if user.role_id:
+        r_obj = db.query(Role).filter(Role.id == user.role_id).first()
+        if r_obj:
+            role_name = r_obj.name
+    if not role_name:
+        role_name = user.designation or "Statistical Officer"
+
+    return {
+        "user_id": user.id,
+        "role_id": user.role_id,
+        "role_name": role_name,
+        "primary_gap": primary_gap,
+        "canonical_recommendation": canonical_rec,
+        "canonical_diagnosis": canonical_diag,
+        "competencies": detailed,
+        "ranked_gaps": ranked_gaps
+    }
+
 
 def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
     """
@@ -250,7 +421,8 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
     - Priority bottleneck deficit gap (only for assessed gaps)
     - Subtopic granular insight
     """
-    detailed = get_user_detailed_competencies(db, user)
+    state = get_canonical_learner_gap_state(db, user)
+    detailed = state["competencies"]
     
     total_weighted_score = 0.0
     assessed_weights = 0.0
@@ -262,8 +434,7 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
 
     strongest_item = None
     max_score = -1.0
-    bottleneck_item = None
-    max_weighted_gap = -1.0
+    bottleneck_item = state["primary_gap"] if (state["primary_gap"] and state["primary_gap"].get("is_assessed") and (state["primary_gap"].get("gap") or 0) > 0) else None
     weakest_subtopic_info = None
 
     for item in detailed:
@@ -289,28 +460,21 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
                     "target_score": target
                 }
 
-            # Track priority bottleneck gap strictly among assessed competencies
-            gap = max(0.0, target - curr)
-            w_gap = gap * w
-            if w_gap > max_weighted_gap and gap > 0:
-                max_weighted_gap = w_gap
-                bottleneck_item = {
-                    "competency_id": item["competency_id"],
-                    "competency_name": item["competency_name"],
-                    "domain": item.get("domain", "Statistical Standard"),
-                    "current_score": curr,
-                    "target_score": target,
-                    "gap": round(gap, 1),
-                    "weight": w
-                }
-
-        # Track weakest subtopic (must be inside the detailed loop)
+        # Track weakest subtopic
         if item.get("weakest_subtopic") and (not weakest_subtopic_info or (item.get("gap") or 0) > (weakest_subtopic_info.get("gap") or 0)):
             weakest_subtopic_info = {
                 "competency_name": item["competency_name"],
                 "subtopic_name": item["weakest_subtopic"],
                 "gap": item.get("gap") or 0
             }
+
+    # If bottleneck_item is present and has weakest_subtopic, align weakest_subtopic_info with bottleneck_item
+    if bottleneck_item and bottleneck_item.get("weakest_subtopic"):
+        weakest_subtopic_info = {
+            "competency_name": bottleneck_item["competency_name"],
+            "subtopic_name": bottleneck_item["weakest_subtopic"],
+            "gap": bottleneck_item.get("gap") or 0
+        }
 
     # Track total improvement points gained since initial baseline assessment
     all_scores = db.query(CompetencyScore).filter(
@@ -356,6 +520,8 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
         "critical_gaps_count": critical_gaps_count,
         "strongest_competency": strongest_item,
         "priority_bottleneck_gap": bottleneck_item,
+        "canonical_recommendation": state["canonical_recommendation"],
+        "canonical_diagnosis": state["canonical_diagnosis"],
         "weakest_subtopic_insight": weakest_subtopic_info,
         "diagnostic_summary": summary
     }

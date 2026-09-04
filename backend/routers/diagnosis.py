@@ -231,7 +231,9 @@ def get_assessment_diagnosis(
     for ans in incorrect_answers:
         q = ans.question or ans.material_quiz_question
         top_name = None
-        if hasattr(q, "topic") and q.topic:
+        if hasattr(q, "concept") and q.concept:
+            top_name = q.concept
+        elif hasattr(q, "topic") and q.topic:
             top_name = q.topic.name
         elif hasattr(q, "material") and q.material:
             top_name = q.material.title
@@ -261,6 +263,7 @@ def get_assessment_diagnosis(
             "selected_answer": sel_text,
             "correct_answer": corr_text,
             "topic": top_name,
+            "concept": getattr(q, "concept", None),
             "confidence": c_lvl,
             "difficulty": int(q.difficulty) if q and str(getattr(q, "difficulty", "2")).isdigit() else 2
         })
