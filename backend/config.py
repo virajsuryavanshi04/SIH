@@ -29,11 +29,19 @@ class Settings(BaseSettings):
         url = self.DATABASE_URL
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql://", 1)
-        elif url == "sqlite:///./smartlearn.db":
+        elif url.startswith("sqlite:///") and not url.startswith("sqlite:///:memory:"):
+            import posixpath
             from pathlib import Path
-            backend_db = Path(__file__).resolve().parent / "smartlearn.db"
-            if backend_db.exists():
-                return f"sqlite:///{backend_db.as_posix()}"
+            db_path_str = url[len("sqlite:///"):]
+            if not posixpath.isabs(db_path_str):
+                backend_dir = Path(__file__).resolve().parent
+                p = Path(db_path_str)
+                # If path was given relative to repo root (e.g. backend/smartlearn.db)
+                if p.parts and p.parts[0] == "backend":
+                    abs_path = (backend_dir.parent / p).resolve()
+                else:
+                    abs_path = (backend_dir / p).resolve()
+                return f"sqlite:///{abs_path.as_posix()}"
         return url
 
     def validate_production_secrets(self) -> None:
