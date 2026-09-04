@@ -381,6 +381,10 @@ def seed_database(db: Session):
         q.status = "approved"
     db.commit()
 
+    # --- 15. Calibrated Assessment Support Questions for Full Role Coverage ---
+    from seed.seed_calibrated_questions import seed_calibrated_questions
+    seed_calibrated_questions(db)
+
     # --- 14. Baseline Official Learning Materials & Multi-Modal Content ---
     from models.material import LearningMaterial, MaterialNote, MaterialFlashcardDeck, MaterialFlashcard, MaterialMindMap, MaterialQuizQuestionSet, MaterialQuizQuestion, MaterialQuizOption
     
