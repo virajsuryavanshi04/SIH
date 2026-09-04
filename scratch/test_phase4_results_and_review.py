@@ -21,6 +21,8 @@ from auth.security import create_access_token
 client = TestClient(app)
 
 class TestPhase4ResultsAndReview(unittest.TestCase):
+    comp_ids = [1, 2, 3, 4, 5]
+
     @classmethod
     def setUpClass(cls):
         cls.db: Session = next(get_db())
@@ -70,7 +72,8 @@ class TestPhase4ResultsAndReview(unittest.TestCase):
         start_res = client.post("/api/assessments/start", headers=self.headers_a, json={
             "assessment_type": "adaptive",
             "question_type": "SHORT_MCQ",
-            "question_count": 10
+            "question_count": 10,
+            "competency_ids": self.comp_ids
         })
         self.assertEqual(start_res.status_code, 200)
         start_data = start_res.json()
@@ -103,7 +106,8 @@ class TestPhase4ResultsAndReview(unittest.TestCase):
             start_res = client.post("/api/assessments/start", headers=self.headers_a, json={
                 "assessment_type": "adaptive",
                 "question_type": "SHORT_MCQ",
-                "question_count": target_count
+                "question_count": target_count,
+                "competency_ids": self.comp_ids
             })
             self.assertEqual(start_res.status_code, 200)
             ass_id = start_res.json()["assessment_id"]
@@ -153,7 +157,8 @@ class TestPhase4ResultsAndReview(unittest.TestCase):
         start_res = client.post("/api/assessments/start", headers=self.headers_a, json={
             "assessment_type": "adaptive",
             "question_type": "SHORT_MCQ",
-            "question_count": 10
+            "question_count": 10,
+            "competency_ids": self.comp_ids
         })
         ass_id = start_res.json()["assessment_id"]
         current_q = start_res.json()["questions"][0]
@@ -201,7 +206,8 @@ class TestPhase4ResultsAndReview(unittest.TestCase):
         start_res = client.post("/api/assessments/start", headers=self.headers_a, json={
             "assessment_type": "adaptive",
             "question_type": "SHORT_MCQ",
-            "question_count": 10
+            "question_count": 10,
+            "competency_ids": self.comp_ids
         })
         ass_id = start_res.json()["assessment_id"]
         current_q = start_res.json()["questions"][0]
@@ -249,7 +255,8 @@ class TestPhase4ResultsAndReview(unittest.TestCase):
         start_res = client.post("/api/assessments/start", headers=self.headers_a, json={
             "assessment_type": "adaptive",
             "question_type": "SHORT_MCQ",
-            "question_count": 10
+            "question_count": 10,
+            "competency_ids": self.comp_ids
         })
         ass_id = start_res.json()["assessment_id"]
         current_q = start_res.json()["questions"][0]

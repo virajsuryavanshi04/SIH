@@ -538,27 +538,6 @@ class AdaptiveAssessmentService:
         db.commit()
 
         if gen_required or not next_q:
-            # Fallback: if scheduled competency pool is exhausted, continue the
-            # assessment from another role competency instead of terminating early.
-            for alt_cid in state.get("competency_ids", []):
-                if alt_cid == next_cid:
-                    continue
-                alt_q, alt_gen_required = cls.select_adaptive_question(
-                    db, user_id, alt_cid, None, next_diff, state["seen_question_ids"], question_type=q_type_constraint
-                )
-                if alt_q and not alt_gen_required:
-                    next_q = alt_q
-                    next_cid = alt_cid
-                    next_tid = alt_q.topic_id
-                    state["current_competency_id"] = next_cid
-                    state["current_topic_id"] = next_tid
-                    state["pending_question_id"] = next_q.id
-                    assessment.adaptive_state = state
-                    flag_modified(assessment, "adaptive_state")
-                    db.commit()
-                    break
-
-        if not next_q:
             return {
                 "is_completed": False,
                 "question_generation_required": True,
