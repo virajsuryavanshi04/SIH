@@ -201,6 +201,7 @@ class AdaptiveAssessmentService:
         from sqlalchemy import or_
 
         def apply_type_filter(q_query):
+            q_query = q_query.filter(Question.options.any())
             if norm_type == "SHORT_MCQ":
                 return q_query.filter(or_(Question.question_type == "SHORT_MCQ", Question.question_type.is_(None)))
             elif norm_type in ["WORD_PROBLEM", "CASE_STUDY"]:
@@ -290,7 +291,8 @@ class AdaptiveAssessmentService:
         # 6. Format relaxation within SAME competency (session-only fallback)
         relax_format_query = db.query(Question).filter(
             Question.competency_id == competency_id,
-            Question.status == "approved"
+            Question.status == "approved",
+            Question.options.any()
         )
         if excluded_ids:
             relax_format_query = relax_format_query.filter(Question.id.not_in(excluded_ids))

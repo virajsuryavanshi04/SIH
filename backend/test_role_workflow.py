@@ -42,24 +42,24 @@ def test_role_propagation_and_persistence_workflow():
     token = login_res.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
-    # Initial onboarding as Survey Officer (Role ID 2)
+    # Initial onboarding as Data Analyst (Role ID 2)
     onboard_res = client.post("/api/users/onboarding", headers=headers, json={
         "role_id": 2,
         "department_id": 2,
         "experience_years": 4
     })
     assert onboard_res.status_code == 200
-    assert onboard_res.json()["role_name"] == "Survey Officer"
-    print(f"  -> Initialized as: Survey Officer (Role ID #2)")
+    assert onboard_res.json()["role_name"] == "Data Analyst"
+    print(f"  -> Initialized as: Data Analyst (Role ID #2)")
 
     # Verify initial role in /api/users/me and /api/auth/me
     me_res = client.get("/api/users/me", headers=headers)
     assert me_res.status_code == 200
-    assert me_res.json()["role_name"] == "Survey Officer"
+    assert me_res.json()["role_name"] == "Data Analyst"
     assert me_res.json()["role_id"] == 2
 
     # 3. Change role to Statistical Officer (Role ID 1)
-    print("\n[TEST A.2]: Changing role: Survey Officer -> Statistical Officer (Role ID #1)...")
+    print("\n[TEST A.2]: Changing role: Data Analyst -> Statistical Officer (Role ID #1)...")
     role_update_res = client.put("/api/users/me/role", headers=headers, json={"role_id": 1})
     assert role_update_res.status_code == 200
     updated_profile = role_update_res.json()
@@ -81,39 +81,46 @@ def test_role_propagation_and_persistence_workflow():
     ass_data = ass_res.json()
     ass_id = ass_data["assessment_id"]
     questions = ass_data["questions"]
-    assert len(questions) >= 4
+    assert len(questions) >= 1
 
     # Verify that sampled questions belong to Statistical Officer required competencies
     stat_role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == 1).all()
     stat_comp_ids = {r.competency_id for r in stat_role_reqs}
     for q in questions:
         assert q["competency_id"] in stat_comp_ids, f"Question #{q['id']} competency {q['competency_id']} not in Statistical Officer framework!"
-    print(f"  -> Assessment #{ass_id} successfully created with {len(questions)} questions strictly sampled from Statistical Officer framework.")
+    print(f"  -> Assessment #{ass_id} successfully created with question strictly sampled from Statistical Officer framework.")
 
-    # 6. Complete assessment and verify score calculation against Statistical Officer targets
-    print("\n[TEST A.4]: Completing assessment and scoring against Statistical Officer targets...")
-    for q in questions:
-        c_opt = db.query(QuestionOption).filter(QuestionOption.question_id == q["id"], QuestionOption.is_correct == True).first()
-        client.post(f"/api/assessments/{ass_id}/submit-answer", headers=headers, json={
-            "question_id": q["id"],
-            "selected_option_id": c_opt.id if c_opt else q["options"][0]["id"],
+    # 6. Complete assessment adaptively and verify score calculation against Statistical Officer targets
+    print("\n[TEST A.4]: Completing assessment adaptively and scoring against Statistical Officer targets...")
+    current_q = questions[0]
+    comp_result = None
+    while True:
+        c_opt = db.query(QuestionOption).filter(QuestionOption.question_id == current_q["id"], QuestionOption.is_correct == True).first()
+        opt_id = c_opt.id if c_opt else current_q["options"][0]["id"]
+        step_res = client.post(f"/api/assessments/{ass_id}/adaptive-next", headers=headers, json={
+            "question_id": current_q["id"],
+            "selected_option_id": opt_id,
             "confidence_level": 3,
             "time_taken_seconds": 12
         })
+        assert step_res.status_code == 200
+        step_data = step_res.json()
+        if step_data.get("is_completed"):
+            comp_result = step_data.get("result")
+            break
+        current_q = step_data["next_question"]
 
-    complete_res = client.post(f"/api/assessments/{ass_id}/complete", headers=headers)
-    assert complete_res.status_code == 200
-    comp_result = complete_res.json()
+    assert comp_result is not None
     print(f"  -> Assessment #{ass_id} scored: {comp_result.get('overall_score')}% against Statistical Officer benchmarks.")
 
     # ------------------------------------------------------------
-    # TEST B: Change Role to Data Analyst (Role ID 3) and verify history preservation
+    # TEST B: Change Role to Data Management Officer (Role ID 3) and verify history preservation
     # ------------------------------------------------------------
-    print("\n[TEST B.1]: Changing role: Statistical Officer -> Data Analyst (Role ID #3)...")
+    print("\n[TEST B.1]: Changing role: Statistical Officer -> Data Management Officer (Role ID #3)...")
     role_update_res2 = client.put("/api/users/me/role", headers=headers, json={"role_id": 3})
     assert role_update_res2.status_code == 200
     da_profile = role_update_res2.json()
-    assert da_profile["role_name"] == "Data Analyst"
+    assert da_profile["role_name"] == "Data Management Officer"
     assert da_profile["role_id"] == 3
     print(f"  -> Role updated to: {da_profile['role_name']}")
 
@@ -123,16 +130,16 @@ def test_role_propagation_and_persistence_workflow():
     assert any(a["id"] == ass_id for a in hist_assessments)
     print(f"  -> Historical Assessment #{ass_id} preserved intact.")
 
-    # Start new assessment under Data Analyst
-    print("\n[TEST B.2]: Launching new assessment under Data Analyst framework...")
+    # Start new assessment under Data Management Officer
+    print("\n[TEST B.2]: Launching new assessment under Data Management Officer framework...")
     da_ass_res = client.post("/api/assessments/start", headers=headers, json={"assessment_type": "baseline"})
     assert da_ass_res.status_code == 200
     da_questions = da_ass_res.json()["questions"]
     da_role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == 3).all()
     da_comp_ids = {r.competency_id for r in da_role_reqs}
     for q in da_questions:
-        assert q["competency_id"] in da_comp_ids, f"Question #{q['id']} competency {q['competency_id']} not in Data Analyst framework!"
-    print(f"  -> New Assessment #{da_ass_res.json()['assessment_id']} questions strictly mapped to Data Analyst framework.")
+        assert q["competency_id"] in da_comp_ids, f"Question #{q['id']} competency {q['competency_id']} not in Data Management Officer framework!"
+    print(f"  -> New Assessment #{da_ass_res.json()['assessment_id']} questions strictly mapped to Data Management Officer framework.")
 
     # ------------------------------------------------------------
     # TEST E: Security and Tenant Scoping

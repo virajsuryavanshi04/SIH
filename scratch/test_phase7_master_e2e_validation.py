@@ -457,13 +457,10 @@ class TestPhase7MasterE2EValidation(unittest.TestCase):
 
         # Print stage-by-stage results
         print("\n" + "=" * 60)
-        print("SMARTLEARN PHASE 7 MASTER E2E VALIDATION")
+        print("STAGE EXECUTION SUMMARY (14/14 STAGES)")
         print("=" * 60)
         for r in results_summary:
             print(r)
-        print("=" * 60)
-        print("PHASE 7 MASTER E2E RESULT: PASS")
-        print("RELEASE CERTIFICATION: READY")
         print("=" * 60 + "\n")
 
     def test_baseline_data_preservation(self):
@@ -483,4 +480,21 @@ class TestPhase7MasterE2EValidation(unittest.TestCase):
         self.assertEqual(m49.processing_status, "completed")
 
 if __name__ == "__main__":
-    unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestPhase7MasterE2EValidation)
+    runner = unittest.TextTestRunner(verbosity=2)
+    test_result = runner.run(suite)
+
+    print("\n" + "=" * 60)
+    print("SMARTLEARN PHASE 7 MASTER E2E FINAL EVALUATION")
+    print("=" * 60)
+    if test_result.wasSuccessful():
+        print("PHASE 7 MASTER E2E RESULT: PASS")
+        print("RELEASE CERTIFICATION: READY")
+        print("=" * 60 + "\n")
+        sys.exit(0)
+    else:
+        print("PHASE 7 MASTER E2E RESULT: FAIL")
+        print("RELEASE CERTIFICATION: NOT READY")
+        print(f"Failures: {len(test_result.failures)}, Errors: {len(test_result.errors)}")
+        print("=" * 60 + "\n")
+        sys.exit(1)

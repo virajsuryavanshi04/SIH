@@ -368,9 +368,13 @@ def seed_database(db: Session):
     db.add(prog)
     db.commit()
 
-    # --- 13. Question Bank Import (80 Governed Items) ---
+    # --- 13. Synchronize Official 12 Roles, 20 Competencies & 60 iGOT Courses ---
+    from seed.import_igot_catalogue import sync_igot_catalogue
+    sync_igot_catalogue(db)
+
+    # --- 14. Question Bank Import (80 Governed Items) ---
     from seed.import_question_bank import import_questions
-    import_questions()
+    import_questions(db=db)
 
     # Ensure all imported bank questions have approved status for assessments
     for q in db.query(Question).filter(Question.bank_question_id.isnot(None)).all():
@@ -529,7 +533,3 @@ def seed_database(db: Session):
             )
             db.add(diag_rec)
         db.commit()
-
-    # --- 13. Synchronize Official 12 Roles, 20 Competencies & 60 iGOT Courses ---
-    from seed.import_igot_catalogue import sync_igot_catalogue
-    sync_igot_catalogue(db)

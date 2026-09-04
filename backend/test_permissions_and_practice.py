@@ -115,7 +115,7 @@ def test_permissions_and_practice_workflow():
     # TEST 5: Role Switch & Benchmark Target Recalibration
     # ------------------------------------------------------------
     print("\n[TEST 5]: Testing Role Update: Statistical Officer -> Data Analyst...")
-    role_change_res = client.put("/api/users/me/role", headers=learner_headers, json={"role_id": 3})
+    role_change_res = client.put("/api/users/me/role", headers=learner_headers, json={"role_id": 2})
     assert role_change_res.status_code == 200
     updated_user = role_change_res.json()
     assert updated_user["role_name"] == "Data Analyst"

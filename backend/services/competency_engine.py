@@ -302,24 +302,32 @@ class CompetencyEngine:
                 UserCompetency.competency_id == cid
             ).first()
 
+            if assessment.assessment_type == "adaptive_reassessment":
+                # Targeted reassessment score is the direct evaluated score from this reassessment session
+                final_score = round((sum(1 for e in session_items if e.is_correct) / len(session_items)) * 100.0, 1) if session_items else (estimation.score or 0.0)
+                final_status = "strong" if final_score >= target else ("on_track" if final_score >= target - 10.0 else ("critical_gap" if (target - final_score) > 20.0 else "needs_attention"))
+            else:
+                final_score = estimation.score
+                final_status = estimation.status
+
             if uc:
-                uc.current_score = estimation.score
+                uc.current_score = final_score
                 uc.target_score = target
                 uc.confidence = estimation.confidence
                 uc.evidence_count = estimation.evidence_count
                 uc.evidence_level = estimation.evidence_level
-                uc.status = estimation.status
+                uc.status = final_status
                 uc.last_assessed = datetime.utcnow()
             else:
                 uc = UserCompetency(
                     user_id=user_id,
                     competency_id=cid,
-                    current_score=estimation.score,
+                    current_score=final_score,
                     target_score=target,
                     confidence=estimation.confidence,
                     evidence_count=estimation.evidence_count,
                     evidence_level=estimation.evidence_level,
-                    status=estimation.status,
+                    status=final_status,
                     last_assessed=datetime.utcnow()
                 )
                 db.add(uc)
@@ -328,7 +336,7 @@ class CompetencyEngine:
             cs = CompetencyScore(
                 user_id=user_id,
                 competency_id=cid,
-                score=estimation.score or 0.0,
+                score=final_score or 0.0,
                 assessment_id=assessment_id,
                 source=assessment.assessment_type or "assessment",
                 assessed_at=datetime.utcnow()

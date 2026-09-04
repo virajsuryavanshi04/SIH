@@ -728,6 +728,39 @@ def generate_material_notes(
     db.commit()
     db.refresh(note_obj)
 
+    if settings.AI_PROVIDER == "mock":
+        _bg_generate_notes(id, note_obj.id)
+        db.refresh(note_obj)
+        comp_name = mat.competency.name if mat.competency else None
+        topic_name = mat.topic.name if mat.topic else None
+        raw_sections = note_obj.content.get("sections", []) if isinstance(note_obj.content, dict) else []
+        clean_sections = []
+        for s in raw_sections:
+            if isinstance(s, dict):
+                h = str(s.get("heading") or "Section").strip()
+                c = s.get("content")
+                if isinstance(c, list):
+                    c_str = "\n• " + "\n• ".join(str(item).strip() for item in c if item)
+                elif isinstance(c, dict):
+                    c_str = "\n• " + "\n• ".join(f"{k}: {val}" for k, val in c.items())
+                else:
+                    c_str = str(c or "").strip()
+                clean_sections.append({"heading": h, "content": c_str})
+        return {
+            "id": note_obj.id,
+            "material_id": mat.id,
+            "title": note_obj.title,
+            "material_title": mat.title,
+            "material_scope": mat.material_scope,
+            "competency_name": comp_name,
+            "topic_name": topic_name,
+            "sections": clean_sections,
+            "version": note_obj.version,
+            "status": "ready",
+            "message": "Notes generated successfully",
+            "created_at": note_obj.created_at
+        }
+
     background_tasks.add_task(_bg_generate_notes, id, note_obj.id)
 
     return {
@@ -828,6 +861,31 @@ def generate_material_flashcards(
     db.commit()
     db.refresh(deck_obj)
 
+    if settings.AI_PROVIDER == "mock":
+        _bg_generate_flashcards(id, deck_obj.id, count)
+        db.refresh(deck_obj)
+        comp_name = mat.competency.name if mat.competency else None
+        topic_name = mat.topic.name if mat.topic else None
+        cards = db.query(MaterialFlashcard).filter(MaterialFlashcard.deck_id == deck_obj.id).order_by(MaterialFlashcard.order).all()
+        return {
+            "deck_id": deck_obj.id,
+            "material_id": mat.id,
+            "title": deck_obj.title,
+            "material_title": mat.title,
+            "material_scope": mat.material_scope,
+            "competency_name": comp_name,
+            "topic_name": topic_name,
+            "version": deck_obj.version,
+            "total_cards": len(cards),
+            "status": "ready",
+            "cards": [
+                {"id": c.id, "front": c.front, "back": c.back, "order": c.order}
+                for c in cards
+            ],
+            "message": "Flashcards generated successfully",
+            "created_at": deck_obj.created_at
+        }
+
     background_tasks.add_task(_bg_generate_flashcards, id, deck_obj.id, count)
 
     return {
@@ -920,6 +978,26 @@ def generate_material_mind_map(
     db.add(mm_obj)
     db.commit()
     db.refresh(mm_obj)
+
+    if settings.AI_PROVIDER == "mock":
+        _bg_generate_mind_map(id, mm_obj.id)
+        db.refresh(mm_obj)
+        comp_name = mat.competency.name if mat.competency else None
+        topic_name = mat.topic.name if mat.topic else None
+        return {
+            "id": mm_obj.id,
+            "material_id": mat.id,
+            "title": mm_obj.root_node.get("label", mat.title) if isinstance(mm_obj.root_node, dict) else mat.title,
+            "material_title": mat.title,
+            "material_scope": mat.material_scope,
+            "competency_name": comp_name,
+            "topic_name": topic_name,
+            "root_node": mm_obj.root_node,
+            "version": mm_obj.version,
+            "status": "ready",
+            "message": "Mind map generated successfully",
+            "created_at": mm_obj.created_at
+        }
 
     background_tasks.add_task(_bg_generate_mind_map, id, mm_obj.id)
 

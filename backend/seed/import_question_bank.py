@@ -9,6 +9,7 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
+from sqlalchemy.orm import Session
 from database import SessionLocal
 from models.assessment import Question, QuestionOption
 from models.competency import Competency, CompetencyTopic
@@ -18,14 +19,14 @@ logger = logging.getLogger("import_question_bank")
 
 # 1. Canonical Competency Name Mapping (JSON competency -> DB competency name)
 COMPETENCY_MAPPING = {
-    "Statistical Methods": "Statistical Methods",
-    "Survey Methodology": "Survey Methodology",
-    "Sampling Techniques": "Sampling Techniques",
-    "Data Quality & Validation": "Data Quality",
-    "Data Analysis": "Data Analysis",
+    "Statistical Methods": "Statistical Literacy & Reasoning",
+    "Survey Methodology": "Survey Operations & Data Collection",
+    "Sampling Techniques": "Survey Operations & Data Collection",
+    "Data Quality & Validation": "Data Quality & Continuous Improvement",
+    "Data Analysis": "Statistical & Data Analysis",
     "Data Visualization": "Data Visualization",
-    "Statistical Programming": "Statistical Programming",
-    "Data Interpretation": "Data Interpretation",
+    "Statistical Programming": "R Programming",
+    "Data Interpretation": "National Accounts & Official Statistics",
 }
 
 # 2. Canonical Topic Mapping (JSON (competency, topic) -> DB topic name)
@@ -160,7 +161,7 @@ COGNITIVE_MAPPING = {
 }
 
 
-def import_questions(json_path: str = None, dry_run: bool = False):
+def import_questions(db: Session = None, json_path: str = None, dry_run: bool = False):
     """
     Imports the 80-question bank into the SmartLearn database.
     Idempotent: Skips questions if bank_question_id already exists.
@@ -182,7 +183,10 @@ def import_questions(json_path: str = None, dry_run: bool = False):
 
     logger.info(f"Question bank version: {bank_version}, Total questions in file: {len(questions)}")
 
-    db = SessionLocal()
+    should_close = False
+    if db is None:
+        db = SessionLocal()
+        should_close = True
     try:
         # Pre-fetch competencies and topics for fast lookup
         competencies = {c.name: c.id for c in db.query(Competency).all()}
@@ -317,7 +321,8 @@ def import_questions(json_path: str = None, dry_run: bool = False):
         logger.exception(f"Error during import: {e}")
         return {"status": "error", "message": str(e)}
     finally:
-        db.close()
+        if should_close:
+            db.close()
 
 
 if __name__ == "__main__":
