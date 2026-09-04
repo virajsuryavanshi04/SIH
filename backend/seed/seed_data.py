@@ -78,10 +78,15 @@ def seed_database(db: Session):
         CompetencyTopic(id=8, competency_id=6, name="Stratified Random Sampling", description="Neyman optimal allocation and stratum weighting"),
         CompetencyTopic(id=9, competency_id=6, name="Cluster & Multi-Stage Sampling", description="Primary sampling units and design effects"),
 
-        # Competency 5: Spreadsheet Analytics / Data Quality
-        CompetencyTopic(id=13, competency_id=5, name="Rule-Based Validation", description="Range, consistency, and format validation"),
-        CompetencyTopic(id=14, competency_id=5, name="Anomaly & Outlier Scoring", description="Statistical detection of erroneous values"),
-        CompetencyTopic(id=15, competency_id=5, name="Record Linkage", description="Probabilistic matching of administrative records"),
+        # Competency 5: Spreadsheet Analytics
+        CompetencyTopic(id=58, competency_id=5, name="Lookup Functions & Dynamic References", description="XLOOKUP, VLOOKUP exact match, INDEX/MATCH matrix lookup, approximate match ranges"),
+        CompetencyTopic(id=59, competency_id=5, name="PivotTables & Data Summarization", description="PivotTable aggregation, grouping date fields, calculated fields, slicers, filtering"),
+        CompetencyTopic(id=60, competency_id=5, name="Data Modeling & Conditional Formulas", description="SUMIFS, COUNTIFS multi-criteria filtering, IFERROR, absolute referencing, logical models"),
+
+        # Competency 13: Data Quality & Continuous Improvement
+        CompetencyTopic(id=13, competency_id=13, name="Rule-Based Validation", description="Range, consistency, and format validation"),
+        CompetencyTopic(id=14, competency_id=13, name="Anomaly & Outlier Scoring", description="Statistical detection of erroneous values"),
+        CompetencyTopic(id=15, competency_id=13, name="Record Linkage", description="Probabilistic matching of administrative records"),
 
         # Competency 8: Policy Analytics & Evidence Use / National Accounts
         CompetencyTopic(id=20, competency_id=8, name="National Accounts", description="GDP, GVA, and macroeconomic indicators"),
@@ -246,7 +251,8 @@ def seed_database(db: Session):
             ("In multivariate socioeconomic modeling, what is the primary purpose of cross-validation?", "To assess how model inferences generalize to an independent unseen dataset", "To increase the computational speed of model estimation", "To automatically remove missing records from the registry", "To reduce the number of predictor variables to one", "Cross-validation guards against overfitting by evaluating models on out-of-fold validation sets.")
         ],
         5: [
-            ("Which data quality technique directly identifies duplicated administrative records across disjoint registries?", "Probabilistic Record Linkage using similarity metrics", "K-Means cluster imputation", "Principal Component Analysis", "Cross-Validation fold splitting", "Probabilistic Record Linkage matches records across databases using weighted similarity scores.")
+            ("In Microsoft Excel, what is the default behavior of the fourth argument [range_lookup] in the VLOOKUP function if it is omitted?", "It defaults to TRUE (approximate match), requiring the first column of the lookup table to be sorted in ascending order.", "It defaults to FALSE (exact match), returning an error if no exact match exists.", "It searches for wildcard characters only.", "It searches from the rightmost column to the leftmost column.", "When omitted, the [range_lookup] argument in VLOOKUP defaults to TRUE, which searches for an approximate match and requires the lookup column to be sorted in ascending order. For exact matches, FALSE or 0 must be explicitly supplied."),
+            ("In an Excel PivotTable, when a numerical field containing blank (empty) cells is dragged into the Values area, what default aggregation summary function does Excel apply?", "Count (because blank cells prevent Excel from defaulting to Sum)", "Sum (automatically treating blank cells as 0)", "Average (ignoring blank cells)", "Distinct Count", "If all cells in a column are strictly numeric, Excel defaults to 'Sum'. However, if even a single cell in the source column is blank or contains text, Excel automatically defaults the summary function to 'Count'.")
         ],
         6: [
             ("Which statistical visualization is most suitable for detecting outliers and evaluating skewness in continuous socioeconomic variables?", "Box and Whisker plot", "Pie chart", "Stacked area chart", "Radial donut chart", "Box plots display median, interquartile range (IQR), and explicitly demarcate outliers beyond 1.5 * IQR.")

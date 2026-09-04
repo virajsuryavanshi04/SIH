@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from database import get_db
 from auth.dependencies import get_current_user, require_admin
 from models.user import User
 from models.material import LearningMaterial, GeneratedQuestion, MaterialQuizQuestionSet, MaterialQuizQuestion, MaterialQuizOption
-from models.assessment import Assessment, Question, QuestionOption
+from models.assessment import Assessment, Question, QuestionOption, QuestionReviewHistory
 from models.competency import Competency
 from services.document_service import validate_file, save_upload, extract_text
 from ai.service import AIService
@@ -1328,6 +1329,100 @@ def start_material_quiz(
                 order=opt_item.get("order", 1)
             )
             db.add(m_opt)
+
+    # 5b. Closed-loop bridge: If official document, bridge into Question bank for Admin Review with deduplication
+    if material.material_scope == "OFFICIAL_COMPETENCY":
+        import json
+        for q_data in raw_questions:
+            q_text = (q_data.get("question_text") or q_data.get("text") or "").strip()
+            if not q_text:
+                continue
+
+            prefix = q_text[:50]
+            existing_q = db.query(Question).filter(
+                Question.source_material_id == material.id,
+                or_(
+                    Question.question_text.ilike(f"%{prefix}%"),
+                    Question.text.ilike(f"%{prefix}%")
+                )
+            ).first()
+
+            if not existing_q:
+                target_comp_id = material.competency_id or 1
+                target_topic_id = material.topic_id
+
+                diff_val = str(q_data.get("difficulty", "2")).lower()
+                if diff_val in ["1", "easy", "beginner"]:
+                    norm_diff = "1"
+                elif diff_val in ["3", "hard", "advanced"]:
+                    norm_diff = "3"
+                else:
+                    norm_diff = "2"
+
+                opts_list = q_data.get("options", [])
+                opts_json = json.dumps([
+                    {"text": opt.get("text", ""), "is_correct": bool(opt.get("is_correct", False))}
+                    for opt in opts_list
+                ])
+
+                correct_ans = q_data.get("correct_answer") or next(
+                    (opt.get("text") for opt in opts_list if opt.get("is_correct")),
+                    ""
+                )
+
+                new_q = Question(
+                    competency_id=target_comp_id,
+                    topic_id=target_topic_id,
+                    difficulty=norm_diff,
+                    question_text=q_text,
+                    text=q_text,
+                    options_json=opts_json,
+                    correct_answer=correct_ans,
+                    explanation=q_data.get("explanation") or f"Synthesized from {material.title}",
+                    cognitive_level=q_data.get("cognitive_level", "understand"),
+                    question_type=q_data.get("question_type", "SHORT_MCQ"),
+                    source_type="OFFICIAL_DOCUMENT",
+                    source_title=material.title,
+                    source_organization=getattr(material, "source_organization", None) or "MoSPI / iGOT",
+                    source_reference=q_data.get("source_reference") or f"{material.title} (Official Document)",
+                    source_material_id=material.id,
+                    is_ai_generated=True,
+                    source="material_ai_generated",
+                    status="pending_review",
+                    created_by=current_user.id
+                )
+                db.add(new_q)
+                db.flush()
+
+                for idx, opt_item in enumerate(opts_list):
+                    q_opt = QuestionOption(
+                        question_id=new_q.id,
+                        text=opt_item.get("text", ""),
+                        is_correct=bool(opt_item.get("is_correct", False)),
+                        order=opt_item.get("order", idx + 1)
+                    )
+                    db.add(q_opt)
+
+                review_entry = QuestionReviewHistory(
+                    question_id=new_q.id,
+                    admin_user_id=current_user.id,
+                    previous_status=None,
+                    new_status="pending_review",
+                    action="AI_GENERATE",
+                    comment=f"Auto-synthesized from official document: {material.title}"
+                )
+                db.add(review_entry)
+
+                gen_rec = GeneratedQuestion(
+                    material_id=material.id,
+                    question_id=new_q.id,
+                    generation_config={
+                        "difficulty": norm_diff,
+                        "competency_id": target_comp_id,
+                        "source": "material_quiz_start"
+                    }
+                )
+                db.add(gen_rec)
 
     q_set.status = "ready"
     db.commit()

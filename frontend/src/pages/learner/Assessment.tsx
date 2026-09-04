@@ -397,7 +397,9 @@ export default function Assessment() {
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2DDD5]">
             <div className="text-xs text-[#7A756E] flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-[#A85D4C]" />
-              <span>Target: {questionCount} questions • Real-time streak adaptation active</span>
+              <span>
+                Target: {!user?.baseline_completed ? Math.min(20, Math.max(15, (competencies.length || 8) * 2)) : questionCount} questions • Real-time streak adaptation active
+              </span>
             </div>
 
             <Button 

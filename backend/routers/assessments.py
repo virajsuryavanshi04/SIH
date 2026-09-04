@@ -117,14 +117,15 @@ def start_assessment(
         raise HTTPException(status_code=422, detail="One or more specified competencies do not exist.")
 
     # 5. Check Approved Pool Sufficiency BEFORE Creating Assessment Record
-    # For baseline assessment, every single required competency must have approved questions available
+    # For baseline assessment, every single required competency must have sufficient approved questions (at least 2)
     if is_baseline:
+        required_quota_per_comp = max(2, target_count // m_count)
         for cid in target_comp_ids:
             comp_q_count = db.query(Question).filter(
                 Question.status == "approved",
                 Question.competency_id == cid
             ).count()
-            if comp_q_count == 0:
+            if comp_q_count < required_quota_per_comp:
                 comp_obj = db.query(Competency).filter(Competency.id == cid).first()
                 c_name = comp_obj.name if comp_obj else f"Competency {cid}"
                 raise HTTPException(

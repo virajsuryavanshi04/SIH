@@ -23,6 +23,7 @@ class QuestionUpdateSchema(BaseModel):
     question_text: Optional[str] = None
     difficulty: Optional[str] = None
     question_type: Optional[str] = None
+    competency_id: Optional[int] = None
     topic_id: Optional[int] = None
     cognitive_level: Optional[str] = None
     explanation: Optional[str] = None
@@ -91,6 +92,9 @@ def serialize_question(q: Question, include_history: bool = True) -> Dict[str, A
         "source": q.source or "seeded",
         "status": q.status or "approved",
         "is_ai_generated": bool(q.is_ai_generated),
+        "source_material_id": q.source_material_id,
+        "source_material_title": (q.material.title if q.material else q.source_title) if (q.source_material_id or q.source_title) else None,
+        "material_scope": q.material.material_scope if q.material else None,
         "competency_id": q.competency_id,
         "competency_name": q.competency.name if q.competency else "Official Statistics",
         "topic_id": q.topic_id,
@@ -147,6 +151,7 @@ def list_questions(
     question_type: Optional[str] = None,
     difficulty: Optional[str] = None,
     source: Optional[str] = None,
+    is_ai_generated: Optional[bool] = None,
     search: Optional[str] = None,
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin)
@@ -169,6 +174,8 @@ def list_questions(
         query = query.filter(Question.difficulty == difficulty)
     if source and source != "all":
         query = query.filter(Question.source == source)
+    if is_ai_generated is not None:
+        query = query.filter(Question.is_ai_generated == is_ai_generated)
     if search:
         s = f"%{search.strip()}%"
         query = query.filter(
@@ -268,7 +275,14 @@ def edit_question(
     if not q:
         raise HTTPException(status_code=404, detail="Question not found")
 
-    # 1. Validate Question Type
+    # 1. Validate & update Competency
+    if payload.competency_id is not None:
+        comp = db.query(Competency).filter(Competency.id == payload.competency_id).first()
+        if not comp:
+            raise HTTPException(status_code=422, detail="Competency not found")
+        q.competency_id = payload.competency_id
+
+    # 2. Validate Question Type
     if payload.question_type is not None:
         if payload.question_type not in ["SHORT_MCQ", "WORD_PROBLEM", "CASE_STUDY"]:
             raise HTTPException(status_code=422, detail="Invalid question_type. Allowed: SHORT_MCQ, WORD_PROBLEM, CASE_STUDY")

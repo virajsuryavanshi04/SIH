@@ -24,6 +24,7 @@ export default function QuestionBank() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedDiff, setSelectedDiff] = useState<string>('all');
   const [selectedSource, setSelectedSource] = useState<string>('all');
+  const [aiOnlyFilter, setAiOnlyFilter] = useState<boolean>(false);
   
   // Modals & Dialogs
   const [inspectingQ, setInspectingQ] = useState<any | null>(null);
@@ -65,6 +66,7 @@ export default function QuestionBank() {
           question_type: selectedType !== 'all' ? selectedType : undefined,
           difficulty: selectedDiff !== 'all' ? selectedDiff : undefined,
           source: selectedSource !== 'all' ? selectedSource : undefined,
+          is_ai_generated: aiOnlyFilter ? true : undefined,
           search: search.trim() || undefined
         }),
         competencyApi.getAll()
@@ -90,7 +92,7 @@ export default function QuestionBank() {
 
   useEffect(() => {
     fetchQuestions();
-  }, [statusFilter, selectedComp, selectedType, selectedDiff, selectedSource]);
+  }, [statusFilter, selectedComp, selectedType, selectedDiff, selectedSource, aiOnlyFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,6 +195,7 @@ export default function QuestionBank() {
         explanation: editingQ.explanation,
         difficulty: editingQ.difficulty,
         question_type: editingQ.question_type,
+        competency_id: editingQ.competency_id ? Number(editingQ.competency_id) : undefined,
         source_reference: editingQ.source_reference,
         options: editingQ.options.map((opt: any, idx: number) => ({
           id: opt.id,
@@ -327,6 +330,75 @@ export default function QuestionBank() {
 
       </div>
 
+      {/* Quick Status & AI Filter Tabs */}
+      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-[#FFFDF9] rounded-2xl border border-[#E2DDD5] shadow-2xs">
+        <button
+          type="button"
+          onClick={() => { setStatusFilter('all'); setAiOnlyFilter(false); }}
+          className={cn(
+            "px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer",
+            statusFilter === 'all' && !aiOnlyFilter
+              ? "bg-[#292B2B] text-[#FFFDF9] shadow-xs"
+              : "text-[#7A756E] hover:text-[#292B2B] hover:bg-[#EFEBE4]"
+          )}
+        >
+          All Questions ({stats ? stats.total : '—'})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setStatusFilter('pending_review'); setAiOnlyFilter(true); }}
+          className={cn(
+            "px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5",
+            statusFilter === 'pending_review' && aiOnlyFilter
+              ? "bg-[#B38A3D] text-[#FFFDF9] shadow-xs"
+              : "text-[#B38A3D] bg-[#B38A3D]/10 hover:bg-[#B38A3D]/20"
+          )}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Pending AI Review</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setStatusFilter('pending_review'); setAiOnlyFilter(false); }}
+          className={cn(
+            "px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer",
+            statusFilter === 'pending_review' && !aiOnlyFilter
+              ? "bg-[#B38A3D] text-[#FFFDF9] shadow-xs"
+              : "text-[#7A756E] hover:text-[#292B2B] hover:bg-[#EFEBE4]"
+          )}
+        >
+          All Pending ({stats ? stats.pending_review : '—'})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setStatusFilter('approved'); setAiOnlyFilter(false); }}
+          className={cn(
+            "px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer",
+            statusFilter === 'approved' && !aiOnlyFilter
+              ? "bg-[#2E8B57] text-[#FFFDF9] shadow-xs"
+              : "text-[#7A756E] hover:text-[#292B2B] hover:bg-[#EFEBE4]"
+          )}
+        >
+          Approved Pool ({stats ? stats.approved : '—'})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setStatusFilter('rejected'); setAiOnlyFilter(false); }}
+          className={cn(
+            "px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer",
+            statusFilter === 'rejected' && !aiOnlyFilter
+              ? "bg-[#7D4036] text-[#FFFDF9] shadow-xs"
+              : "text-[#7A756E] hover:text-[#292B2B] hover:bg-[#EFEBE4]"
+          )}
+        >
+          Rejected ({stats ? stats.rejected : '—'})
+        </button>
+      </div>
+
       {/* Multi-Attribute Filter & Search Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-4 bg-[#FFFDF9] rounded-2xl shadow-[0_1px_3px_rgba(45, 48, 48, 0.04)] border border-[#E2DDD5]">
         
@@ -459,13 +531,24 @@ export default function QuestionBank() {
                             <span className={cn("text-[9px] font-mono font-bold px-2 py-0.5 rounded-md border", typeBadge.bg)}>
                               {typeBadge.label}
                             </span>
+                            {(q.is_ai_generated || q.source === 'ai_generated') && (
+                              <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md border bg-[#B38A3D]/15 text-[#B38A3D] border-[#B38A3D]/30 flex items-center gap-1">
+                                🤖 AI
+                              </span>
+                            )}
                           </div>
                           <p className="font-bold text-[#292B2B] line-clamp-2 leading-snug">
                             {q.question_text || q.text}
                           </p>
-                          <span className="text-[10px] font-mono text-[#7A756E] block mt-1 truncate">
-                            Source: {q.source_title || q.source_reference || 'MoSPI Official Standards'}
-                          </span>
+                          {q.source_material_title ? (
+                            <span className="text-[10px] font-mono text-[#A85D4C] font-semibold block mt-1 truncate">
+                              📄 Source Doc: {q.source_material_title} (Official Learning Material)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-mono text-[#7A756E] block mt-1 truncate">
+                              Source: {q.source_title || q.source_reference || 'Official Institutional Standards'}
+                            </span>
+                          )}
                         </td>
 
                         {/* Competency & Topic */}
@@ -483,8 +566,8 @@ export default function QuestionBank() {
                           <span className="text-xs font-bold text-[#292B2B] block">
                             {formatDifficultyLabel(q.difficulty)}
                           </span>
-                          <span className="text-[10px] text-[#7A756E] capitalize block mt-0.5">
-                            {q.source === 'ai_generated' ? '✨ AI Generated' : '🏛️ Seeded'}
+                          <span className="text-[10px] text-[#7A756E] block mt-0.5 font-mono">
+                            {q.is_ai_generated || q.source === 'ai_generated' ? '🤖 AI Generated' : '🏛️ Seeded'}
                           </span>
                         </td>
 
@@ -644,16 +727,34 @@ export default function QuestionBank() {
               </div>
 
               {/* Source Grounding Box */}
-              <div className="p-3 rounded-xl bg-[#F7F4EE] border border-[#E2DDD5] space-y-1.5 font-mono text-[11px]">
-                <span className="text-[10px] font-bold uppercase text-[#7A756E] block">Source Grounding Metadata</span>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="p-3.5 rounded-xl bg-[#F7F4EE] border border-[#E2DDD5] space-y-2 font-mono text-[11px]">
+                <span className="text-[10px] font-bold uppercase text-[#7A756E] block">Source Grounding & Provenance Metadata</span>
+                <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <span className="text-[#7A756E] text-[10px] block">Source Title:</span>
-                    <span className="font-bold text-[#292B2B]">{inspectingQ.source_title || inspectingQ.source_reference || 'N/A'}</span>
+                    <span className="text-[#7A756E] text-[10px] block">Source Document:</span>
+                    <span className="font-bold text-[#292B2B]">
+                      {inspectingQ.source_material_title || inspectingQ.source_title || inspectingQ.source_reference || 'Official Document Reference'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[#7A756E] text-[10px] block">Document Classification:</span>
+                    <span className="font-bold text-[#A85D4C]">
+                      {inspectingQ.material_scope === 'OFFICIAL_COMPETENCY' || inspectingQ.source_material_id
+                        ? 'Official Learning Material'
+                        : (inspectingQ.material_scope || 'Institutional Standard')}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[#7A756E] text-[10px] block">Generation Source:</span>
+                    <span className="font-bold text-[#292B2B]">
+                      {inspectingQ.is_ai_generated || inspectingQ.source === 'ai_generated'
+                        ? '🤖 AI Generated (Grounded in Official Document)'
+                        : '🏛️ Seeded Official Framework'}
+                    </span>
                   </div>
                   <div>
                     <span className="text-[#7A756E] text-[10px] block">Organization:</span>
-                    <span className="font-bold text-[#292B2B]">{inspectingQ.source_organization || 'Official MoSPI / Statistical Framework'}</span>
+                    <span className="font-bold text-[#292B2B]">{inspectingQ.source_organization || 'Official MoSPI / iGOT Karmayogi'}</span>
                   </div>
                 </div>
               </div>
@@ -831,6 +932,24 @@ export default function QuestionBank() {
                   className="w-full p-2.5 rounded-xl border border-[#E2DDD5] text-xs font-medium focus:border-[#A85D4C] focus:outline-none"
                   rows={3}
                 />
+              </div>
+
+              {/* Assigned Competency */}
+              <div>
+                <label className="font-bold text-[#292B2B] block mb-1">Assigned Competency</label>
+                <Select 
+                  value={String(editingQ.competency_id || '')} 
+                  onValueChange={(val) => setEditingQ({ ...editingQ, competency_id: Number(val) })}
+                >
+                  <SelectTrigger className="border-[#E2DDD5] bg-[#FFFDF9] text-xs h-9 rounded-xl">
+                    <SelectValue placeholder="Select Competency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {competencies.map(c => (
+                      <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Type & Difficulty Row */}
