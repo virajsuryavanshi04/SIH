@@ -9,27 +9,45 @@ router = APIRouter(prefix="/api/roles", tags=["roles"])
 
 @router.get("/", response_model=list[RoleResponse])
 def list_roles(db: Session = Depends(get_db)):
-    """List all selectable professional statistical roles (excludes privileged administrative system roles)."""
-    return db.query(Role).filter(~Role.name.ilike("%admin%")).all()
+    """List all official selectable professional statistical cadres (strictly excludes admin, temporary, or test roles)."""
+    return db.query(Role).filter(
+        Role.is_official == True,
+        ~Role.name.ilike("%admin%"),
+        ~Role.name.ilike("%temp%"),
+        ~Role.name.ilike("%test%"),
+        ~Role.name.ilike("%demo%"),
+        ~Role.name.ilike("%mock%"),
+        ~Role.name.ilike("%zero%")
+    ).order_by(Role.id.asc()).all()
 
 @router.get("/{role_id}", response_model=RoleDetailResponse)
 def get_role(role_id: int, db: Session = Depends(get_db)):
-    """Get role details and its mapped competency targets."""
-    role = db.query(Role).filter(Role.id == role_id, ~Role.name.ilike("%admin%")).first()
+    """Get official role details and its mapped competency targets."""
+    role = db.query(Role).filter(
+        Role.id == role_id,
+        Role.is_official == True,
+        ~Role.name.ilike("%admin%"),
+        ~Role.name.ilike("%temp%"),
+        ~Role.name.ilike("%test%")
+    ).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
     
     reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == role_id).all()
     comp_items = []
     for r in reqs:
-        comp = db.query(Competency).filter(Competency.id == r.competency_id).first()
-        comp_items.append(RoleCompetencyItem(
-            competency_id=r.competency_id,
-            competency_name=comp.name if comp else "Unknown",
-            target_score=r.target_score,
-            target_level=r.target_level,
-            weight=r.weight
-        ))
+        comp = db.query(Competency).filter(
+            Competency.id == r.competency_id,
+            Competency.is_official == True
+        ).first()
+        if comp:
+            comp_items.append(RoleCompetencyItem(
+                competency_id=r.competency_id,
+                competency_name=comp.name,
+                target_score=r.target_score,
+                target_level=r.target_level,
+                weight=r.weight
+            ))
     
     return RoleDetailResponse(
         id=role.id,
@@ -41,20 +59,30 @@ def get_role(role_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{role_id}/competencies", response_model=list[RoleCompetencyItem])
 def get_role_competencies(role_id: int, db: Session = Depends(get_db)):
-    """List required competencies for a specific official role."""
-    role = db.query(Role).filter(Role.id == role_id, ~Role.name.ilike("%admin%")).first()
+    """List required official competencies for a specific cadre."""
+    role = db.query(Role).filter(
+        Role.id == role_id,
+        Role.is_official == True,
+        ~Role.name.ilike("%admin%"),
+        ~Role.name.ilike("%temp%"),
+        ~Role.name.ilike("%test%")
+    ).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
     
     reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == role_id).all()
     comp_items = []
     for r in reqs:
-        comp = db.query(Competency).filter(Competency.id == r.competency_id).first()
-        comp_items.append(RoleCompetencyItem(
-            competency_id=r.competency_id,
-            competency_name=comp.name if comp else "Unknown",
-            target_score=r.target_score,
-            target_level=r.target_level,
-            weight=r.weight
-        ))
+        comp = db.query(Competency).filter(
+            Competency.id == r.competency_id,
+            Competency.is_official == True
+        ).first()
+        if comp:
+            comp_items.append(RoleCompetencyItem(
+                competency_id=r.competency_id,
+                competency_name=comp.name,
+                target_score=r.target_score,
+                target_level=r.target_level,
+                weight=r.weight
+            ))
     return comp_items

@@ -132,7 +132,7 @@ export const materialApi = {
   getFlashcards: (id: number) => api.get(`/materials/${id}/flashcards`),
   generateMindMap: (id: number) => api.post(`/materials/${id}/mind-map/generate`),
   getMindMap: (id: number) => api.get(`/materials/${id}/mind-map`),
-  startQuiz: (id: number, data: { question_count?: number; question_type?: string }) => api.post(`/materials/${id}/quiz/start`, data),
+  startQuiz: (id: number, data: { question_count?: number; question_type?: string; adaptive_mode?: boolean }) => api.post(`/materials/${id}/quiz/start`, data),
   // Material Workspace & History
   getWorkspace: (id: number) => api.get(`/materials/${id}/workspace`),
   getQuizHistory: (id: number) => api.get(`/materials/${id}/quiz/history`),

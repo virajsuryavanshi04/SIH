@@ -14,6 +14,8 @@ class UserCompetency(Base):
     target_score = Column(Float, nullable=False, default=70.0)
     confidence = Column(Float, nullable=False, default=0.0)
     status = Column(String(50), nullable=False, default="not_assessed")  # not_assessed, strong, on_track, needs_attention, critical_gap
+    evidence_count = Column(Integer, nullable=False, default=0)
+    evidence_level = Column(String(20), nullable=False, default="UNASSESSED")  # UNASSESSED, LOW, MEDIUM, HIGH
     last_assessed = Column(DateTime, nullable=True, default=None)
 
     user = relationship("User", back_populates="user_competencies")

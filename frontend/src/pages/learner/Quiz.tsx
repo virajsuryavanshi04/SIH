@@ -21,7 +21,9 @@ export default function Quiz() {
   const [questions, setQuestions] = useState<QuestionData[]>(location.state?.questions || []);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [stepOffset, setStepOffset] = useState<number>(0);
-  const [totalSteps, setTotalSteps] = useState<number>(location.state?.totalQuestions || 16);
+  const [totalSteps, setTotalSteps] = useState<number>(
+    location.state?.totalQuestions || location.state?.total_questions || (location.state?.assessmentType === 'material_quiz' ? 10 : 16)
+  );
   const [loading, setLoading] = useState<boolean>(!location.state?.questions);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [adaptiveMessage, setAdaptiveMessage] = useState<string | null>(null);
@@ -57,7 +59,7 @@ export default function Quiz() {
             setQuestions([res.data.current_question]);
             setCurrentIndex(0);
             setStepOffset(res.data.answered_count || 0);
-            setTotalSteps(res.data.total_steps || res.data.target_question_count || 16);
+            setTotalSteps(res.data.total_steps || res.data.target_question_count || (res.data.assessment_type === 'material_quiz' ? 10 : 16));
           } catch (err) {
             console.error('Failed to resume quiz session:', err);
             navigate('/assessment');
@@ -244,7 +246,11 @@ export default function Quiz() {
               <Brain className="w-3.5 h-3.5" />
             </div>
             <span className="font-bold text-xs sm:text-sm text-[#2D3030]">
-              {assessmentType === 'adaptive' ? 'Adaptive Capability Assessment' : 'Baseline Competency Diagnostic'}
+              {assessmentType === 'material_quiz'
+                ? 'Practice Material Quiz'
+                : (assessmentType === 'adaptive'
+                  ? 'Adaptive Capability Assessment'
+                  : 'Baseline Competency Diagnostic')}
             </span>
           </div>
 

@@ -106,7 +106,7 @@ def start_assessment(
             target_comp_ids = [r.competency_id for r in role_reqs]
 
         if not target_comp_ids:
-            target_comp_ids = [c.id for c in db.query(Competency).all()]
+            target_comp_ids = [c.id for c in db.query(Competency).filter(Competency.is_official == True).all()]
 
         if not target_comp_ids:
             target_comp_ids = [1, 2, 3, 4, 5, 6, 7, 8]

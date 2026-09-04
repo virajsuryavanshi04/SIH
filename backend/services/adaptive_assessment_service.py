@@ -758,66 +758,9 @@ class AdaptiveAssessmentService:
             if a.is_correct:
                 comp_groups[cid]["correct"] += 1
 
-        comp_breakdown = []
-        for cid, g in comp_groups.items():
-            acc = round((g["correct"] / g["total"]) * 100.0, 1) if g["total"] > 0 else 0.0
-            target = role_targets.get(cid, 70.0)
-            gap = max(0.0, target - acc)
-
-            if acc >= target:
-                status = "strong"
-            elif acc >= target - 10:
-                status = "on_track"
-            elif gap > 20:
-                status = "critical_gap"
-            else:
-                status = "needs_attention"
-
-            # Update UserCompetency live state
-            uc = db.query(UserCompetency).filter(
-                UserCompetency.user_id == user_id,
-                UserCompetency.competency_id == cid
-            ).first()
-            if uc:
-                uc.current_score = acc
-                uc.target_score = target
-                uc.status = status
-                uc.last_assessed = datetime.utcnow()
-            else:
-                uc = UserCompetency(
-                    user_id=user_id,
-                    competency_id=cid,
-                    current_score=acc,
-                    target_score=target,
-                    confidence=85.0,
-                    status=status,
-                    last_assessed=datetime.utcnow()
-                )
-                db.add(uc)
-
-            # Record immutable CompetencyScore history
-            cs = CompetencyScore(
-                user_id=user_id,
-                competency_id=cid,
-                score=acc,
-                assessment_id=assessment_id,
-                source=assessment.assessment_type or "adaptive",
-                assessed_at=datetime.utcnow()
-            )
-            db.add(cs)
-
-            comp_breakdown.append({
-                "competency_id": cid,
-                "competency_name": g["competency_name"],
-                "domain": g["domain"],
-                "current_score": acc,
-                "target_score": target,
-                "gap": gap,
-                "status": status,
-                "questions_total": g["total"],
-                "questions_correct": g["correct"],
-                "accuracy_percent": acc
-            })
+        # 1. Update competencies via unified CompetencyEngine
+        from services.competency_engine import CompetencyEngine
+        CompetencyEngine.update_competencies_from_assessment(db, assessment_id, user_id)
 
         # 2. Subtopic Performance Analysis
         topic_perf = state.get("performance_by_topic", {})
@@ -875,11 +818,13 @@ class AdaptiveAssessmentService:
         material_id: int,
         question_set_id: int,
         question_count: int = 10,
-        question_type: str = "MIXED"
+        question_type: str = "MIXED",
+        adaptive_mode: bool = True
     ) -> tuple[Assessment, MaterialQuizQuestion]:
         """
         Initializes an adaptive assessment session for personal material quiz.
-        Starts at difficulty Level 2 (Medium).
+        Reuses Assessment section initialization: starts at difficulty Level 2 (Medium).
+        Supports adaptive_mode toggle (ON/OFF).
         """
         mat = db.query(LearningMaterial).filter(LearningMaterial.id == material_id).first()
         if not mat:
@@ -894,10 +839,12 @@ class AdaptiveAssessmentService:
             "material_quiz_set_id": question_set_id,
             "target_question_count": question_count,
             "question_type": question_type,
-            "current_difficulty": 2,
+            "adaptive_mode": bool(adaptive_mode),
+            "current_difficulty": 2,  # Strict Invariant: Always start at Medium (2)
             "streaks": {"correct": 0, "incorrect": 0},
             "answered_count": 0,
             "seen_question_ids": [],
+            "answers_history": [],
             "performance_by_difficulty": {
                 "1": {"total": 0, "correct": 0},
                 "2": {"total": 0, "correct": 0},
@@ -905,7 +852,7 @@ class AdaptiveAssessmentService:
             }
         }
 
-        # Pick first question at Medium difficulty (Level 2)
+        # Pick first question at Medium difficulty (Level 2) matching Assessment start rule
         first_q = db.query(MaterialQuizQuestion).filter(
             MaterialQuizQuestion.set_id == question_set_id,
             MaterialQuizQuestion.difficulty == "2"
@@ -918,6 +865,8 @@ class AdaptiveAssessmentService:
 
         if not first_q:
             raise ValueError("No questions found in this material quiz set")
+
+        adaptive_state["seen_question_ids"].append(first_q.id)
 
         assessment = Assessment(
             user_id=user_id,
@@ -946,11 +895,19 @@ class AdaptiveAssessmentService:
         time_taken_seconds: int = 15
     ) -> Dict[str, Any]:
         """
-        Handles adaptive difficulty step for personal material quiz.
-        Streak rule: 2 consecutive correct -> promote; 2 consecutive incorrect -> demote.
+        Processes adaptive difficulty step for personal material quiz reusing the Assessment engine:
+        - Evaluates learner correctness
+        - Tracks streaks (consecutive correct / incorrect)
+        - Dynamic difficulty adaptation:
+          * Step 1: Correct -> Hard (3), Incorrect -> Easy (1)
+          * Subsequent: Correct -> min(3, curr+1), Incorrect -> max(1, curr-1)
+          * If adaptive_mode is False: keeps sequential delivery without difficulty jump
+        - Anti-repetition: guarantees zero duplicate questions in the session
+        - Difficulty relaxation hierarchy: if target difficulty is exhausted, relaxes [2, 1] for 3, [2, 3] for 1
         """
         assessment_id = assessment.id
         state = assessment.adaptive_state or {}
+        adaptive_mode = state.get("adaptive_mode", True)
 
         question = db.query(MaterialQuizQuestion).filter(MaterialQuizQuestion.id == question_id).first()
         if not question:
@@ -971,7 +928,7 @@ class AdaptiveAssessmentService:
         )
         db.add(ans)
 
-        # 2. Update Adaptive State Streaks & Difficulty
+        # 2. Update Performance by Difficulty
         q_diff_int = cls.normalize_difficulty_int(question.difficulty)
         diff_key = str(q_diff_int)
         if "performance_by_difficulty" not in state:
@@ -982,12 +939,44 @@ class AdaptiveAssessmentService:
         if is_correct:
             state["performance_by_difficulty"][diff_key]["correct"] += 1
 
+        # Track history
+        if "answers_history" not in state:
+            state["answers_history"] = []
+        state["answers_history"].append({
+            "question_id": question_id,
+            "difficulty": q_diff_int,
+            "is_correct": is_correct
+        })
+
+        # 3. Compute next difficulty reusing Assessment engine methodology
         streaks = state.get("streaks", {"correct": 0, "incorrect": 0})
         curr_diff = state.get("current_difficulty", 2)
-        new_diff, new_c_streak, new_i_streak = cls.compute_next_difficulty(
-            curr_diff, is_correct, streaks.get("correct", 0), streaks.get("incorrect", 0)
-        )
+
+        if is_correct:
+            new_c_streak = streaks.get("correct", 0) + 1
+            new_i_streak = 0
+        else:
+            new_i_streak = streaks.get("incorrect", 0) + 1
+            new_c_streak = 0
         state["streaks"] = {"correct": new_c_streak, "incorrect": new_i_streak}
+
+        if adaptive_mode:
+            answers_count = len(state["answers_history"])
+            if answers_count == 1:
+                # Step 1 adaptation rule from Assessment:
+                # Medium + Correct -> Hard (3); Medium + Incorrect -> Easy (1)
+                new_diff = 3 if is_correct else 1
+            else:
+                # Subsequent adaptation rule:
+                # Correct -> promote by 1 level; Incorrect -> demote by 1 level
+                if is_correct:
+                    new_diff = min(3, curr_diff + 1)
+                else:
+                    new_diff = max(1, curr_diff - 1)
+        else:
+            # Fixed difficulty mode (adaptive calibration disabled)
+            new_diff = curr_diff
+
         state["current_difficulty"] = new_diff
 
         # Update progress counters
@@ -997,7 +986,7 @@ class AdaptiveAssessmentService:
         if question_id not in state["seen_question_ids"]:
             state["seen_question_ids"].append(question_id)
 
-        # 3. Check Completion Condition
+        # 4. Check Completion Condition
         target_count = state.get("target_question_count", 10)
         if state["answered_count"] >= target_count:
             from sqlalchemy.orm.attributes import flag_modified
@@ -1009,6 +998,11 @@ class AdaptiveAssessmentService:
             all_ans = db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id == assessment_id).all()
             corr = sum(1 for a in all_ans if a.is_correct)
             assessment.overall_score = round((corr / len(all_ans)) * 100.0, 1) if all_ans else 0.0
+
+            # Update competencies via CompetencyEngine
+            from services.competency_engine import CompetencyEngine
+            CompetencyEngine.update_competencies_from_assessment(db, assessment_id, user_id)
+
             db.commit()
 
             from services.assessment_service import get_assessment_result
@@ -1016,10 +1010,11 @@ class AdaptiveAssessmentService:
             return {
                 "is_completed": True,
                 "assessment_id": assessment_id,
+                "feedback": {"is_correct": is_correct},
                 "result": final_result
             }
 
-        # 4. Choose Next Question from Session Pool
+        # 5. Choose Next Question from Session Pool with Assessment relaxation hierarchy
         set_id = assessment.material_quiz_set_id
         seen_ids = state["seen_question_ids"]
 
@@ -1030,15 +1025,23 @@ class AdaptiveAssessmentService:
             MaterialQuizQuestion.id.not_in(seen_ids)
         ).first()
 
-        # Fallback 1: Adjacent difficulty
+        # Relaxation hierarchy matching Assessment select_adaptive_question
         if not next_q:
-            adjacent = [new_diff - 1, new_diff + 1]
-            adj_strs = [str(d) for d in adjacent if 1 <= d <= 3]
-            next_q = db.query(MaterialQuizQuestion).filter(
-                MaterialQuizQuestion.set_id == set_id,
-                MaterialQuizQuestion.difficulty.in_(adj_strs),
-                MaterialQuizQuestion.id.not_in(seen_ids)
-            ).first()
+            if new_diff == 3:
+                fallback_diffs = [2, 1]
+            elif new_diff == 1:
+                fallback_diffs = [2, 3]
+            else:
+                fallback_diffs = [3, 1]
+
+            for alt_d in fallback_diffs:
+                next_q = db.query(MaterialQuizQuestion).filter(
+                    MaterialQuizQuestion.set_id == set_id,
+                    MaterialQuizQuestion.difficulty == str(alt_d),
+                    MaterialQuizQuestion.id.not_in(seen_ids)
+                ).first()
+                if next_q:
+                    break
 
         # Fallback 2: Any unseen in set
         if not next_q:
@@ -1048,6 +1051,7 @@ class AdaptiveAssessmentService:
             ).first()
 
         if next_q:
+            state["seen_question_ids"].append(next_q.id)
             from sqlalchemy.orm.attributes import flag_modified
             assessment.adaptive_state = state
             flag_modified(assessment, "adaptive_state")
@@ -1066,6 +1070,7 @@ class AdaptiveAssessmentService:
                 "is_completed": False,
                 "step": state["answered_count"] + 1,
                 "total_steps": target_count,
+                "feedback": {"is_correct": is_correct},
                 "next_question": {
                     "id": next_q.id,
                     "text": next_q.question_text,

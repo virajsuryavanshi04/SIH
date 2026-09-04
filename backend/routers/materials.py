@@ -546,12 +546,15 @@ def get_related_courses_for_material(
     current_user: User = Depends(get_current_user)
 ):
     """
-    For OTHER_LEARNING materials, analyzes detected topics and compares them
-    against available official courses. Returns related courses only when
-    genuine semantic/topic overlap exists. Returns empty list if no overlap.
+    Two-layer recommendation system (Layer 1: Document-level recommendations):
+    - For OFFICIAL_COMPETENCY: returns accredited iGOT courses mapped to the competency.
+    - For OTHER_LEARNING (user-uploaded/unofficial materials): returns 5 categories of
+      real external educational resources (YouTube, Course, Article, Open Textbook, Practice)
+      covering the entire uploaded document/subject as a whole, with ZERO iGOT courses.
     """
     from models.course import Course, CourseCompetency
-    from models.competency import Competency, CompetencyTopic
+    from models.competency import Competency
+    from services.external_learning_service import ExternalLearningResourceService
 
     mat = db.query(LearningMaterial).filter(LearningMaterial.id == id).first()
     if not mat:
@@ -559,83 +562,40 @@ def get_related_courses_for_material(
     _verify_material_access(mat, current_user)
 
     # For OFFICIAL_COMPETENCY materials, return courses linked to that competency
-    if mat.material_scope == "OFFICIAL_COMPETENCY" and mat.competency_id:
-        course_comps = db.query(CourseCompetency).filter(
-            CourseCompetency.competency_id == mat.competency_id
-        ).all()
+    if mat.material_scope == "OFFICIAL_COMPETENCY":
         courses = []
-        for cc in course_comps:
-            c = db.query(Course).filter(Course.id == cc.course_id, Course.is_active == True).first()
-            if c:
-                courses.append({
-                    "course_id": c.id,
-                    "title": c.title,
-                    "provider": c.provider,
-                    "description": c.description,
-                    "similarity_reason": f"Directly linked to competency: {mat.competency.name}" if mat.competency else "Official competency match",
-                    "confidence": 1.0
-                })
-        return courses
+        if mat.competency_id:
+            course_comps = db.query(CourseCompetency).filter(
+                CourseCompetency.competency_id == mat.competency_id
+            ).all()
+            for cc in course_comps:
+                c = db.query(Course).filter(Course.id == cc.course_id, Course.is_active == True).first()
+                if c:
+                    courses.append({
+                        "course_id": c.id,
+                        "title": c.title,
+                        "provider": c.provider,
+                        "description": c.description,
+                        "similarity_reason": f"Directly linked to competency: {mat.competency.name}" if mat.competency else "Official competency match",
+                        "confidence": 1.0
+                    })
+        return {
+            "is_official": True,
+            "material_scope": "OFFICIAL_COMPETENCY",
+            "subject": mat.competency.name if mat.competency else mat.title,
+            "official_courses": courses,
+            "external_learning_resources": []
+        }
 
-    # For OTHER_LEARNING: extract topic keywords from the material
-    material_topics = set()
-    if mat.detected_topics:
-        for t in mat.detected_topics:
-            if isinstance(t, str):
-                # Normalize: split multi-word topics into individual keywords
-                for word in t.lower().replace(",", " ").replace("/", " ").split():
-                    cleaned = word.strip().strip(".-_()")
-                    if len(cleaned) > 2:
-                        material_topics.add(cleaned)
-
-    if not material_topics:
-        return []
-
-    # Build a set of course keywords from all active courses
-    all_courses = db.query(Course).filter(Course.is_active == True).all()
-    matched_courses = []
-
-    for course in all_courses:
-        course_keywords = set()
-        # Extract from title
-        for word in (course.title or "").lower().replace(",", " ").replace("/", " ").split():
-            cleaned = word.strip().strip(".-_()")
-            if len(cleaned) > 2:
-                course_keywords.add(cleaned)
-        # Extract from description
-        for word in (course.description or "").lower().replace(",", " ").replace("/", " ").split():
-            cleaned = word.strip().strip(".-_()")
-            if len(cleaned) > 2:
-                course_keywords.add(cleaned)
-        # Extract competency name via CourseCompetency
-        comps = db.query(CourseCompetency).filter(CourseCompetency.course_id == course.id).all()
-        for cc in comps:
-            comp = db.query(Competency).filter(Competency.id == cc.competency_id).first()
-            if comp:
-                for word in comp.name.lower().replace(",", " ").replace("/", " ").split():
-                    cleaned = word.strip().strip(".-_()")
-                    if len(cleaned) > 2:
-                        course_keywords.add(cleaned)
-
-        # Calculate overlap
-        overlap = material_topics & course_keywords
-        # Require at least 2 matching keywords or 20% of material topics
-        min_matches = max(2, int(len(material_topics) * 0.2))
-        if len(overlap) >= min_matches:
-            confidence = round(len(overlap) / max(len(material_topics), 1), 2)
-            matched_courses.append({
-                "course_id": course.id,
-                "title": course.title,
-                "provider": course.provider,
-                "description": course.description,
-                "similarity_reason": f"Topic overlap: {', '.join(sorted(list(overlap)[:5]))}",
-                "confidence": min(confidence, 1.0),
-                "matching_keywords": sorted(list(overlap)[:8])
-            })
-
-    # Sort by confidence descending, return top 5
-    matched_courses.sort(key=lambda x: x["confidence"], reverse=True)
-    return matched_courses[:5]
+    # For OTHER_LEARNING: document-level external learning resources across the 5 categories
+    doc_recs = ExternalLearningResourceService.generate_document_level_recommendations(mat)
+    return {
+        "is_official": False,
+        "material_scope": "OTHER_LEARNING",
+        "subject": doc_recs.get("subject", mat.title),
+        "official_courses": [],
+        "external_learning_resources": doc_recs.get("resources", [])
+    }
 
 # ============================================================
 # BACKGROUND GENERATION WORKERS
@@ -804,6 +764,19 @@ def get_material_notes(
     topic_name = mat.topic.name if mat.topic else None
     raw_sections = note_obj.content.get("sections", []) if isinstance(note_obj.content, dict) else []
 
+    clean_sections = []
+    for s in raw_sections:
+        if isinstance(s, dict):
+            h = str(s.get("heading") or "Section").strip()
+            c = s.get("content")
+            if isinstance(c, list):
+                c_str = "\n• " + "\n• ".join(str(item).strip() for item in c if item)
+            elif isinstance(c, dict):
+                c_str = "\n• " + "\n• ".join(f"{k}: {val}" for k, val in c.items())
+            else:
+                c_str = str(c or "").strip()
+            clean_sections.append({"heading": h, "content": c_str})
+
     return {
         "id": note_obj.id,
         "material_id": mat.id,
@@ -812,7 +785,7 @@ def get_material_notes(
         "material_scope": mat.material_scope,
         "competency_name": comp_name,
         "topic_name": topic_name,
-        "sections": raw_sections,
+        "sections": clean_sections,
         "version": note_obj.version,
         "status": note_obj.status,
         "created_at": note_obj.created_at
@@ -1366,7 +1339,8 @@ def start_material_quiz(
         material_id=material.id,
         question_set_id=q_set.id,
         question_count=req.question_count,
-        question_type=q_type_upper
+        question_type=q_type_upper,
+        adaptive_mode=bool(req.adaptive_mode if req.adaptive_mode is not None else True)
     )
 
     # 7. Serialize first question (Zero correct answer / solution leakage)
@@ -1378,23 +1352,26 @@ def start_material_quiz(
     c_display = material.competency.name if material.competency else "Material Study"
     c_id = material.competency_id if material.material_scope == "OFFICIAL_COMPETENCY" else None
 
+    first_q_serialized = {
+        "id": first_q.id,
+        "text": first_q.question_text,
+        "question_text": first_q.question_text,
+        "question_type": first_q.question_type,
+        "difficulty": first_q.difficulty,
+        "cognitive_level": first_q.cognitive_level,
+        "competency_id": c_id,
+        "competency_name": c_display,
+        "options": opts
+    }
+
     return {
         "assessment_id": assessment.id,
         "assessment_type": "material_quiz",
         "total_questions": req.question_count,
+        "step": 1,
+        "total_steps": req.question_count,
+        "first_question": first_q_serialized,
         "competencies_covered": [c_display],
         "source_material_title": material.title,
-        "questions": [
-            {
-                "id": first_q.id,
-                "text": first_q.question_text,
-                "question_text": first_q.question_text,
-                "question_type": first_q.question_type,
-                "difficulty": first_q.difficulty,
-                "cognitive_level": first_q.cognitive_level,
-                "competency_id": c_id,
-                "competency_name": c_display,
-                "options": opts
-            }
-        ]
+        "questions": [first_q_serialized]
     }

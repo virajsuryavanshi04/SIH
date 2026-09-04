@@ -21,13 +21,26 @@ def get_user_detailed_competencies(db: Session, user: User) -> List[Dict[str, An
     # 1. Resolve role competency requirements
     role_reqs = []
     if user.role_id:
-        role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_id == user.role_id).all()
+        role_reqs = db.query(RoleCompetency).join(Competency).filter(
+            RoleCompetency.role_id == user.role_id,
+            Competency.is_official == True
+        ).all()
     elif user.designation:
-        role_reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == user.designation).all()
+        role_reqs = db.query(RoleCompetency).join(Competency).filter(
+            RoleCompetency.role_name == user.designation,
+            Competency.is_official == True
+        ).all()
     
     if not role_reqs:
-        # Fallback to all competencies if no role assigned
-        all_comps = db.query(Competency).all()
+        # Fallback to all official competencies if no role assigned
+        all_comps = db.query(Competency).filter(
+            Competency.is_official == True,
+            ~Competency.name.ilike("%temp%"),
+            ~Competency.name.ilike("%test%"),
+            ~Competency.name.ilike("%zero%"),
+            ~Competency.name.ilike("%demo%"),
+            ~Competency.name.ilike("%mock%")
+        ).order_by(Competency.id.asc()).all()
         role_reqs = [
             RoleCompetency(
                 competency_id=c.id, 
@@ -132,6 +145,9 @@ def get_user_detailed_competencies(db: Session, user: User) -> List[Dict[str, An
                 "status": st_status
             })
 
+        evidence_count = uc.evidence_count if (uc and uc.evidence_count is not None) else 0
+        evidence_level = uc.evidence_level if (uc and uc.evidence_level) else ("UNASSESSED" if current_score is None else ("LOW" if evidence_count <= 3 else ("MEDIUM" if evidence_count <= 8 else "HIGH")))
+
         results.append({
             "competency_id": cid,
             "competency_name": comp_name,
@@ -140,6 +156,8 @@ def get_user_detailed_competencies(db: Session, user: User) -> List[Dict[str, An
             "target_score": target_score,
             "weight": weight,
             "gap": gap,
+            "evidence_count": evidence_count,
+            "evidence_level": evidence_level,
             "previous_score": previous_score,
             "change_points": change_points,
             "percentage_improvement": percentage_improvement,
@@ -181,14 +199,21 @@ def get_user_ranked_gaps(db: Session, user: User) -> List[Dict[str, Any]]:
     for item in detailed:
         curr = item["current_score"]
         target = item["target_score"]
-        gap = max(0.0, target - (curr or 0.0))
-        priority_weight = round(gap * item.get("weight", 1.0), 1)
+        is_assessed = curr is not None
 
-        action = f"Complete targeted diagnostic for {item['competency_name']}"
-        if item.get("weakest_subtopic"):
-            action = f"Review foundational modules for {item['weakest_subtopic']}"
-        elif curr is not None and curr >= target:
-            action = "Proficiency verified • Maintain with periodic pulse checks"
+        if is_assessed:
+            gap = round(max(0.0, target - curr), 1)
+            priority_weight = round(gap * item.get("weight", 1.0), 1)
+            if item.get("weakest_subtopic") and gap > 0:
+                action = f"Review foundational modules for {item['weakest_subtopic']}"
+            elif curr >= target:
+                action = "Proficiency verified • Maintain with periodic pulse checks"
+            else:
+                action = f"Targeted practice recommended for {item['competency_name']}"
+        else:
+            gap = None
+            priority_weight = 0.0
+            action = f"Take diagnostic assessment to evaluate {item['competency_name']}"
 
         gaps.append({
             "competency_id": item["competency_id"],
@@ -197,26 +222,38 @@ def get_user_ranked_gaps(db: Session, user: User) -> List[Dict[str, Any]]:
             "current_score": curr,
             "target_score": target,
             "gap": gap,
+            "is_assessed": is_assessed,
+            "evidence_count": item.get("evidence_count", 0),
+            "evidence_level": item.get("evidence_level", "UNASSESSED"),
             "priority_weight": priority_weight,
             "status": item["status"],
             "weakest_subtopic": item.get("weakest_subtopic"),
             "recommended_action": action
         })
 
-    return sorted(gaps, key=lambda x: x["priority_weight"], reverse=True)
+    # Sort: 1) Active assessed deficits by priority_weight desc, 2) Unassessed, 3) Verified proficient
+    def sort_key(x):
+        if x["is_assessed"]:
+            if (x["gap"] or 0.0) > 0:
+                return (2, x["priority_weight"])
+            return (0, x["current_score"] or 0.0)
+        return (1, 0.0)
+
+    return sorted(gaps, key=sort_key, reverse=True)
 
 def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
     """
     Computes deterministic, explainable readiness analytics:
-    - Weighted role readiness score
+    - Weighted role readiness score across assessed competencies
     - Total points gained across continuous assessments
     - Strongest verified capability
-    - Priority bottleneck deficit gap
+    - Priority bottleneck deficit gap (only for assessed gaps)
     - Subtopic granular insight
     """
     detailed = get_user_detailed_competencies(db, user)
     
     total_weighted_score = 0.0
+    assessed_weights = 0.0
     total_weights = 0.0
     assessed_count = 0
     targets_met_count = 0
@@ -238,6 +275,7 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
 
         if curr is not None:
             assessed_count += 1
+            assessed_weights += w
             total_weighted_score += (curr * w)
             if curr >= target:
                 targets_met_count += 1
@@ -251,27 +289,27 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
                     "target_score": target
                 }
 
-        # Track priority bottleneck gap (must be inside the detailed loop)
-        gap = max(0.0, target - (curr or 0.0))
-        w_gap = gap * w
-        if w_gap > max_weighted_gap and gap > 0:
-            max_weighted_gap = w_gap
-            bottleneck_item = {
-                "competency_id": item["competency_id"],
-                "competency_name": item["competency_name"],
-                "domain": item.get("domain", "Statistical Standard"),
-                "current_score": curr,
-                "target_score": target,
-                "gap": gap,
-                "weight": w
-            }
+            # Track priority bottleneck gap strictly among assessed competencies
+            gap = max(0.0, target - curr)
+            w_gap = gap * w
+            if w_gap > max_weighted_gap and gap > 0:
+                max_weighted_gap = w_gap
+                bottleneck_item = {
+                    "competency_id": item["competency_id"],
+                    "competency_name": item["competency_name"],
+                    "domain": item.get("domain", "Statistical Standard"),
+                    "current_score": curr,
+                    "target_score": target,
+                    "gap": round(gap, 1),
+                    "weight": w
+                }
 
         # Track weakest subtopic (must be inside the detailed loop)
-        if item.get("weakest_subtopic") and (not weakest_subtopic_info or item.get("gap", 0) > weakest_subtopic_info.get("gap", 0)):
+        if item.get("weakest_subtopic") and (not weakest_subtopic_info or (item.get("gap") or 0) > (weakest_subtopic_info.get("gap") or 0)):
             weakest_subtopic_info = {
                 "competency_name": item["competency_name"],
                 "subtopic_name": item["weakest_subtopic"],
-                "gap": item.get("gap", 0)
+                "gap": item.get("gap") or 0
             }
 
     # Track total improvement points gained since initial baseline assessment
@@ -291,7 +329,7 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
             if growth > 0:
                 total_points_gained += growth
 
-    overall_readiness = round((total_weighted_score / total_weights), 1) if total_weights > 0 else 0.0
+    overall_readiness = round((total_weighted_score / assessed_weights), 1) if assessed_weights > 0 else 0.0
 
     # Total distinct assessments
     total_assessments = db.query(Assessment).filter(
@@ -304,6 +342,8 @@ def get_user_competency_insights(db: Session, user: User) -> Dict[str, Any]:
         summary = f"Your overall readiness is {overall_readiness}%. Priority focus is required on {bottleneck_item['competency_name']}, specifically {weakest_subtopic_info['subtopic_name']}."
     elif targets_met_count == len(detailed) and len(detailed) > 0:
         summary = f"Exceptional readiness ({overall_readiness}%). All official role benchmarks satisfied."
+    elif assessed_count == 0:
+        summary = "No diagnostic assessments completed yet. Begin with your baseline assessment."
 
     return {
         "overall_readiness": overall_readiness,
@@ -335,7 +375,14 @@ def compute_user_gaps(db: Session, user_id: int):
     return get_user_ranked_gaps(db, user)
 
 def get_competency_tree(db: Session):
-    competencies = db.query(Competency).all()
+    competencies = db.query(Competency).filter(
+        Competency.is_official == True,
+        ~Competency.name.ilike("%temp%"),
+        ~Competency.name.ilike("%test%"),
+        ~Competency.name.ilike("%zero%"),
+        ~Competency.name.ilike("%demo%"),
+        ~Competency.name.ilike("%mock%")
+    ).order_by(Competency.id.asc()).all()
     deps = db.query(CompetencyDependency).all()
     tree_nodes = {c.id: {"id": c.id, "name": c.name, "score": None, "required": None, "children": []} for c in competencies}
     for dep in deps:

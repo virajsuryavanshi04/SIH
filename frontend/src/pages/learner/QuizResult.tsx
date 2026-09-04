@@ -22,7 +22,12 @@ import {
   HelpCircle,
   Filter,
   Check,
-  X
+  X,
+  Video,
+  GraduationCap,
+  Globe,
+  FlaskConical,
+  ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -125,6 +130,12 @@ export default function QuizResult() {
       </div>
     );
   }
+
+  const isOfficial = result.is_official !== undefined
+    ? Boolean(result.is_official)
+    : (diagnosis?.is_official !== undefined
+      ? Boolean(diagnosis.is_official)
+      : (result.assessment_type !== 'material_quiz' || result.material_scope === 'OFFICIAL_COMPETENCY'));
 
   const overallScore = result.overall_score ?? result.overall_readiness ?? 0.0;
   const totalQuestions = result.total_questions ?? (result.responses?.length || 0);
@@ -384,38 +395,152 @@ export default function QuizResult() {
               </div>
             )}
 
-            {/* Targeted Remediation Focus & Recommended Actions */}
-            <div className="space-y-3 pt-3 border-t border-[#E2DDD5]">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider">
-                  Targeted Remediation Plan
-                </span>
-                <span className="text-xs font-mono text-[#A85D4C] font-semibold">
-                  {diagnosis.remediation_focus}
-                </span>
-              </div>
-
-              {diagnosis.recommended_actions && diagnosis.recommended_actions.length > 0 && (
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {diagnosis.recommended_actions.map((act: any, idx: number) => (
-                    <div key={idx} className="p-3.5 rounded-xl bg-[#FFFDF9] border border-[#E2DDD5] flex flex-col justify-between space-y-3 shadow-2xs">
-                      <div>
-                        <span className="text-[10px] font-mono font-bold text-[#A85D4C] uppercase tracking-wider block">
-                          {act.action_type.replace('_', ' ')}
-                        </span>
-                        <h5 className="font-bold text-xs text-[#292B2B] mt-0.5">{act.title}</h5>
-                        <p className="text-[11px] text-[#7A756E] mt-1 leading-relaxed">{act.reason}</p>
-                      </div>
-                      <Link to={act.route} className="block mt-2">
-                        <Button size="sm" className="w-full text-xs font-semibold bg-[#2D3030] text-[#FFFDF9] hover:bg-[#A85D4C] h-7 rounded-lg">
-                          Launch →
-                        </Button>
-                      </Link>
-                    </div>
-                  ))}
+            {/* Remediation Area: Official Remediation Plan vs Unofficial Recommended Learning Resources */}
+            {isOfficial ? (
+              <div className="space-y-3 pt-3 border-t border-[#E2DDD5]">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider">
+                    Targeted Remediation Plan
+                  </span>
+                  <span className="text-xs font-mono text-[#A85D4C] font-semibold">
+                    {diagnosis.remediation_focus}
+                  </span>
                 </div>
-              )}
-            </div>
+
+                {diagnosis.recommended_actions && diagnosis.recommended_actions.length > 0 && (
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {diagnosis.recommended_actions.map((act: any, idx: number) => (
+                      <div key={idx} className="p-3.5 rounded-xl bg-[#FFFDF9] border border-[#E2DDD5] flex flex-col justify-between space-y-3 shadow-2xs">
+                        <div>
+                          <span className="text-[10px] font-mono font-bold text-[#A85D4C] uppercase tracking-wider block">
+                            {act.action_type.replace('_', ' ')}
+                          </span>
+                          <h5 className="font-bold text-xs text-[#292B2B] mt-0.5">{act.title}</h5>
+                          <p className="text-[11px] text-[#7A756E] mt-1 leading-relaxed">{act.reason}</p>
+                        </div>
+                        <Link to={act.route} className="block mt-2">
+                          <Button size="sm" className="w-full text-xs font-semibold bg-[#2D3030] text-[#FFFDF9] hover:bg-[#A85D4C] h-7 rounded-lg cursor-pointer">
+                            Launch →
+                          </Button>
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Unofficial / Uploaded Material: Layer 2 Learner-Specific Bottleneck Recommendations */
+              <div className="space-y-4 pt-3 border-t border-[#E2DDD5]">
+                {/* Primary Learning Bottleneck Card */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 space-y-2 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-700">
+                        <AlertTriangle className="w-4 h-4" />
+                      </span>
+                      <span className="font-mono text-xs font-black tracking-wider text-amber-900 uppercase">
+                        PRIMARY LEARNING BOTTLENECK: {diagnosis.primary_bottleneck_topic || diagnosis.primary_bottleneck}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-500/15 px-2.5 py-0.5 rounded border border-amber-500/30">
+                      Targeted Remediation Focus
+                    </span>
+                  </div>
+                  <p className="text-[#292B2B] text-xs leading-relaxed font-medium pl-8">
+                    {diagnosis.primary_bottleneck_reason || diagnosis.remediation_focus}
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-mono font-bold text-[#292B2B] uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#A85D4C]" />
+                      <span>Recommended Learning Resources for this Bottleneck</span>
+                    </span>
+                    <p className="text-[11px] text-[#7A756E]">
+                      Personalized external educational resources targeted specifically to remediate your identified bottleneck in <strong className="text-[#292B2B]">{diagnosis.primary_bottleneck_topic || diagnosis.primary_bottleneck}</strong>.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2.5 py-1 rounded-md self-start sm:self-auto border border-[#A85D4C]/20">
+                    Curated External Content
+                  </span>
+                </div>
+
+                {diagnosis.external_learning_resources && diagnosis.external_learning_resources.length > 0 ? (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    {diagnosis.external_learning_resources.map((item: any, idx: number) => {
+                      const categoryMeta: Record<string, { label: string; icon: any; badge: string }> = {
+                        YOUTUBE: { label: 'YouTube Video', icon: Video, badge: 'bg-red-50 text-red-700 border-red-200' },
+                        COURSE: { label: 'Structured Course', icon: GraduationCap, badge: 'bg-blue-50 text-blue-700 border-blue-200' },
+                        ARTICLE: { label: 'Article / Guide', icon: Globe, badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                        OPEN_TEXTBOOK: { label: 'Open Textbook', icon: BookOpen, badge: 'bg-amber-50 text-amber-800 border-amber-200' },
+                        PRACTICE: { label: 'Practice Resource', icon: FlaskConical, badge: 'bg-purple-50 text-purple-700 border-purple-200' }
+                      };
+                      const meta = categoryMeta[item.category] || { 
+                        label: item.category_display || item.category, 
+                        icon: BookOpen, 
+                        badge: 'bg-[#A85D4C]/10 text-[#A85D4C] border-[#A85D4C]/20' 
+                      };
+                      const IconComp = meta.icon;
+
+                      return (
+                        <div 
+                          key={idx} 
+                          className="p-4 rounded-xl bg-[#FFFDF9] border border-[#E2DDD5] flex flex-col justify-between space-y-3 shadow-2xs hover:border-[#A85D4C]/40 hover:shadow-xs transition-all"
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className={cn("text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border flex items-center gap-1", meta.badge)}>
+                                <IconComp className="w-3 h-3" />
+                                <span>{meta.label}</span>
+                              </span>
+                              <span className="text-[10px] font-mono text-[#7A756E] truncate max-w-[130px]" title={item.provider}>
+                                {item.provider}
+                              </span>
+                            </div>
+
+                            <h5 className="font-bold text-xs text-[#292B2B] leading-snug line-clamp-2">
+                              {item.title}
+                            </h5>
+
+                            {item.deficient_topic && (
+                              <div>
+                                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-[#EFEBE4] text-[#292B2B] border border-[#E2DDD5] inline-block">
+                                  Focus: {item.deficient_topic}
+                                </span>
+                              </div>
+                            )}
+
+                            <p className="text-[11px] text-[#7A756E] leading-relaxed line-clamp-3">
+                              {item.reason}
+                            </p>
+                          </div>
+
+                          <a 
+                            href={item.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="block pt-1"
+                          >
+                            <Button 
+                              size="sm" 
+                              className="w-full text-xs font-semibold bg-[#2D3030] text-[#FFFDF9] hover:bg-[#A85D4C] h-8 rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-2xs"
+                            >
+                              <span>Open Resource</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </Button>
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-[#EFEBE4]/60 border border-[#E2DDD5] text-xs text-[#7A756E] text-center">
+                    No critical concept deficiencies identified. Advanced reference material is available on standard repositories.
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -580,8 +705,8 @@ export default function QuizResult() {
               <thead className="bg-[#EFEBE4] border-b border-[#E2DDD5] text-[#292B2B] uppercase font-mono font-semibold text-[10px]">
                 <tr>
                   <th className="p-3.5 sm:px-5">Competency Area</th>
-                  <th className="p-3.5 sm:px-5">Questions</th>
-                  <th className="p-3.5 sm:px-5">Score</th>
+                  <th className="p-3.5 sm:px-5">Test Accuracy</th>
+                  <th className="p-3.5 sm:px-5">Estimated Competency</th>
                   <th className="p-3.5 sm:px-5">Benchmark</th>
                   <th className="p-3.5 sm:px-5 text-right">Status</th>
                 </tr>
@@ -590,12 +715,26 @@ export default function QuizResult() {
                 {competencyBreakdown.map((item: any) => {
                   const isStrong = item.status === 'strong';
                   const isCritical = item.status === 'critical_gap';
+                  const estimatedComp = item.estimated_competency ?? item.current_score;
 
                   return (
                     <tr key={item.competency_id} className="hover:bg-[#EFEBE4]/50 transition-colors">
-                      <td className="p-3.5 sm:px-5 font-semibold text-[#292B2B]">{item.competency_name}</td>
-                      <td className="p-3.5 sm:px-5 font-mono text-[#7A756E]">{item.questions_correct} / {item.questions_total}</td>
-                      <td className="p-3.5 sm:px-5 font-mono font-bold text-[#292B2B]">{item.accuracy_percent ?? item.current_score}%</td>
+                      <td className="p-3.5 sm:px-5 font-semibold text-[#292B2B]">
+                        <div>{item.competency_name}</div>
+                        {item.domain && <div className="text-[10px] text-[#7A756E] font-normal">{item.domain}</div>}
+                      </td>
+                      <td className="p-3.5 sm:px-5 font-mono">
+                        <div className="font-bold text-[#292B2B]">{item.accuracy_percent ?? item.current_score}%</div>
+                        <div className="text-[10px] text-[#7A756E]">{item.questions_correct} of {item.questions_total} correct</div>
+                      </td>
+                      <td className="p-3.5 sm:px-5 font-mono">
+                        <div className="font-bold text-[#292B2B]">
+                          {estimatedComp != null ? `${estimatedComp}%` : 'Pending'}
+                        </div>
+                        <div className="text-[10px] text-[#7A756E]">
+                          {item.evidence_level || 'LOW'} evidence ({item.evidence_count ?? item.questions_total} q)
+                        </div>
+                      </td>
                       <td className="p-3.5 sm:px-5 font-mono text-[#7A756E]">{item.target_score}%</td>
                       <td className="p-3.5 sm:px-5 text-right">
                         <span className={cn(

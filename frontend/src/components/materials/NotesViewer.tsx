@@ -57,7 +57,9 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
     }
   };
 
-  if (!initialData && isGenerating) {
+  const sections = initialData?.sections || [];
+
+  if (isGenerating || initialData?.status === 'generating') {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
         <RefreshCw className="w-10 h-10 text-indigo-600 animate-spin" />
@@ -69,7 +71,7 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
     );
   }
 
-  if (!initialData) {
+  if (!initialData || sections.length === 0) {
     return (
       <div className="text-center py-12 space-y-4">
         <FileText className="w-12 h-12 text-slate-400 mx-auto" />
@@ -80,7 +82,7 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
         <button
           onClick={handleRegenerate}
           disabled={regenerating || isGenerating}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium text-sm transition shadow-sm"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium text-sm transition shadow-sm cursor-pointer"
         >
           {regenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           Generate Notes
@@ -90,10 +92,10 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Info */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-4.5 shadow-xs space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -108,14 +110,14 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
                 </span>
               )}
             </div>
-            <h2 className="text-xl font-bold text-slate-900">{initialData.title || materialTitle}</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">{initialData.title || materialTitle}</h2>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleRegenerate}
               disabled={regenerating || isGenerating}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${regenerating || isGenerating ? 'animate-spin' : ''}`} />
               {regenerating ? 'Regenerating...' : 'Regenerate'}
@@ -123,7 +125,7 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
             {onClose && (
               <button
                 onClick={onClose}
-                className="px-3.5 py-2 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+                className="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
               >
                 Close
               </button>
@@ -134,12 +136,12 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
         {(competencyName || topicName) && (
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
             {competencyName && (
-              <span className="bg-slate-100 px-2 py-1 rounded">
+              <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px]">
                 <strong>Competency:</strong> {competencyName}
               </span>
             )}
             {topicName && (
-              <span className="bg-slate-100 px-2 py-1 rounded">
+              <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px]">
                 <strong>Topic:</strong> {topicName}
               </span>
             )}
@@ -147,7 +149,7 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
         )}
 
         {errorMsg && (
-          <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs">
+          <div className="flex items-center gap-2 p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -155,26 +157,36 @@ export const NotesViewer: React.FC<NotesViewerProps> = ({
       </div>
 
       {/* Structured Sections */}
-      <div className="space-y-4">
-        {initialData.sections.map((sec, idx) => (
+      <div className="space-y-3">
+        {sections.map((sec, idx) => (
           <div
             key={idx}
-            className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-xs hover:border-slate-300 transition"
+            className="bg-white border border-slate-200/80 rounded-xl p-3.5 sm:p-4 shadow-xs hover:border-slate-300 transition"
           >
-            <div className="flex items-center gap-2 mb-2.5">
-              <div className="w-6 h-6 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-5 h-5 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">
                 {idx + 1}
               </div>
-              <h3 className="text-base font-semibold text-slate-900">{sec.heading}</h3>
+              <h3 className="text-sm sm:text-base font-semibold text-slate-900">{sec.heading}</h3>
             </div>
-            <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line pl-8">
-              {sec.content}
+            <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line pl-7">
+              {Array.isArray(sec.content) ? (
+                <ul className="list-disc list-inside space-y-1">
+                  {sec.content.map((c: any, cIdx: number) => (
+                    <li key={cIdx}>{typeof c === 'object' ? JSON.stringify(c) : String(c)}</li>
+                  ))}
+                </ul>
+              ) : typeof sec.content === 'object' ? (
+                JSON.stringify(sec.content, null, 2)
+              ) : (
+                String(sec.content)
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="text-center text-xs text-slate-400 pt-2 flex items-center justify-center gap-1.5">
+      <div className="text-center text-[11px] text-slate-400 pt-1 flex items-center justify-center gap-1.5">
         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
         <span>Grounded directly in {initialData.material_title || materialTitle}</span>
       </div>

@@ -22,11 +22,13 @@ from models.material import (
 from models.course import Course
 from services.competency_service import get_user_ranked_gaps, get_user_detailed_competencies
 from services.recommendation_service import RecommendationService
+from services.external_learning_service import ExternalLearningResourceService
 from ai.service import AIService
 from schemas.diagnosis import (
     AssessmentDiagnosisResponse,
     MisconceptionItem,
     RemediationActionItem,
+    ExternalLearningResourceItem,
     CompetencyRemediationResponse
 )
 
@@ -56,22 +58,48 @@ def get_assessment_diagnosis(
     if assessment.status != "completed":
         raise HTTPException(status_code=400, detail="Diagnosis is only available after assessment completion")
 
-    # Determine primary competency for this assessment
+    # Determine primary competency and official vs unofficial material scope
     primary_cid = None
     comp_name = "Statistical Officer Framework"
+    mat_scope = None
+    is_official = True
+    source_mat = None
+
+    if assessment.assessment_type == "material_quiz" or assessment.source_material_id is not None:
+        source_mat = assessment.source_material or (
+            db.query(LearningMaterial).filter(LearningMaterial.id == assessment.source_material_id).first()
+            if assessment.source_material_id else None
+        )
+        if source_mat:
+            mat_scope = source_mat.material_scope or ("OFFICIAL_COMPETENCY" if source_mat.competency_id else "OTHER_LEARNING")
+            if mat_scope == "OFFICIAL_COMPETENCY":
+                is_official = True
+                if source_mat.competency:
+                    primary_cid = source_mat.competency_id
+                    comp_name = source_mat.competency.name
+                else:
+                    comp_name = source_mat.title
+            else:
+                is_official = False
+                primary_cid = None
+                comp_name = source_mat.title
+        else:
+            is_official = False
+            comp_name = "Practice Material"
 
     # Fetch all answers with related question & options in batch
     answers = db.query(AssessmentAnswer).filter(
         AssessmentAnswer.assessment_id == assessment_id
     ).all()
 
-    # Determine competency from questions
-    for ans in answers:
-        if ans.question and ans.question.competency_id:
-            primary_cid = ans.question.competency_id
-            if ans.question.competency:
-                comp_name = ans.question.competency.name
-            break
+    # Determine competency from questions if official and not yet resolved
+    if is_official and not primary_cid:
+        for ans in answers:
+            if ans.question and ans.question.competency_id:
+                primary_cid = ans.question.competency_id
+                if ans.question.competency:
+                    comp_name = ans.question.competency.name
+                break
 
     # 1. Check for Cached AIDiagnosis
     cached = db.query(AIDiagnosis).filter(
@@ -89,19 +117,38 @@ def get_assessment_diagnosis(
                 ]
                 
                 # Build recommended actions dynamically
-                rec_actions = _build_remediation_actions(db, current_user, primary_cid, comp_name)
+                if is_official:
+                    rec_actions = _build_remediation_actions(db, current_user, primary_cid, comp_name)
+                    ext_resources = []
+                    b_topic = cached.primary_gap or cached_data.get("primary_bottleneck", "Competency Gap")
+                    b_reason = cached.root_cause or cached_data.get("remediation_focus", "Review recommended curriculum modules.")
+                else:
+                    rec_actions = []
+                    bottleneck_res = ExternalLearningResourceService.generate_bottleneck_recommendations(
+                        source_mat, 
+                        answers, 
+                        ai_primary_bottleneck=cached.primary_gap
+                    ) if source_mat else {"primary_bottleneck_topic": "General Practice", "primary_bottleneck_reason": "Review practice material.", "resources": []}
+                    ext_resources = bottleneck_res["resources"]
+                    b_topic = bottleneck_res["primary_bottleneck_topic"]
+                    b_reason = bottleneck_res["primary_bottleneck_reason"]
 
                 return AssessmentDiagnosisResponse(
                     assessment_id=assessment_id,
                     competency_id=primary_cid,
                     competency_name=comp_name,
                     overall_score=assessment.overall_score or 0.0,
-                    primary_bottleneck=cached.primary_gap or cached_data.get("primary_bottleneck", "Competency Gap"),
+                    primary_bottleneck=b_topic,
+                    primary_bottleneck_topic=b_topic,
+                    primary_bottleneck_reason=b_reason,
                     diagnostic_confidence=cached_data.get("diagnostic_confidence", "MEDIUM"),
                     evidence_summary=cached_data.get("evidence_summary", "Diagnostic evidence retrieved from completed evaluation."),
                     misconceptions=misconceptions,
-                    remediation_focus=cached.root_cause or cached_data.get("remediation_focus", "Review recommended curriculum modules."),
+                    remediation_focus=b_reason,
                     recommended_actions=rec_actions,
+                    is_official=is_official,
+                    material_scope=mat_scope,
+                    external_learning_resources=ext_resources,
                     is_cached=True
                 )
         except Exception:
@@ -137,26 +184,42 @@ def get_assessment_diagnosis(
             db.add(cached)
             db.commit()
 
-        rec_actions = [
-            RemediationActionItem(
-                action_type="REASSESSMENT",
-                title="Maintain Role Benchmark",
-                reason="All evaluated items answered correctly. Retain proficiency with periodic evaluations.",
-                route="/assessment",
-                resource_type="assessment"
-            )
-        ]
+        if is_official:
+            rec_actions = [
+                RemediationActionItem(
+                    action_type="REASSESSMENT",
+                    title="Maintain Role Benchmark",
+                    reason="All evaluated items answered correctly. Retain proficiency with periodic evaluations.",
+                    route="/assessment",
+                    resource_type="assessment"
+                )
+            ]
+            ext_resources = []
+            b_topic = "No Critical Bottlenecks Detected"
+            b_reason = "Proficiency verified at benchmark level. Continue standard operational workflow."
+        else:
+            rec_actions = []
+            bottleneck_res = ExternalLearningResourceService.generate_bottleneck_recommendations(source_mat, answers) if source_mat else {"primary_bottleneck_topic": "No Critical Bottlenecks Detected", "primary_bottleneck_reason": f"Mastery demonstrated across all evaluated items in {comp_name}.", "resources": []}
+            ext_resources = bottleneck_res["resources"]
+            b_topic = bottleneck_res["primary_bottleneck_topic"]
+            b_reason = bottleneck_res["primary_bottleneck_reason"]
+
         return AssessmentDiagnosisResponse(
             assessment_id=assessment_id,
             competency_id=primary_cid,
             competency_name=comp_name,
             overall_score=overall_sc,
-            primary_bottleneck="No Critical Bottlenecks Detected",
+            primary_bottleneck=b_topic,
+            primary_bottleneck_topic=b_topic,
+            primary_bottleneck_reason=b_reason,
             diagnostic_confidence="HIGH",
             evidence_summary=f"Mastery demonstrated across all {total_q} evaluated questions. No cognitive misconceptions or knowledge gaps observed.",
             misconceptions=[],
-            remediation_focus="Proficiency verified at benchmark level. Continue standard operational workflow.",
+            remediation_focus=b_reason,
             recommended_actions=rec_actions,
+            is_official=is_official,
+            material_scope=mat_scope,
+            external_learning_resources=ext_resources,
             is_cached=False
         )
 
@@ -166,8 +229,13 @@ def get_assessment_diagnosis(
     error_items = []
 
     for ans in incorrect_answers:
-        q = ans.question
-        top_name = (q.topic.name if q and q.topic else None) or "General Topic"
+        q = ans.question or ans.material_quiz_question
+        top_name = None
+        if hasattr(q, "topic") and q.topic:
+            top_name = q.topic.name
+        elif hasattr(q, "material") and q.material:
+            top_name = q.material.title
+        top_name = top_name or comp_name or "General Topic"
         topic_error_counts[top_name] = topic_error_counts.get(top_name, 0) + 1
 
         c_lvl = ans.confidence_level or 3
@@ -175,23 +243,26 @@ def get_assessment_diagnosis(
             high_conf_errors += 1
 
         # Extract selected and correct option texts safely
-        sel_text = ans.selected_answer or (ans.selected_option.text if ans.selected_option else "Selected incorrect option")
+        sel_text = ans.selected_answer or (
+            ans.selected_option.text if getattr(ans, "selected_option", None)
+            else (ans.selected_material_option.text if getattr(ans, "selected_material_option", None) else "Selected incorrect option")
+        )
         corr_text = "Standard correct formula/definition"
         if q:
-            if q.correct_answer:
+            if hasattr(q, "correct_answer") and q.correct_answer:
                 corr_text = q.correct_answer
-            elif q.options:
-                c_opt = next((o for o in q.options if o.is_correct), None)
+            elif hasattr(q, "options") and q.options:
+                c_opt = next((o for o in q.options if getattr(o, "is_correct", False)), None)
                 if c_opt:
                     corr_text = c_opt.text
 
         error_items.append({
-            "question_text": q.question_text if q else f"Question #{ans.id}",
+            "question_text": getattr(q, "question_text", None) or getattr(q, "text", None) or f"Question #{ans.id}",
             "selected_answer": sel_text,
             "correct_answer": corr_text,
             "topic": top_name,
             "confidence": c_lvl,
-            "difficulty": int(q.difficulty) if q and str(q.difficulty).isdigit() else 2
+            "difficulty": int(q.difficulty) if q and str(getattr(q, "difficulty", "2")).isdigit() else 2
         })
 
     evidence_data = {
@@ -250,20 +321,39 @@ def get_assessment_diagnosis(
     
     db.commit()
 
-    # 5. Build dynamic recommended actions
-    rec_actions = _build_remediation_actions(db, current_user, primary_cid, comp_name)
+    # 5. Build dynamic recommended actions vs external learning resources
+    if is_official:
+        rec_actions = _build_remediation_actions(db, current_user, primary_cid, comp_name)
+        ext_resources = []
+        b_topic = primary_bottleneck
+        b_reason = remediation_focus
+    else:
+        rec_actions = []
+        bottleneck_res = ExternalLearningResourceService.generate_bottleneck_recommendations(
+            source_mat, 
+            answers, 
+            ai_primary_bottleneck=primary_bottleneck
+        ) if source_mat else {"primary_bottleneck_topic": primary_bottleneck, "primary_bottleneck_reason": f"Targeted external learning resources for {comp_name}.", "resources": []}
+        ext_resources = bottleneck_res["resources"]
+        b_topic = bottleneck_res["primary_bottleneck_topic"]
+        b_reason = bottleneck_res["primary_bottleneck_reason"]
 
     return AssessmentDiagnosisResponse(
         assessment_id=assessment_id,
         competency_id=primary_cid,
         competency_name=comp_name,
         overall_score=overall_sc,
-        primary_bottleneck=primary_bottleneck,
+        primary_bottleneck=b_topic,
+        primary_bottleneck_topic=b_topic,
+        primary_bottleneck_reason=b_reason,
         diagnostic_confidence=diag_confidence,
         evidence_summary=evidence_summary,
         misconceptions=misconceptions,
-        remediation_focus=remediation_focus,
+        remediation_focus=b_reason if not is_official else remediation_focus,
         recommended_actions=rec_actions,
+        is_official=is_official,
+        material_scope=mat_scope,
+        external_learning_resources=ext_resources,
         is_cached=False
     )
 

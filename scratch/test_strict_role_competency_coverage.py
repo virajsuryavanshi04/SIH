@@ -91,8 +91,19 @@ class TestStrictRoleCompetencyCoverage(unittest.TestCase):
             for u in users:
                 cls.db.query(UserCompetency).filter(UserCompetency.user_id == u.id).delete()
                 cls.db.query(CompetencyScore).filter(CompetencyScore.user_id == u.id).delete()
+                ass_ids = [a.id for a in cls.db.query(Assessment.id).filter(Assessment.user_id == u.id).all()]
+                if ass_ids:
+                    cls.db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id.in_(ass_ids)).delete(synchronize_session=False)
                 cls.db.query(Assessment).filter(Assessment.user_id == u.id).delete()
                 cls.db.query(User).filter(User.id == u.id).delete()
+            temp_roles = cls.db.query(Role).filter(Role.name.ilike(f"%{cls.suffix}%")).all()
+            for r in temp_roles:
+                cls.db.query(RoleCompetency).filter(RoleCompetency.role_id == r.id).delete()
+                cls.db.query(Role).filter(Role.id == r.id).delete()
+            temp_comps = cls.db.query(Competency).filter(Competency.name.ilike(f"%{cls.suffix}%")).all()
+            for c in temp_comps:
+                cls.db.query(RoleCompetency).filter(RoleCompetency.competency_id == c.id).delete()
+                cls.db.query(Competency).filter(Competency.id == c.id).delete()
             cls.db.commit()
         except Exception:
             cls.db.rollback()
@@ -276,51 +287,64 @@ class TestStrictRoleCompetencyCoverage(unittest.TestCase):
     def test_11_insufficient_question_pool_does_not_substitute_another_competency(self):
         """TEST 11: Insufficient question pool for one competency raises controlled error and never substitutes another competency."""
         self.db.rollback()
-        temp_comp = Competency(name=f"Zero Question Comp {self.suffix}", domain="Test", level="Level 1")
-        self.db.add(temp_comp)
-        self.db.flush()
-
-        temp_role = Role(name=f"Temp Role {self.suffix}", description="Test")
-        self.db.add(temp_role)
-        self.db.flush()
-
-        rc = RoleCompetency(role_id=temp_role.id, role_name=temp_role.name, competency_id=temp_comp.id, target_score=70.0, target_level=1, weight=1.0)
-        self.db.add(rc)
-        self.db.commit()
-
+        temp_comp = None
+        temp_role = None
         temp_email = f"temp_{self.suffix}@gov.in"
-        client.post("/api/auth/register", json={
-            "full_name": "Temp User",
-            "email": temp_email,
-            "password": self.password,
-            "confirm_password": self.password
-        })
-        login_t = client.post("/api/auth/login", json={"email": temp_email, "password": self.password})
-        h_t = {"Authorization": f"Bearer {login_t.json()['access_token']}"}
-        client.post("/api/users/onboarding", headers=h_t, json={"role_id": temp_role.id})
+        try:
+            temp_comp = Competency(name=f"Zero Question Comp {self.suffix}", domain="Test", level="Level 1", is_official=False)
+            self.db.add(temp_comp)
+            self.db.flush()
 
-        # Attempt to start baseline
-        res = client.post("/api/assessments/start", headers=h_t, json={
-            "assessment_type": "baseline",
-            "question_count": 10
-        })
-        # Strict Invariant: System rejects with 422 pool shortage, NEVER substitutes another competency
-        self.assertEqual(res.status_code, 422)
-        self.assertIn("does not have sufficient approved questions", res.json()["detail"])
+            temp_role = Role(name=f"Temp Role {self.suffix}", description="Test", is_official=False)
+            self.db.add(temp_role)
+            self.db.flush()
 
-        # Clean up
-        self.db.rollback()
-        u_t = self.db.query(User).filter(User.email == temp_email).first()
-        if u_t:
-            ass_ids = [a.id for a in self.db.query(Assessment.id).filter(Assessment.user_id == u_t.id).all()]
-            if ass_ids:
-                self.db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id.in_(ass_ids)).delete(synchronize_session=False)
-            self.db.query(Assessment).filter(Assessment.user_id == u_t.id).delete()
-            self.db.query(User).filter(User.id == u_t.id).delete()
-        self.db.query(RoleCompetency).filter(RoleCompetency.role_id == temp_role.id).delete()
-        self.db.query(Role).filter(Role.id == temp_role.id).delete()
-        self.db.query(Competency).filter(Competency.id == temp_comp.id).delete()
-        self.db.commit()
+            rc = RoleCompetency(role_id=temp_role.id, role_name=temp_role.name, competency_id=temp_comp.id, target_score=70.0, target_level=1, weight=1.0)
+            self.db.add(rc)
+            self.db.commit()
+
+            client.post("/api/auth/register", json={
+                "full_name": "Temp User",
+                "email": temp_email,
+                "password": self.password,
+                "confirm_password": self.password
+            })
+            login_t = client.post("/api/auth/login", json={"email": temp_email, "password": self.password})
+            h_t = {"Authorization": f"Bearer {login_t.json()['access_token']}"}
+
+            # Set user role directly in DB to allow testing pool shortage on custom role
+            u_t = self.db.query(User).filter(User.email == temp_email).first()
+            u_t.role_id = temp_role.id
+            u_t.designation = temp_role.name
+            self.db.commit()
+
+            # Attempt to start baseline
+            res = client.post("/api/assessments/start", headers=h_t, json={
+                "assessment_type": "baseline",
+                "question_count": 10
+            })
+            # Strict Invariant: System rejects with 422 pool shortage, NEVER substitutes another competency
+            self.assertEqual(res.status_code, 422)
+            self.assertIn("does not have sufficient approved questions", res.json()["detail"])
+        finally:
+            # Guaranteed clean up
+            self.db.rollback()
+            u_t = self.db.query(User).filter(User.email == temp_email).first()
+            if u_t:
+                ass_ids = [a.id for a in self.db.query(Assessment.id).filter(Assessment.user_id == u_t.id).all()]
+                if ass_ids:
+                    self.db.query(AssessmentAnswer).filter(AssessmentAnswer.assessment_id.in_(ass_ids)).delete(synchronize_session=False)
+                self.db.query(Assessment).filter(Assessment.user_id == u_t.id).delete()
+                self.db.query(UserCompetency).filter(UserCompetency.user_id == u_t.id).delete()
+                self.db.query(CompetencyScore).filter(CompetencyScore.user_id == u_t.id).delete()
+                self.db.query(User).filter(User.id == u_t.id).delete()
+            if temp_role:
+                self.db.query(RoleCompetency).filter(RoleCompetency.role_id == temp_role.id).delete()
+                self.db.query(Role).filter(Role.id == temp_role.id).delete()
+            if temp_comp:
+                self.db.query(RoleCompetency).filter(RoleCompetency.competency_id == temp_comp.id).delete()
+                self.db.query(Competency).filter(Competency.id == temp_comp.id).delete()
+            self.db.commit()
 
     def test_13_baseline_completion_unlocks_learner_only_after_all_competencies_covered(self):
         """TEST 13: Baseline completion unlocks learner only after all required competencies are genuinely covered."""

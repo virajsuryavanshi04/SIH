@@ -25,7 +25,14 @@ router = APIRouter(prefix="/api/competencies", tags=["competencies"])
 @router.get("/", response_model=list[CompetencyResponse])
 def list_competencies(db: Session = Depends(get_db)):
     """List all official competencies and their hierarchical subtopics."""
-    return db.query(Competency).all()
+    return db.query(Competency).filter(
+        Competency.is_official == True,
+        ~Competency.name.ilike("%temp%"),
+        ~Competency.name.ilike("%test%"),
+        ~Competency.name.ilike("%zero%"),
+        ~Competency.name.ilike("%demo%"),
+        ~Competency.name.ilike("%mock%")
+    ).order_by(Competency.id.asc()).all()
 
 @router.get("/me", response_model=list[UserCompetencyStateResponse])
 def get_my_competencies(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -167,4 +174,12 @@ def get_tree(db: Session = Depends(get_db)):
 
 @router.get("/{id}", response_model=CompetencyResponse)
 def get_competency(id: int, db: Session = Depends(get_db)):
-    return db.query(Competency).filter(Competency.id == id).first()
+    return db.query(Competency).filter(
+        Competency.id == id,
+        Competency.is_official == True,
+        ~Competency.name.ilike("%temp%"),
+        ~Competency.name.ilike("%test%"),
+        ~Competency.name.ilike("%zero%"),
+        ~Competency.name.ilike("%demo%"),
+        ~Competency.name.ilike("%mock%")
+    ).first()

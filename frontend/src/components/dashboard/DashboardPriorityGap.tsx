@@ -24,7 +24,7 @@ export default function DashboardPriorityGap({
     );
   }
 
-  const isAssessed = item.current_score !== null && item.status !== 'PENDING';
+  const isAssessed = item.current_score !== null && item.current_score !== undefined && item.status !== 'PENDING';
   const isTargetMet = isAssessed && (item.current_score ?? 0) >= item.target_score;
   const isCritical = item.status === 'CRITICAL';
   const gapVal = item.gap ?? 0;
@@ -53,7 +53,7 @@ export default function DashboardPriorityGap({
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#B38A3D] flex items-center gap-1.5">
             <Target className="w-3.5 h-3.5" />
-            <span>{isCritical ? 'PRIORITY GAP DEFICIT' : isTargetMet ? 'PROFICIENT ASSET' : 'COMPETENCY AUDIT'}</span>
+            <span>{isCritical ? 'PRIORITY GAP DEFICIT' : isTargetMet ? 'PROFICIENT ASSET' : !isAssessed ? 'DIAGNOSTIC PENDING' : 'COMPETENCY AUDIT'}</span>
           </span>
           <span
             className={cn(
@@ -67,7 +67,7 @@ export default function DashboardPriorityGap({
                 : "bg-[#B38A3D]/15 text-[#292B2B] border-[#B38A3D]/35"
             )}
           >
-            {!isAssessed ? 'PENDING' : isTargetMet ? 'BENCHMARK MET' : `${item.gap}pt GAP`}
+            {!isAssessed ? 'UNASSESSED' : isTargetMet ? 'BENCHMARK MET' : `${item.gap}pt GAP`}
           </span>
         </div>
 
@@ -85,7 +85,7 @@ export default function DashboardPriorityGap({
           <div className="text-left">
             <span className="text-[10px] font-mono text-[#7A756E] uppercase block font-semibold">Current</span>
             <span className="text-2xl font-bold text-[#292B2B] font-mono">
-              {isAssessed ? `${score}%` : '0%'}
+              {isAssessed ? `${score}%` : '—'}
             </span>
           </div>
 

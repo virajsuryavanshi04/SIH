@@ -55,13 +55,17 @@ class CompetencyBreakdownItem(BaseModel):
     competency_id: int
     competency_name: str
     domain: Optional[str] = None
-    current_score: float
+    current_score: Optional[float] = None
+    estimated_competency: Optional[float] = None
     target_score: float
     gap: float
     status: str  # strong, on_track, needs_attention, critical_gap
     questions_total: int
     questions_correct: int
     accuracy_percent: float
+    evidence_count: Optional[int] = 0
+    evidence_level: Optional[str] = "LOW"
+    confidence: Optional[float] = 0.0
     model_config = ConfigDict(from_attributes=True)
 
 class LargestGapSummary(BaseModel):
@@ -156,6 +160,7 @@ class AssessmentResultResponse(BaseModel):
     source_material_id: Optional[int] = None
     source_material_title: Optional[str] = None
     material_scope: Optional[str] = None
+    is_official: Optional[bool] = None
     overall_readiness: float
     overall_score: float
     total_questions: int

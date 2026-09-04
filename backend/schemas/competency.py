@@ -37,6 +37,8 @@ class UserCompetencyStateResponse(BaseModel):
     target_score: float
     weight: Optional[float] = 1.0
     confidence: float
+    evidence_count: Optional[int] = 0
+    evidence_level: Optional[str] = "UNASSESSED"
     status: str  # not_assessed, strong, on_track, needs_attention, critical_gap
     gap: Optional[float] = None
     previous_score: Optional[float] = None
@@ -65,7 +67,10 @@ class CompetencyGapItem(BaseModel):
     domain: Optional[str] = None
     current_score: Optional[float] = None
     target_score: float
-    gap: float
+    gap: Optional[float] = None
+    is_assessed: Optional[bool] = True
+    evidence_count: Optional[int] = 0
+    evidence_level: Optional[str] = "UNASSESSED"
     priority_weight: float
     status: str
     weakest_subtopic: Optional[str] = None

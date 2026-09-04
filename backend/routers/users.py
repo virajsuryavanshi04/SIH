@@ -71,7 +71,15 @@ def complete_onboarding(
     db: Session = Depends(get_db)
 ):
     """Complete initial professional onboarding: assign professional cadre role, department, and initialize role competency framework."""
-    role = db.query(Role).filter(Role.id == req.role_id).first()
+    role = db.query(Role).filter(
+        Role.id == req.role_id,
+        Role.is_official == True,
+        ~Role.name.ilike("%temp%"),
+        ~Role.name.ilike("%test%"),
+        ~Role.name.ilike("%demo%"),
+        ~Role.name.ilike("%mock%"),
+        ~Role.name.ilike("%zero%")
+    ).first()
     if not role:
         raise HTTPException(status_code=404, detail="Selected professional role not found")
     
@@ -131,7 +139,15 @@ def update_user_role(
     db: Session = Depends(get_db)
 ):
     """Change official professional role. Recalculates gaps against new role targets without deleting historical assessment data."""
-    role = db.query(Role).filter(Role.id == req.role_id).first()
+    role = db.query(Role).filter(
+        Role.id == req.role_id,
+        Role.is_official == True,
+        ~Role.name.ilike("%temp%"),
+        ~Role.name.ilike("%test%"),
+        ~Role.name.ilike("%demo%"),
+        ~Role.name.ilike("%mock%"),
+        ~Role.name.ilike("%zero%")
+    ).first()
     if not role:
         raise HTTPException(status_code=404, detail="Selected professional role not found")
 

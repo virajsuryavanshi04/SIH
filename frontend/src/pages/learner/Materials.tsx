@@ -68,6 +68,7 @@ export default function Materials() {
   const [quizType, setQuizType] = useState<'SHORT_MCQ' | 'WORD_PROBLEM' | 'CASE_STUDY' | 'MIXED'>('MIXED');
   const [isStartingQuiz, setIsStartingQuiz] = useState<boolean>(false);
   const [quizError, setQuizError] = useState<string | null>(null);
+  const [adaptiveCalibration, setAdaptiveCalibration] = useState<boolean>(true);
 
   const handleStartMaterialQuiz = async () => {
     if (!quizMaterial) return;
@@ -76,14 +77,16 @@ export default function Materials() {
       setQuizError(null);
       const res = await materialApi.startQuiz(quizMaterial.id, {
         question_count: quizCount,
-        question_type: quizType
+        question_type: quizType,
+        adaptive_mode: adaptiveCalibration
       });
       setQuizMaterial(null);
       navigate(`/quiz/${res.data.assessment_id}`, {
         state: {
           questions: res.data.questions,
           assessmentId: res.data.assessment_id,
-          assessmentType: 'material_quiz'
+          assessmentType: 'material_quiz',
+          totalQuestions: res.data.total_questions || res.data.total_steps || quizCount
         }
       });
     } catch (err: any) {
@@ -221,33 +224,90 @@ export default function Materials() {
   const handleRegenerateNotes = async () => {
     if (!activeStudyTool) return;
     setIsGenerating(true);
+    setErrorMsg(null);
     try {
-      const res = await materialApi.generateNotes(activeStudyTool.material.id);
-      setNotesData(res.data);
-    } finally {
+      await materialApi.generateNotes(activeStudyTool.material.id);
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await materialApi.getNotes(activeStudyTool.material.id);
+          if (res.data?.sections && res.data.sections.length > 0) {
+            setNotesData(res.data);
+            clearInterval(interval);
+            setIsGenerating(false);
+          }
+        } catch (e) {
+          // Still generating
+        }
+        if (attempts >= 30) {
+          clearInterval(interval);
+          setIsGenerating(false);
+        }
+      }, 2000);
+    } catch (err: any) {
       setIsGenerating(false);
+      setErrorMsg(err.response?.data?.detail || 'Failed to start notes generation.');
     }
   };
 
   const handleRegenerateFlashcards = async () => {
     if (!activeStudyTool) return;
     setIsGenerating(true);
+    setErrorMsg(null);
     try {
-      const res = await materialApi.generateFlashcards(activeStudyTool.material.id);
-      setFlashcardsData(res.data);
-    } finally {
+      await materialApi.generateFlashcards(activeStudyTool.material.id);
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await materialApi.getFlashcards(activeStudyTool.material.id);
+          if (res.data?.cards && res.data.cards.length > 0) {
+            setFlashcardsData(res.data);
+            clearInterval(interval);
+            setIsGenerating(false);
+          }
+        } catch (e) {
+          // Still generating
+        }
+        if (attempts >= 30) {
+          clearInterval(interval);
+          setIsGenerating(false);
+        }
+      }, 2000);
+    } catch (err: any) {
       setIsGenerating(false);
+      setErrorMsg(err.response?.data?.detail || 'Failed to start flashcards generation.');
     }
   };
 
   const handleRegenerateMindMap = async () => {
     if (!activeStudyTool) return;
     setIsGenerating(true);
+    setErrorMsg(null);
     try {
-      const res = await materialApi.generateMindMap(activeStudyTool.material.id);
-      setMindMapData(res.data);
-    } finally {
+      await materialApi.generateMindMap(activeStudyTool.material.id);
+      let attempts = 0;
+      const interval = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await materialApi.getMindMap(activeStudyTool.material.id);
+          if (res.data?.root_node) {
+            setMindMapData(res.data);
+            clearInterval(interval);
+            setIsGenerating(false);
+          }
+        } catch (e) {
+          // Still generating
+        }
+        if (attempts >= 30) {
+          clearInterval(interval);
+          setIsGenerating(false);
+        }
+      }, 2000);
+    } catch (err: any) {
       setIsGenerating(false);
+      setErrorMsg(err.response?.data?.detail || 'Failed to start mind map generation.');
     }
   };
 
@@ -633,10 +693,10 @@ export default function Materials() {
 
       {/* 5. Phase 5B Study Content Modal Viewer */}
       {activeStudyTool && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-150 my-8">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-3xl lg:max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
             {/* Modal Tab Switcher */}
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 sm:px-6 py-3.5 shrink-0 bg-[#FFFDF9]">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => openStudyTool(activeStudyTool.material, 'notes')}
@@ -675,95 +735,97 @@ export default function Materials() {
 
               <button
                 onClick={() => setActiveStudyTool(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Viewer Content */}
-            {loadingContent ? (
-              <div className="py-16 text-center text-slate-500 text-sm font-mono">
-                Loading study content...
-              </div>
-            ) : (
-              <>
-                {activeStudyTool.tool === 'notes' && (
-                  <NotesViewer
-                    materialId={activeStudyTool.material.id}
-                    materialTitle={activeStudyTool.material.title}
-                    materialScope={activeStudyTool.material.material_scope}
-                    competencyName={activeStudyTool.material.competency_name}
-                    topicName={activeStudyTool.material.topic_name}
-                    initialData={notesData}
-                    onRegenerate={handleRegenerateNotes}
-                    onClose={() => setActiveStudyTool(null)}
-                    isGenerating={isGenerating}
-                  />
-                )}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 min-h-0 bg-[#FFFDF9]/60">
+              {loadingContent ? (
+                <div className="py-16 text-center text-slate-500 text-sm font-mono">
+                  Loading study content...
+                </div>
+              ) : (
+                <>
+                  {activeStudyTool.tool === 'notes' && (
+                    <NotesViewer
+                      materialId={activeStudyTool.material.id}
+                      materialTitle={activeStudyTool.material.title}
+                      materialScope={activeStudyTool.material.material_scope}
+                      competencyName={activeStudyTool.material.competency_name}
+                      topicName={activeStudyTool.material.topic_name}
+                      initialData={notesData}
+                      onRegenerate={handleRegenerateNotes}
+                      onClose={() => setActiveStudyTool(null)}
+                      isGenerating={isGenerating}
+                    />
+                  )}
 
-                {activeStudyTool.tool === 'flashcards' && (
-                  <FlashcardDeck
-                    materialId={activeStudyTool.material.id}
-                    materialTitle={activeStudyTool.material.title}
-                    materialScope={activeStudyTool.material.material_scope}
-                    competencyName={activeStudyTool.material.competency_name}
-                    topicName={activeStudyTool.material.topic_name}
-                    initialData={flashcardsData}
-                    onRegenerate={handleRegenerateFlashcards}
-                    onClose={() => setActiveStudyTool(null)}
-                    isGenerating={isGenerating}
-                  />
-                )}
+                  {activeStudyTool.tool === 'flashcards' && (
+                    <FlashcardDeck
+                      materialId={activeStudyTool.material.id}
+                      materialTitle={activeStudyTool.material.title}
+                      materialScope={activeStudyTool.material.material_scope}
+                      competencyName={activeStudyTool.material.competency_name}
+                      topicName={activeStudyTool.material.topic_name}
+                      initialData={flashcardsData}
+                      onRegenerate={handleRegenerateFlashcards}
+                      onClose={() => setActiveStudyTool(null)}
+                      isGenerating={isGenerating}
+                    />
+                  )}
 
-                {activeStudyTool.tool === 'mindmap' && (
-                  <MindMapViewer
-                    materialId={activeStudyTool.material.id}
-                    materialTitle={activeStudyTool.material.title}
-                    materialScope={activeStudyTool.material.material_scope}
-                    competencyName={activeStudyTool.material.competency_name}
-                    topicName={activeStudyTool.material.topic_name}
-                    initialData={mindMapData}
-                    onRegenerate={handleRegenerateMindMap}
-                    onClose={() => setActiveStudyTool(null)}
-                    isGenerating={isGenerating}
-                  />
-                )}
-              </>
-            )}
+                  {activeStudyTool.tool === 'mindmap' && (
+                    <MindMapViewer
+                      materialId={activeStudyTool.material.id}
+                      materialTitle={activeStudyTool.material.title}
+                      materialScope={activeStudyTool.material.material_scope}
+                      competencyName={activeStudyTool.material.competency_name}
+                      topicName={activeStudyTool.material.topic_name}
+                      initialData={mindMapData}
+                      onRegenerate={handleRegenerateMindMap}
+                      onClose={() => setActiveStudyTool(null)}
+                      isGenerating={isGenerating}
+                    />
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
       {/* 6. Phase 5C Material Quiz Modal */}
       {quizMaterial && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2DDD5]">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-md sm:max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-5 pb-3 border-b border-[#E2DDD5] shrink-0 bg-[#FFFDF9]">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-[#292B2B]">Personal Adaptive Material Quiz</h3>
-                  <p className="text-[11px] font-mono text-[#7A756E]">{quizMaterial.title}</p>
+                  <p className="text-[11px] font-mono text-[#7A756E] truncate max-w-xs">{quizMaterial.title}</p>
                 </div>
               </div>
               <button
                 onClick={() => setQuizMaterial(null)}
-                className="text-[#7A756E] hover:text-[#2D3030] cursor-pointer"
+                className="text-[#7A756E] hover:text-[#2D3030] p-1 rounded-lg hover:bg-[#EFEBE4] transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {quizError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{quizError}</span>
-              </div>
-            )}
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0 space-y-4 text-xs">
+              {quizError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{quizError}</span>
+                </div>
+              )}
 
-            <div className="space-y-4 text-xs">
               {/* Question Type Selection */}
               <div className="space-y-2">
                 <label className="font-mono uppercase font-bold text-[#292B2B] block">Question Format</label>
@@ -779,7 +841,7 @@ export default function Materials() {
                       type="button"
                       onClick={() => setQuizType(t.id as any)}
                       className={cn(
-                        "p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between",
+                        "p-2.5 sm:p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between",
                         quizType === t.id
                           ? "border-[#A85D4C] bg-[#A85D4C]/10 text-[#292B2B]"
                           : "border-[#E2DDD5] bg-[#FFFDF9] text-[#7A756E] hover:border-[#292B2B]"
@@ -814,27 +876,38 @@ export default function Materials() {
                 </div>
               </div>
 
-              {/* Adaptive Calibration Note */}
+              {/* Adaptive Calibration Toggle */}
               <div className="p-3 bg-[#EFEBE4]/60 border border-[#E2DDD5] rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#A85D4C]" />
                   <div>
                     <span className="font-bold text-[#292B2B] block text-[11px]">Adaptive Calibration</span>
-                    <span className="text-[10px] text-[#7A756E] block">Difficulty adjusts dynamically to learner performance</span>
+                    <span className="text-[10px] text-[#7A756E] block">
+                      {adaptiveCalibration ? "Difficulty adjusts dynamically to learner performance" : "Fixed sequential question delivery without calibration"}
+                    </span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#A85D4C]/15 text-[#A85D4C]">
-                  Active
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setAdaptiveCalibration(prev => !prev)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer",
+                    adaptiveCalibration
+                      ? "bg-[#A85D4C]/15 text-[#A85D4C] hover:bg-[#A85D4C]/25"
+                      : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                  )}
+                >
+                  {adaptiveCalibration ? "Active" : "Disabled"}
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E2DDD5]">
+            <div className="flex items-center justify-end gap-2 p-4 sm:p-5 pt-3 border-t border-[#E2DDD5] shrink-0 bg-[#EFEBE4]/20">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setQuizMaterial(null)}
-                className="text-xs"
+                className="text-xs cursor-pointer"
                 disabled={isStartingQuiz}
               >
                 Cancel
@@ -843,7 +916,7 @@ export default function Materials() {
                 size="sm"
                 onClick={handleStartMaterialQuiz}
                 disabled={isStartingQuiz}
-                className="bg-[#A85D4C] hover:bg-[#8F4E3F] text-[#FFFDF9] font-bold text-xs flex items-center gap-1.5 shadow-sm"
+                className="bg-[#A85D4C] hover:bg-[#8F4E3F] text-[#FFFDF9] font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
                 {isStartingQuiz ? (
                   <>

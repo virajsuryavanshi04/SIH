@@ -24,17 +24,33 @@ class RemediationActionItem(BaseModel):
     resource_type: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
+class ExternalLearningResourceItem(BaseModel):
+    category: str = Field(..., description="YOUTUBE, COURSE, ARTICLE, OPEN_TEXTBOOK, PRACTICE")
+    category_display: str
+    icon: Optional[str] = None
+    purpose: str
+    title: str
+    provider: str
+    deficient_topic: str
+    reason: str
+    url: str
+
 class AssessmentDiagnosisResponse(BaseModel):
     assessment_id: int
     competency_id: Optional[int] = None
     competency_name: Optional[str] = None
     overall_score: float
     primary_bottleneck: str
+    primary_bottleneck_topic: Optional[str] = None
+    primary_bottleneck_reason: Optional[str] = None
     diagnostic_confidence: str = Field("MEDIUM", description="HIGH, MEDIUM, or LOW")
     evidence_summary: str
     misconceptions: List[MisconceptionItem] = []
     remediation_focus: str
     recommended_actions: List[RemediationActionItem] = []
+    is_official: bool = True
+    material_scope: Optional[str] = None
+    external_learning_resources: List[ExternalLearningResourceItem] = []
     is_cached: bool = False
 
 class CompetencyRemediationResponse(BaseModel):

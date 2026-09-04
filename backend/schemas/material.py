@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional, Any, Dict, List
+from pydantic import BaseModel, ConfigDict, field_validator
+from typing import Optional, Any, Dict, List, Union
 from datetime import datetime
 
 class MaterialUploadResponse(BaseModel):
@@ -64,6 +64,17 @@ class GeneratedQuestionResponse(BaseModel):
 class NoteSection(BaseModel):
     heading: str
     content: str
+
+    @field_validator("content", mode="before")
+    @classmethod
+    def coerce_content_to_str(cls, v: Any) -> str:
+        if isinstance(v, list):
+            items = [str(item).strip() for item in v if item]
+            return "\n• " + "\n• ".join(items) if items else ""
+        elif isinstance(v, dict):
+            items = [f"{k}: {val}" for k, val in v.items()]
+            return "\n• " + "\n• ".join(items) if items else ""
+        return str(v) if v is not None else ""
 
 class MaterialNotesResponse(BaseModel):
     id: int
@@ -134,4 +145,5 @@ class StudyContentStatusResponse(BaseModel):
 class MaterialQuizStartRequest(BaseModel):
     question_count: int = 10  # 10, 15, 20
     question_type: str = "MIXED"  # SHORT_MCQ, WORD_PROBLEM, CASE_STUDY, MIXED
+    adaptive_mode: Optional[bool] = True
     model_config = ConfigDict(from_attributes=True)

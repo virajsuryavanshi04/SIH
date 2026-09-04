@@ -208,62 +208,9 @@ def score_assessment(db: Session, assessment_id: int, user_id: int):
         reqs = db.query(RoleCompetency).filter(RoleCompetency.role_name == user.designation).all()
         role_targets = {r.competency_id: r.target_score for r in reqs}
 
-    # 3. Compute competency scores & update user_competencies
-    computed_comp_scores = {}
-    for cid, data in comp_groups.items():
-        comp_acc = round((data["correct"] / data["total"]) * 100.0, 1)
-        computed_comp_scores[cid] = comp_acc
-        target_score = role_targets.get(cid, 70.0)
-        gap = max(0.0, target_score - comp_acc)
-        
-        # Calculate confidence metric
-        avg_conf_rating = data["confidence_sum"] / data["total"]  # 1 to 3
-        confidence_percent = round(70.0 + (avg_conf_rating * 8.0), 1)
-
-        # Status categorization
-        if comp_acc >= target_score:
-            status = "strong"
-        elif comp_acc >= target_score - 10:
-            status = "on_track"
-        elif gap > 20:
-            status = "critical_gap"
-        else:
-            status = "needs_attention"
-
-        # Update or Insert UserCompetency live state
-        uc = db.query(UserCompetency).filter(
-            UserCompetency.user_id == user_id,
-            UserCompetency.competency_id == cid
-        ).first()
-
-        if uc:
-            uc.current_score = comp_acc
-            uc.target_score = target_score
-            uc.confidence = confidence_percent
-            uc.status = status
-            uc.last_assessed = datetime.utcnow()
-        else:
-            uc = UserCompetency(
-                user_id=user_id,
-                competency_id=cid,
-                current_score=comp_acc,
-                target_score=target_score,
-                confidence=confidence_percent,
-                status=status,
-                last_assessed=datetime.utcnow()
-            )
-            db.add(uc)
-
-        # Add NEVER-OVERWRITTEN CompetencyScore history record
-        cs = CompetencyScore(
-            user_id=user_id,
-            competency_id=cid,
-            score=comp_acc,
-            assessment_id=assessment_id,
-            source=assessment.assessment_type or "baseline",
-            assessed_at=datetime.utcnow()
-        )
-        db.add(cs)
+    # 3. Compute competency scores & update user_competencies via unified CompetencyEngine
+    from services.competency_engine import CompetencyEngine
+    CompetencyEngine.update_competencies_from_assessment(db, assessment_id, user_id)
 
     # 4. Finalize assessment record
     overall = round((total_correct / total_questions) * 100.0, 1) if total_questions > 0 else 0.0
@@ -331,35 +278,59 @@ def get_assessment_result(db: Session, assessment_id: int, user_id: int = None):
     max_gap_val = -1.0
 
     for cid, g in comp_groups.items():
-        score_val = round((g["correct"] / g["total"]) * 100.0, 1) if g["total"] > 0 else 0.0
+        accuracy_val = round((g["correct"] / g["total"]) * 100.0, 1) if g["total"] > 0 else 0.0
         target = role_targets.get(cid, 70.0)
-        gap = max(0.0, target - score_val)
 
-        if score_val >= target:
-            status = "strong"
+        # Retrieve live UserCompetency state updated by CompetencyEngine
+        uc = db.query(UserCompetency).filter(
+            UserCompetency.user_id == (user_id or assessment.user_id),
+            UserCompetency.competency_id == cid
+        ).first()
+
+        if uc and uc.current_score is not None:
+            comp_score = uc.current_score
+            comp_status = uc.status or "on_track"
+            evidence_count = uc.evidence_count or g["total"]
+            evidence_level = uc.evidence_level or ("LOW" if evidence_count <= 3 else "MEDIUM")
+            conf = uc.confidence
+            gap = round(max(0.0, target - comp_score), 1)
+        else:
+            comp_score = accuracy_val
+            evidence_count = g["total"]
+            evidence_level = "LOW" if evidence_count <= 3 else ("MEDIUM" if evidence_count <= 8 else "HIGH")
+            conf = round(70.0 + ((g["confidence_sum"] / g["total"]) * 8.0), 1) if g["total"] > 0 else 70.0
+            gap = round(max(0.0, target - comp_score), 1)
+            if comp_score >= target:
+                comp_status = "strong"
+            elif comp_score >= target - 10:
+                comp_status = "on_track"
+            elif gap > 20:
+                comp_status = "critical_gap"
+            else:
+                comp_status = "needs_attention"
+
+        if comp_score >= target:
             strongest.append({
                 "competency_id": cid,
                 "competency_name": g["competency_name"],
-                "score": score_val,
+                "score": comp_score,
                 "target_score": target
             })
-        elif score_val >= target - 10:
-            status = "on_track"
+        elif comp_score >= target - 10:
+            pass
         elif gap > 20:
-            status = "critical_gap"
             needs_attention.append({
                 "competency_id": cid,
                 "competency_name": g["competency_name"],
-                "score": score_val,
+                "score": comp_score,
                 "target_score": target,
                 "gap": gap
             })
         else:
-            status = "needs_attention"
             needs_attention.append({
                 "competency_id": cid,
                 "competency_name": g["competency_name"],
-                "score": score_val,
+                "score": comp_score,
                 "target_score": target,
                 "gap": gap
             })
@@ -369,7 +340,7 @@ def get_assessment_result(db: Session, assessment_id: int, user_id: int = None):
             largest_gap = {
                 "competency_id": cid,
                 "competency_name": g["competency_name"],
-                "current_score": score_val,
+                "current_score": comp_score,
                 "target_score": target,
                 "gap": gap
             }
@@ -378,13 +349,17 @@ def get_assessment_result(db: Session, assessment_id: int, user_id: int = None):
             "competency_id": cid,
             "competency_name": g["competency_name"],
             "domain": g["domain"],
-            "current_score": score_val,
+            "current_score": comp_score,
             "target_score": target,
             "gap": gap,
-            "status": status,
+            "status": comp_status,
             "questions_total": g["total"],
             "questions_correct": g["correct"],
-            "accuracy_percent": score_val
+            "accuracy_percent": accuracy_val,
+            "estimated_competency": comp_score,
+            "evidence_count": evidence_count,
+            "evidence_level": evidence_level,
+            "confidence": conf
         })
 
     total_incorrect = max(0, total_questions - total_correct)
@@ -625,6 +600,7 @@ def get_assessment_result(db: Session, assessment_id: int, user_id: int = None):
         "source_material_id": assessment.source_material_id,
         "source_material_title": assessment.source_material.title if assessment.source_material else None,
         "material_scope": assessment.source_material.material_scope if assessment.source_material else None,
+        "is_official": bool(assessment.assessment_type != "material_quiz" or (assessment.source_material and assessment.source_material.material_scope == "OFFICIAL_COMPETENCY")),
         "overall_readiness": overall_readiness,
         "overall_score": overall_readiness,
         "total_questions": total_questions,

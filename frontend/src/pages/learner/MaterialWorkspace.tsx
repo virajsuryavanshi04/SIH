@@ -30,6 +30,10 @@ import {
   ChevronUp,
   ExternalLink,
   X,
+  Video,
+  GraduationCap,
+  Globe,
+  FlaskConical,
 } from 'lucide-react';
 
 type GenerationStatus = 'generating' | 'ready' | 'failed' | null;
@@ -93,12 +97,14 @@ export default function MaterialWorkspace() {
   const [quizType, setQuizType] = useState<string>('MIXED');
   const [isStartingQuiz, setIsStartingQuiz] = useState(false);
   const [quizError, setQuizError] = useState<string | null>(null);
+  const [adaptiveCalibration, setAdaptiveCalibration] = useState<boolean>(true);
 
   // History panel toggle
   const [showHistory, setShowHistory] = useState(false);
 
-  // Related courses
+  // Related recommendations
   const [relatedCourses, setRelatedCourses] = useState<any[]>([]);
+  const [learningRecommendations, setLearningRecommendations] = useState<any>(null);
 
   // Polling ref
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -118,10 +124,20 @@ export default function MaterialWorkspace() {
   useEffect(() => {
     if (id) {
       fetchWorkspace();
-      // Fetch related courses
+      // Fetch related courses / recommendations
       materialApi.getRelatedCourses(id)
-        .then(res => setRelatedCourses(res.data || []))
-        .catch(() => setRelatedCourses([]));
+        .then(res => {
+          if (Array.isArray(res.data)) {
+            setRelatedCourses(res.data);
+          } else if (res.data) {
+            setLearningRecommendations(res.data);
+            setRelatedCourses(res.data.official_courses || []);
+          }
+        })
+        .catch(() => {
+          setRelatedCourses([]);
+          setLearningRecommendations(null);
+        });
     }
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
@@ -143,6 +159,19 @@ export default function MaterialWorkspace() {
       pollRef.current = null;
     }
   }, [workspace, fetchWorkspace]);
+
+  // Auto-fetch viewer content when generation completes while viewer is open
+  useEffect(() => {
+    if (!workspace || !activeViewer || loadingViewer) return;
+    const gs = workspace.generation_state;
+    const readyKey = activeViewer === 'mindmap' ? 'mind_map' : activeViewer;
+    if (gs[readyKey] === 'ready') {
+      const needsData = !viewerData || (activeViewer === 'notes' && (!viewerData.sections || viewerData.sections.length === 0));
+      if (needsData) {
+        handleViewContent(activeViewer);
+      }
+    }
+  }, [workspace, activeViewer, viewerData, loadingViewer]);
 
   const handleGenerate = async (type: 'notes' | 'flashcards' | 'mindmap') => {
     try {
@@ -169,6 +198,7 @@ export default function MaterialWorkspace() {
   const handleViewContent = async (type: 'notes' | 'flashcards' | 'mindmap') => {
     setActiveViewer(type);
     setLoadingViewer(true);
+    setError(null);
     try {
       if (type === 'notes') {
         const res = await materialApi.getNotes(id);
@@ -182,7 +212,9 @@ export default function MaterialWorkspace() {
       }
     } catch (err: any) {
       setViewerData(null);
-      setError(err.response?.data?.detail || `Failed to load ${type}.`);
+      if (err.response?.status !== 404) {
+        setError(err.response?.data?.detail || `Failed to load ${type}.`);
+      }
     } finally {
       setLoadingViewer(false);
     }
@@ -194,14 +226,16 @@ export default function MaterialWorkspace() {
       setQuizError(null);
       const res = await materialApi.startQuiz(id, {
         question_count: quizCount,
-        question_type: quizType
+        question_type: quizType,
+        adaptive_mode: adaptiveCalibration
       });
       setShowQuizConfig(false);
       navigate(`/quiz/${res.data.assessment_id}`, {
         state: {
           questions: res.data.questions,
           assessmentId: res.data.assessment_id,
-          assessmentType: 'material_quiz'
+          assessmentType: 'material_quiz',
+          totalQuestions: res.data.total_questions || res.data.total_steps || quizCount
         }
       });
     } catch (err: any) {
@@ -642,14 +676,20 @@ export default function MaterialWorkspace() {
         )}
       </Card>
 
-      {/* Related Courses (conditional) */}
-      {relatedCourses.length > 0 && (
+      {/* Two-Layer Recommendation: Layer 1 (Document-Level Generic Recommendations) */}
+      {/* 1A: Official Competency Material -> Related Official Courses */}
+      {material.material_scope === 'OFFICIAL_COMPETENCY' && relatedCourses.length > 0 && (
         <Card className="bg-[#FFFDF9] border-[#E2DDD5] shadow-sm">
           <CardHeader>
-            <CardTitle className="text-sm font-black text-[#292B2B] flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[#A85D4C]" />
-              Related Official Courses
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-black text-[#292B2B] flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#A85D4C]" />
+                Related Official Courses
+              </CardTitle>
+              <span className="text-[10px] font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-200">
+                Official iGOT Modules
+              </span>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {relatedCourses.map((course: any) => (
@@ -673,36 +713,117 @@ export default function MaterialWorkspace() {
         </Card>
       )}
 
+      {/* 1B: User-Uploaded / Other Learning Material -> Document-Level External Learning Resources */}
+      {material.material_scope !== 'OFFICIAL_COMPETENCY' && learningRecommendations?.external_learning_resources?.length > 0 && (
+        <Card className="bg-[#FFFDF9] border-[#E2DDD5] shadow-sm">
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <CardTitle className="text-sm font-black text-[#292B2B] flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#A85D4C]" />
+                  Recommended Learning Resources for this Material
+                </CardTitle>
+                <p className="text-[11px] text-[#7A756E] mt-0.5">
+                  Curated external educational resources covering {learningRecommendations.subject || material.title} across video, structured course, reading, and practice modalities.
+                </p>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-[#A85D4C] bg-[#A85D4C]/10 px-2.5 py-1 rounded-md self-start sm:self-auto border border-[#A85D4C]/20">
+                Document-Level Overview
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {learningRecommendations.external_learning_resources.map((item: any, idx: number) => {
+                const categoryMeta: Record<string, { label: string; icon: any; badge: string }> = {
+                  YOUTUBE: { label: 'YouTube Video', icon: Video, badge: 'bg-red-50 text-red-700 border-red-200' },
+                  COURSE: { label: 'Structured Course', icon: GraduationCap, badge: 'bg-blue-50 text-blue-700 border-blue-200' },
+                  ARTICLE: { label: 'Article / Guide', icon: Globe, badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                  OPEN_TEXTBOOK: { label: 'Open Textbook', icon: BookOpen, badge: 'bg-amber-50 text-amber-800 border-amber-200' },
+                  PRACTICE: { label: 'Practice Resource', icon: FlaskConical, badge: 'bg-purple-50 text-purple-700 border-purple-200' }
+                };
+                const meta = categoryMeta[item.category] || { 
+                  label: item.category_display || item.category, 
+                  icon: BookOpen, 
+                  badge: 'bg-[#A85D4C]/10 text-[#A85D4C] border-[#A85D4C]/20' 
+                };
+                const IconComp = meta.icon;
+
+                return (
+                  <div 
+                    key={idx} 
+                    className="p-4 rounded-xl bg-[#FFFDF9] border border-[#E2DDD5] flex flex-col justify-between space-y-3 shadow-2xs hover:border-[#A85D4C]/40 hover:shadow-xs transition-all"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={cn("text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border flex items-center gap-1", meta.badge)}>
+                          <IconComp className="w-3 h-3" />
+                          <span>{meta.label}</span>
+                        </span>
+                        <span className="text-[10px] font-mono text-[#7A756E] truncate max-w-[130px]" title={item.provider}>
+                          {item.provider}
+                        </span>
+                      </div>
+                      <h5 className="font-bold text-xs text-[#292B2B] leading-snug line-clamp-2">
+                        {item.title}
+                      </h5>
+                      <p className="text-[11px] text-[#7A756E] leading-relaxed line-clamp-3">
+                        {item.reason}
+                      </p>
+                    </div>
+
+                    <a 
+                      href={item.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="block mt-2 pt-2 border-t border-[#E2DDD5]"
+                    >
+                      <Button 
+                        size="sm" 
+                        className="w-full text-xs font-semibold bg-[#2D3030] text-[#FFFDF9] hover:bg-[#A85D4C] h-7 rounded-lg cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>Open Resource</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Button>
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quiz Config Modal */}
       {showQuizConfig && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2DDD5]">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-md sm:max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-5 pb-3 border-b border-[#E2DDD5] shrink-0 bg-[#FFFDF9]">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-[#292B2B]">Personal Adaptive Material Quiz</h3>
-                  <p className="text-[11px] font-mono text-[#7A756E]">{material.title}</p>
+                  <p className="text-[11px] font-mono text-[#7A756E] truncate max-w-xs">{material.title}</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowQuizConfig(false)}
-                className="text-[#7A756E] hover:text-[#2D3030] cursor-pointer"
+                className="text-[#7A756E] hover:text-[#2D3030] p-1 rounded-lg hover:bg-[#EFEBE4] transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {quizError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{quizError}</span>
-              </div>
-            )}
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1 min-h-0 space-y-4 text-xs">
+              {quizError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{quizError}</span>
+                </div>
+              )}
 
-            <div className="space-y-4 text-xs">
               {/* Question Type Selection */}
               <div className="space-y-2">
                 <label className="font-mono uppercase font-bold text-[#292B2B] block">Question Format</label>
@@ -718,7 +839,7 @@ export default function MaterialWorkspace() {
                       type="button"
                       onClick={() => setQuizType(t.id)}
                       className={cn(
-                        "p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between",
+                        "p-2.5 sm:p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between",
                         quizType === t.id
                           ? "border-[#A85D4C] bg-[#A85D4C]/10 text-[#292B2B]"
                           : "border-[#E2DDD5] bg-[#FFFDF9] text-[#7A756E] hover:border-[#292B2B]"
@@ -753,22 +874,33 @@ export default function MaterialWorkspace() {
                 </div>
               </div>
 
-              {/* Adaptive Calibration Note */}
+              {/* Adaptive Calibration Toggle */}
               <div className="p-3 bg-[#EFEBE4]/60 border border-[#E2DDD5] rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#A85D4C]" />
                   <div>
                     <span className="font-bold text-[#292B2B] block text-[11px]">Adaptive Calibration</span>
-                    <span className="text-[10px] text-[#7A756E] block">Difficulty adjusts dynamically to learner performance</span>
+                    <span className="text-[10px] text-[#7A756E] block">
+                      {adaptiveCalibration ? "Difficulty adjusts dynamically to learner performance" : "Fixed sequential question delivery without calibration"}
+                    </span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-[#A85D4C]/15 text-[#A85D4C]">
-                  Active
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setAdaptiveCalibration(prev => !prev)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer",
+                    adaptiveCalibration
+                      ? "bg-[#A85D4C]/15 text-[#A85D4C] hover:bg-[#A85D4C]/25"
+                      : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                  )}
+                >
+                  {adaptiveCalibration ? "Active" : "Disabled"}
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E2DDD5]">
+            <div className="flex items-center justify-end gap-2 p-4 sm:p-5 pt-3 border-t border-[#E2DDD5] shrink-0 bg-[#EFEBE4]/20">
               <Button
                 variant="outline"
                 size="sm"
@@ -803,9 +935,9 @@ export default function MaterialWorkspace() {
 
       {/* Content Viewer Modal */}
       {activeViewer && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-150 my-8">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#FFFDF9] border border-[#E2DDD5] rounded-2xl max-w-3xl lg:max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 sm:px-6 py-3.5 shrink-0 bg-[#FFFDF9]">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleViewContent('notes')}
@@ -835,71 +967,73 @@ export default function MaterialWorkspace() {
                   <GitBranch className="w-3.5 h-3.5" /> Mind Map
                 </button>
               </div>
-              <button onClick={() => { setActiveViewer(null); setViewerData(null); }} className="text-[#7A756E] hover:text-[#2D3030] cursor-pointer">
+              <button onClick={() => { setActiveViewer(null); setViewerData(null); }} className="text-[#7A756E] hover:text-[#2D3030] p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {loadingViewer ? (
-              <div className="py-16 text-center">
-                <Loader2 className="w-8 h-8 text-[#A85D4C] animate-spin mx-auto mb-3" />
-                <p className="text-sm text-[#7A756E]">Loading content...</p>
-              </div>
-            ) : !viewerData ? (
-              <div className="py-16 text-center space-y-3">
-                <AlertCircle className="w-8 h-8 text-[#7A756E]/40 mx-auto" />
-                <p className="text-sm text-[#7A756E]">No content available yet. Generate it first.</p>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setActiveViewer(null);
-                    handleGenerate(activeViewer as 'notes' | 'flashcards' | 'mindmap');
-                  }}
-                  className="bg-[#A85D4C] text-[#FFFDF9] text-xs cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5 mr-1" />Generate Now
-                </Button>
-              </div>
-            ) : (
-              <>
-                {activeViewer === 'notes' && (
-                  <NotesViewer
-                    materialId={material.id}
-                    materialTitle={material.title}
-                    materialScope={material.material_scope}
-                    competencyName={material.competency_name || undefined}
-                    topicName={material.topic_name || undefined}
-                    initialData={viewerData}
-                    onRegenerate={async () => { handleGenerate('notes'); }}
-                    isGenerating={generation_state.notes === 'generating'}
-                  />
-                )}
-                {activeViewer === 'flashcards' && (
-                  <FlashcardDeck
-                    materialId={material.id}
-                    materialTitle={material.title}
-                    materialScope={material.material_scope}
-                    competencyName={material.competency_name || undefined}
-                    topicName={material.topic_name || undefined}
-                    initialData={viewerData}
-                    onRegenerate={async () => { handleGenerate('flashcards'); }}
-                    isGenerating={generation_state.flashcards === 'generating'}
-                  />
-                )}
-                {activeViewer === 'mindmap' && (
-                  <MindMapViewer
-                    materialId={material.id}
-                    materialTitle={material.title}
-                    materialScope={material.material_scope}
-                    competencyName={material.competency_name || undefined}
-                    topicName={material.topic_name || undefined}
-                    initialData={viewerData}
-                    onRegenerate={async () => { handleGenerate('mindmap'); }}
-                    isGenerating={generation_state.mind_map === 'generating'}
-                  />
-                )}
-              </>
-            )}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 min-h-0 bg-[#FFFDF9]/60">
+              {loadingViewer ? (
+                <div className="py-16 text-center">
+                  <Loader2 className="w-8 h-8 text-[#A85D4C] animate-spin mx-auto mb-3" />
+                  <p className="text-sm text-[#7A756E]">Loading content...</p>
+                </div>
+              ) : !viewerData ? (
+                <div className="py-16 text-center space-y-3">
+                  <AlertCircle className="w-8 h-8 text-[#7A756E]/40 mx-auto" />
+                  <p className="text-sm text-[#7A756E]">No content available yet. Generate it first.</p>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setActiveViewer(null);
+                      handleGenerate(activeViewer as 'notes' | 'flashcards' | 'mindmap');
+                    }}
+                    className="bg-[#A85D4C] text-[#FFFDF9] text-xs cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 mr-1" />Generate Now
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {activeViewer === 'notes' && (
+                    <NotesViewer
+                      materialId={material.id}
+                      materialTitle={material.title}
+                      materialScope={material.material_scope}
+                      competencyName={material.competency_name || undefined}
+                      topicName={material.topic_name || undefined}
+                      initialData={viewerData}
+                      onRegenerate={async () => { handleGenerate('notes'); }}
+                      isGenerating={generation_state.notes === 'generating'}
+                    />
+                  )}
+                  {activeViewer === 'flashcards' && (
+                    <FlashcardDeck
+                      materialId={material.id}
+                      materialTitle={material.title}
+                      materialScope={material.material_scope}
+                      competencyName={material.competency_name || undefined}
+                      topicName={material.topic_name || undefined}
+                      initialData={viewerData}
+                      onRegenerate={async () => { handleGenerate('flashcards'); }}
+                      isGenerating={generation_state.flashcards === 'generating'}
+                    />
+                  )}
+                  {activeViewer === 'mindmap' && (
+                    <MindMapViewer
+                      materialId={material.id}
+                      materialTitle={material.title}
+                      materialScope={material.material_scope}
+                      competencyName={material.competency_name || undefined}
+                      topicName={material.topic_name || undefined}
+                      initialData={viewerData}
+                      onRegenerate={async () => { handleGenerate('mindmap'); }}
+                      isGenerating={generation_state.mind_map === 'generating'}
+                    />
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

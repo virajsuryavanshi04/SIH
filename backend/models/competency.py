@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Float
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Float, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -12,6 +12,7 @@ class Competency(Base):
     category = Column(String(100), nullable=True)
     domain = Column(String(100), nullable=True)
     level = Column(String(50), nullable=False, default="intermediate")
+    is_official = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

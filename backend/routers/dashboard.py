@@ -51,8 +51,9 @@ def get_learner_dashboard(db: Session = Depends(get_db), current_user: User = De
     ]
 
     action = "Complete baseline diagnostic"
-    if gaps and gaps[0]["gap"] > 0:
-        action = f"Focus on {gaps[0]['competency_name']} (Deficit: -{gaps[0]['gap']}%)"
+    assessed_deficits = [g for g in gaps if g.get("gap") is not None and g["gap"] > 0]
+    if assessed_deficits:
+        action = f"Focus on {assessed_deficits[0]['competency_name']} (Deficit: -{assessed_deficits[0]['gap']}%)"
 
     return {
         "user_name": current_user.full_name or "Statistical Officer",

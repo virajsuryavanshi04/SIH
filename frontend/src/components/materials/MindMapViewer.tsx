@@ -42,14 +42,14 @@ const TreeNode: React.FC<{ node: MindMapNode; depth: number; isRoot?: boolean }>
   const hasChildren = node.children && node.children.length > 0;
 
   const getDepthStyle = () => {
-    if (isRoot) return 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-md text-base px-4 py-2.5';
-    if (depth === 1) return 'bg-white text-indigo-900 border-indigo-200 font-semibold shadow-xs text-sm px-3.5 py-2';
-    if (depth === 2) return 'bg-slate-50 text-slate-800 border-slate-200 font-medium text-xs px-3 py-1.5';
-    return 'bg-white text-slate-700 border-slate-200 text-xs px-2.5 py-1';
+    if (isRoot) return 'bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs text-sm sm:text-base px-3.5 py-1.5';
+    if (depth === 1) return 'bg-white text-indigo-900 border-indigo-200 font-semibold shadow-xs text-xs sm:text-sm px-3 py-1';
+    if (depth === 2) return 'bg-slate-50 text-slate-800 border-slate-200 font-medium text-xs px-2.5 py-1';
+    return 'bg-white text-slate-700 border-slate-200 text-xs px-2 py-0.5';
   };
 
   return (
-    <div className="flex items-start my-1.5">
+    <div className="flex items-start my-1">
       <div className="flex flex-col items-start">
         <div
           onClick={() => hasChildren && setExpanded(!expanded)}
@@ -69,7 +69,7 @@ const TreeNode: React.FC<{ node: MindMapNode; depth: number; isRoot?: boolean }>
         </div>
 
         {hasChildren && expanded && (
-          <div className="pl-6 border-l-2 border-indigo-100 ml-4 mt-2 space-y-1">
+          <div className="pl-4 sm:pl-5 border-l-2 border-indigo-100 ml-3 sm:ml-4 mt-1.5 space-y-1">
             {node.children!.map((child, idx) => (
               <TreeNode key={idx} node={child} depth={depth + 1} />
             ))}
@@ -143,10 +143,10 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Info */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-4.5 shadow-xs space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
@@ -161,7 +161,7 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
                 </span>
               )}
             </div>
-            <h2 className="text-xl font-bold text-slate-900">{initialData.title || materialTitle}</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">{initialData.title || materialTitle}</h2>
           </div>
 
           {/* Viewport & Action Controls */}
@@ -170,30 +170,30 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
               <button
                 onClick={handleZoomIn}
                 title="Zoom In"
-                className="p-1.5 hover:bg-white rounded text-slate-700 transition"
+                className="p-1.5 hover:bg-white rounded text-slate-700 transition cursor-pointer"
               >
-                <ZoomIn className="w-4 h-4" />
+                <ZoomIn className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={handleZoomOut}
                 title="Zoom Out"
-                className="p-1.5 hover:bg-white rounded text-slate-700 transition"
+                className="p-1.5 hover:bg-white rounded text-slate-700 transition cursor-pointer"
               >
-                <ZoomOut className="w-4 h-4" />
+                <ZoomOut className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={handleResetZoom}
                 title="Reset Zoom"
-                className="p-1.5 hover:bg-white rounded text-slate-700 transition text-xs font-medium px-2"
+                className="p-1 hover:bg-white rounded text-slate-700 transition text-[11px] font-medium px-2 cursor-pointer"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-3 h-3" />
               </button>
             </div>
 
             <button
               onClick={handleRegenerate}
               disabled={regenerating || isGenerating}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${regenerating || isGenerating ? 'animate-spin' : ''}`} />
               {regenerating ? 'Regenerating...' : 'Regenerate'}
@@ -202,7 +202,7 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
             {onClose && (
               <button
                 onClick={onClose}
-                className="px-3.5 py-2 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+                className="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
               >
                 Close
               </button>
@@ -213,12 +213,12 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
         {(competencyName || topicName) && (
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs text-slate-600">
             {competencyName && (
-              <span className="bg-slate-100 px-2 py-1 rounded">
+              <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px]">
                 <strong>Competency:</strong> {competencyName}
               </span>
             )}
             {topicName && (
-              <span className="bg-slate-100 px-2 py-1 rounded">
+              <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px]">
                 <strong>Topic:</strong> {topicName}
               </span>
             )}
@@ -226,7 +226,7 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
         )}
 
         {errorMsg && (
-          <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs">
+          <div className="flex items-center gap-2 p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -234,7 +234,7 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
       </div>
 
       {/* Mind Map Canvas */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 min-h-[380px] overflow-auto shadow-inner">
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 h-[340px] sm:h-[400px] max-h-[50vh] overflow-auto shadow-inner">
         <div
           style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left' }}
           className="transition-transform duration-150 inline-block min-w-full"
@@ -243,7 +243,7 @@ export const MindMapViewer: React.FC<MindMapViewerProps> = ({
         </div>
       </div>
 
-      <div className="text-center text-xs text-slate-400 flex items-center justify-center gap-1.5">
+      <div className="text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-0.5">
         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
         <span>Grounded directly in {initialData.material_title || materialTitle}</span>
       </div>

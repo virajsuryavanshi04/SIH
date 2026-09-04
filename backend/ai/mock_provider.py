@@ -23,27 +23,33 @@ class MockProvider(AIProvider):
 
             # Detect requested question_type
             q_type = "MIXED"
-            if "of type short_mcq" in prompt_lower:
+            if "of type short_mcq" in prompt_lower or "format short_mcq" in prompt_lower or ("short_mcq" in prompt_lower and "word_problem" not in prompt_lower and "case_study" not in prompt_lower):
                 q_type = "SHORT_MCQ"
-            elif "of type word_problem" in prompt_lower:
+            elif "of type word_problem" in prompt_lower or "format word_problem" in prompt_lower or ("word_problem" in prompt_lower and "short_mcq" not in prompt_lower and "case_study" not in prompt_lower):
                 q_type = "WORD_PROBLEM"
-            elif "of type case_study" in prompt_lower:
+            elif "of type case_study" in prompt_lower or "format case_study" in prompt_lower or ("case_study" in prompt_lower and "short_mcq" not in prompt_lower and "word_problem" not in prompt_lower):
                 q_type = "CASE_STUDY"
-            elif "distributed across short_mcq" in prompt_lower or "4 short_mcq" in prompt_lower or "5 short_mcq" in prompt_lower or "8 short_mcq" in prompt_lower:
+            elif "distributed across" in prompt_lower or "mixed" in prompt_lower:
                 q_type = "MIXED"
 
             # Distribution calculation for MIXED
             if q_type == "MIXED":
                 if req_count == 10:
                     counts = [("SHORT_MCQ", 4), ("WORD_PROBLEM", 3), ("CASE_STUDY", 3)]
+                elif req_count == 13:
+                    counts = [("SHORT_MCQ", 5), ("WORD_PROBLEM", 4), ("CASE_STUDY", 4)]
                 elif req_count == 15:
                     counts = [("SHORT_MCQ", 5), ("WORD_PROBLEM", 5), ("CASE_STUDY", 5)]
+                elif req_count == 18:
+                    counts = [("SHORT_MCQ", 6), ("WORD_PROBLEM", 6), ("CASE_STUDY", 6)]
                 elif req_count == 20:
                     counts = [("SHORT_MCQ", 8), ("WORD_PROBLEM", 6), ("CASE_STUDY", 6)]
+                elif req_count == 24:
+                    counts = [("SHORT_MCQ", 9), ("WORD_PROBLEM", 8), ("CASE_STUDY", 7)]
                 else:
-                    sm = int(req_count * 0.4)
-                    wp = int(req_count * 0.3)
-                    cs = req_count - sm - wp
+                    sm = max(1, int(req_count * 0.4))
+                    wp = max(1, int(req_count * 0.3))
+                    cs = max(1, req_count - sm - wp)
                     counts = [("SHORT_MCQ", sm), ("WORD_PROBLEM", wp), ("CASE_STUDY", cs)]
             else:
                 counts = [(q_type, req_count)]
@@ -450,6 +456,7 @@ class MockProvider(AIProvider):
         # 6. Mind Map Generation
         elif "mind map" in prompt_lower or "mindmap" in prompt_lower or "concept map" in prompt_lower:
             is_tcp_udp = "tcp" in prompt_lower and "udp" in prompt_lower
+            is_cpp = "c++" in prompt_lower or "cpp" in prompt_lower or "c plus plus" in prompt_lower
             if is_tcp_udp:
                 return json.dumps({
                     "label": "Transport Protocols",
@@ -466,6 +473,40 @@ class MockProvider(AIProvider):
                             "children": [
                                 {"label": "Connectionless", "children": []},
                                 {"label": "Low Latency", "children": []}
+                            ]
+                        }
+                    ]
+                })
+            elif is_cpp:
+                return json.dumps({
+                    "label": "C++ Programming Language",
+                    "children": [
+                        {
+                            "label": "Foundations & Syntax",
+                            "children": [
+                                {"label": "Data Types & Variables", "children": []},
+                                {"label": "Control Structures & Loops", "children": []}
+                            ]
+                        },
+                        {
+                            "label": "Memory Management",
+                            "children": [
+                                {"label": "Pointers & References", "children": []},
+                                {"label": "Dynamic Allocation (new/delete)", "children": []}
+                            ]
+                        },
+                        {
+                            "label": "Object-Oriented Programming",
+                            "children": [
+                                {"label": "Classes & Encapsulation", "children": []},
+                                {"label": "Inheritance & Polymorphism", "children": []}
+                            ]
+                        },
+                        {
+                            "label": "Standard Template Library (STL)",
+                            "children": [
+                                {"label": "Containers (vector, map)", "children": []},
+                                {"label": "Algorithms & Iterators", "children": []}
                             ]
                         }
                     ]
